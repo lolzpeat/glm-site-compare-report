@@ -17,6 +17,39 @@ marked.setOptions({
   mangle: false,
 });
 
+// --- Post-process: make checkboxes interactive + convert table [ ]/[x] ---
+// marked renders GFM task lists as <input disabled="" type="checkbox">.
+// We want them clickable + persisted in localStorage, so strip "disabled".
+// Table cells contain literal "[ ]" / "[x]" text — convert to real checkboxes.
+function makeCheckboxesInteractive(html, slug) {
+  let out = html;
+
+  // 1. Task list items: enable disabled checkboxes and tag the <li>.
+  out = out.replace(
+    /<li><input disabled="" type="checkbox">/g,
+    '<li class="task-list-item"><input type="checkbox" class="track">'
+  );
+  out = out.replace(
+    /<li><input disabled="" type="checkbox" checked="">/g,
+    '<li class="task-list-item"><input type="checkbox" class="track" checked>'
+  );
+
+  // 2. Table cells: "[ ]" or "[x]" → real checkbox bound to a tracking id.
+  // Counter increments per matched cell, so every checkbox is unique.
+  let tableCounter = 0;
+  out = out.replace(/<table>([\s\S]*?)<\/table>/g, (match, tableContent) => {
+    if (!/\[ \]|\[x\]/.test(tableContent)) return match; // no checkbox in this table
+    const newTable = tableContent.replace(/<td>(\s*\[( |x)\]\s*)<\/td>/g, (m, _full, mark) => {
+      const checked = mark === 'x' ? ' checked' : '';
+      const id = `${slug}-tbl-${tableCounter++}`;
+      return `<td><input type="checkbox" class="track" data-id="${id}"${checked}></td>`;
+    });
+    return `<table>${newTable}</table>`;
+  });
+
+  return out;
+}
+
 // --- Source files to build, in sidebar order ---
 const SOURCES = [
   { md: 'README.md',                title: 'Home' },
@@ -66,7 +99,8 @@ function buildPage(src) {
   }
 
   const markdown = fs.readFileSync(fullPath, 'utf8');
-  const bodyHtml = marked.parse(markdown);
+  let bodyHtml = marked.parse(markdown);
+  bodyHtml = makeCheckboxesInteractive(bodyHtml, slug);
   const sidebar = buildSidebar(slug);
 
   // Top "prev/next" navigation
@@ -95,6 +129,31 @@ function buildPage(src) {
     </article>
     ${footerNav}
   </main>
+  <script>
+  (function () {
+    // Persist checkbox state in localStorage. Keyed per-page (slug) so
+    // each page's checkboxes are independent. Task-list items use their
+    // DOM order; table checkboxes use data-id (slug-tbl-N).
+    var slug = ${JSON.stringify(slug)};
+    var store;
+    try { store = JSON.parse(localStorage.getItem('track:' + slug) || '{}'); }
+    catch (e) { store = {}; }
+    var listIdx = 0;
+
+    document.querySelectorAll('input.track').forEach(function (cb) {
+      var key = cb.dataset.id || ('li-' + (listIdx++));
+
+      // 1. Restore saved state (overrides initial markdown state).
+      if (key in store) cb.checked = !!store[key];
+
+      // 2. Save on click.
+      cb.addEventListener('change', function () {
+        store[key] = cb.checked;
+        localStorage.setItem('track:' + slug, JSON.stringify(store));
+      });
+    });
+  })();
+  </script>
 </body>
 </html>`;
 }
