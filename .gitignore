@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Generated HTML site (rebuilt from markdown via tools/build-html.js)
+site/
+
 # Logs
 *.log
 npm-debug.log*

@@ -32,3 +32,16 @@
 ## 📖 Spec
 
 ดู design เต็มที่ `docs/superpowers/specs/2026-06-30-learning-api-design.md`
+
+## 🌐 ดูเนื้อหาเป็นเว็บ (HTML)
+
+เนื้อหาทุกหน้าแปลงเป็น HTML สวยๆ พร้อม sidebar นำทาง อ่านง่ายใน browser:
+
+```bash
+cd tools && npm install      # ครั้งแรกเท่านั้น
+cd .. && node tools/build-html.js   # build → ได้โฟลเดอร์ site/
+```
+
+แล้วเปิด `site/index.html` ใน browser
+
+> แก้ `.md` แล้วรัน `node tools/build-html.js` ใหม่ก็อัปเดต — `site/` ถูก `.gitignore` (เป็น output generated ไม่ต้อง commit)
