@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Generated data (regenerate via: npm run fetch && npm run compare)
+data/urls.csv
+data/results.json
+data/screenshots/
+
+# Generated reports (regenerate via: npm run dashboard)
+output/
+
+# OS / editor
+.DS_Store
+*.log
