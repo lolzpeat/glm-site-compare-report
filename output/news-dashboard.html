@@ -1,0 +1,344 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="utf-8">
+<title>BBL Migration Parity Dashboard</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,"Segoe UI","Sukhumvit Set",Roboto,sans-serif; color:#1a1a1a; background:#f4f5f7; line-height:1.5; }
+.topnav { display:flex; gap:4px; background:#1a2b5c; padding:0 40px; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+.topnav a { color:rgba(255,255,255,.7); text-decoration:none; padding:12px 18px; font-size:14px; font-weight:500; border-bottom:3px solid transparent; transition:all .15s; }
+.topnav a:hover { color:#fff; background:rgba(255,255,255,.1); }
+.topnav a.active { color:#fff; border-bottom-color:#4dabf7; font-weight:600; }
+.wrap { max-width:1200px; margin:0 auto; padding:32px 40px; }
+h1 { font-size:22px; color:#1a2b5c; }
+h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
+.meta { color:#777; font-size:12px; margin-top:3px; }
+.panel { background:#fff; border-radius:10px; padding:18px 20px; margin:14px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.foot { margin-top:30px; padding-top:14px; border-top:1px solid #e0e0e0; color:#999; font-size:11px; text-align:center; }
+.muted { color:#aaa; }
+.err { color:#c00; font-weight:600; }
+.parity-good { color:#1a6b3c; } .parity-mid { color:#b8860b; } .parity-bad { color:#c00; }
+.tag { padding:2px 7px; border-radius:4px; font-size:10px; font-weight:700; color:#fff; margin-right:5px; }
+.tag.src { background:#1a2b5c; } .tag.tgt { background:#8a5a00; }
+.bad { color:#c00; font-weight:700; }
+.ok { color:#1a6b3c; font-weight:700; }
+
+/* Parity check expandable blocks */
+.checks-list { display:flex; flex-direction:column; gap:6px; }
+.check-block { border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; }
+.check-block.failed { border-color:#f5c2c2; background:#fffafa; }
+.check-block.passed { border-color:#c3e6cb; background:#f8fff9; }
+.check-block summary { cursor:pointer; padding:10px 14px; display:flex; align-items:center; gap:10px; font-size:13px; list-style:none; }
+.check-block summary::-webkit-details-marker { display:none; }
+.check-status { font-weight:700; width:18px; text-align:center; }
+.check-status.ok { color:#1a6b3c; } .check-status.bad { color:#c00; }
+.check-label { font-weight:600; min-width:130px; }
+.check-weight { background:#1a2b5c; color:#fff; font-size:10px; padding:1px 6px; border-radius:3px; }
+.check-detail { color:#666; font-size:12px; flex:1; }
+.expand-hint { color:#1a2b5c; font-size:11px; font-weight:600; white-space:nowrap; }
+.diff-body { padding:0 14px 12px; border-top:1px solid #f0f0f0; }
+.diff-section { padding:8px 0; }
+.diff-title { font-size:12px; font-weight:600; margin-bottom:6px; }
+.diff-title.bad { color:#c00; } .diff-title.ok { color:#1a6b3c; }
+.chip-list { display:flex; flex-wrap:wrap; gap:5px; }
+.chip { font-size:11px; padding:3px 8px; border-radius:4px; background:#f0f1f3; color:#555; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chip-missing { background:#fde8e8; color:#c00; }
+.chip-extra { background:#e6f4ea; color:#1a6b3c; }
+.chip-empty { background:#fff4e0; color:#8a5a00; }
+
+/* Heading outline side-by-side */
+.outline-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.outline-col { border:1px solid #e0e0e0; border-radius:6px; overflow:hidden; }
+.outline-head { padding:7px 10px; font-size:11px; font-weight:700; color:#fff; }
+.outline-head.src { background:#1a2b5c; } .outline-head.tgt { background:#8a5a00; }
+.outline-body { padding:6px 4px; max-height:500px; overflow-y:auto; }
+.outline-empty { padding:16px; color:#aaa; text-align:center; font-size:12px; }
+.hrow { display:flex; align-items:center; gap:5px; padding:2px 6px; font-size:12px; border-radius:3px; }
+.hrow-matched { background:transparent; }
+.hrow-missing { background:#fde8e8; }
+.htag { font-size:9px; font-weight:700; padding:1px 4px; border-radius:2px; min-width:22px; text-align:center; color:#fff; }
+.htag-H1 { background:#1a2b5c; } .htag-H2 { background:#2d4a8a; } .htag-H3 { background:#5b7bb5; } .htag-H4 { background:#8aa0c8; color:#1a2b5c; }
+.hicon { font-weight:700; width:14px; text-align:center; }
+.hrow-matched .hicon { color:#1a6b3c; } .hrow-missing .hicon { color:#c00; }
+.htext { flex:1; word-break:break-word; }
+.outline-legend { margin-top:8px; font-size:11px; color:#666; }
+
+/* Link rows */
+.lrow { display:flex; align-items:center; gap:5px; padding:2px 6px; font-size:12px; border-radius:3px; }
+.lrow-matched { background:transparent; }
+.lrow-missing { background:#fde8e8; }
+.ltext { flex:1; word-break:break-word; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lhref { font-size:10px; color:#5b7bb5; font-family:monospace; text-decoration:none; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lhref:hover { text-decoration:underline; }
+
+/* Content text sample + keywords */
+.text-sample { padding:10px; font-size:11px; line-height:1.5; white-space:pre-wrap; word-break:break-word; background:#fafbfc; max-height:250px; overflow-y:auto; color:#444; }
+.kw-body { padding:8px; max-height:250px; overflow-y:auto; }
+.kw { display:inline-block; font-size:11px; padding:2px 7px; border-radius:3px; margin:2px; }
+.kw em { font-style:normal; font-weight:700; font-size:10px; opacity:.7; }
+.kw-shared { background:#e6f4ea; color:#1a6b3c; }
+.kw-missing { background:#fde8e8; color:#c00; }
+.meta-diff { width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
+.meta-diff th, .meta-diff td { padding:5px 8px; border:1px solid #eee; text-align:left; vertical-align:top; }
+.meta-diff th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
+.meta-diff code { font-size:11px; }
+
+.cards { display:flex; gap:12px; margin:16px 0; }
+.card { flex:1; background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.card .num { font-size:28px; font-weight:800; color:#1a2b5c; }
+.card .num.good { color:#1a6b3c; } .card .num.mid { color:#b8860b; } .card .num.bad { color:#c00; }
+.card .num .pct { font-size:14px; }
+.card.big .num { font-size:42px; }
+.card .lbl { font-size:11px; color:#888; margin-top:2px; }
+.warn-banner { background:#fff3cd; border:1px solid #ffe69c; border-radius:8px; padding:12px 16px; margin:12px 0; font-size:13px; color:#664d03; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.bars { display:flex; flex-direction:column; gap:8px; }
+.bar-row { display:flex; align-items:center; gap:10px; font-size:13px; }
+.bar-lbl { width:55px; text-align:right; color:#666; }
+.bar-track { flex:1; background:#eee; border-radius:4px; height:22px; overflow:hidden; }
+.bar-fill { background:#1a2b5c; height:100%; border-radius:4px; transition:width .4s; }
+.bar-val { width:30px; font-weight:700; }
+.cat-table { width:100%; border-collapse:collapse; font-size:13px; }
+.cat-table th, .cat-table td { padding:6px 8px; border-bottom:1px solid #eee; text-align:left; }
+.cat-table th { color:#888; font-weight:600; font-size:11px; text-transform:uppercase; }
+.toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:12px; flex-wrap:wrap; }
+.filters { display:flex; gap:8px; align-items:center; font-size:13px; }
+.filters input[type=search] { padding:5px 9px; border:1px solid #ddd; border-radius:5px; width:200px; }
+.filters select { padding:5px 9px; border:1px solid #ddd; border-radius:5px; }
+.cb { font-size:12px; color:#666; }
+.pages-table { width:100%; border-collapse:collapse; font-size:13px; }
+.pages-table th { background:#1a2b5c; color:#fff; padding:8px 10px; text-align:left; font-weight:600; font-size:12px; }
+.pages-table th.sortable { cursor:pointer; user-select:none; }
+.pages-table th.sortable:hover { background:#243a7a; }
+.pages-table td { padding:7px 10px; border-bottom:1px solid #eee; }
+.pages-table tr.row { cursor:pointer; transition:background .1s; }
+.pages-table tr.row:hover { background:#eef2ff; }
+.pages-table td.path { font-family:monospace; font-size:11px; max-width:420px; word-break:break-all; }
+.gapn { color:#c00; }
+.badge { padding:2px 7px; border-radius:4px; font-size:10px; font-weight:700; color:#fff; }
+.badge.pass { background:#16a34a; } .badge.warn { background:#ca8a04; } .badge.fail { background:#dc2626; }
+.badge.prod404 { background:#6366f1; } .badge.aem404 { background:#ea580c; } .badge.both404 { background:#1f2937; }
+.badge.blocked { background:#7c3aed; }
+.row-num { color:#aaa; font-size:11px; text-align:center; width:32px; }
+.pagination { display:flex; align-items:center; gap:4px; justify-content:center; margin-top:12px; padding-top:10px; border-top:1px solid #eee; flex-wrap:wrap; }
+.page-info { font-size:12px; color:#888; margin-right:8px; }
+.page-btn { padding:4px 9px; border:1px solid #ddd; border-radius:4px; background:#fff; cursor:pointer; font-size:12px; min-width:30px; }
+.page-btn:hover:not(:disabled) { background:#1a2b5c; color:#fff; border-color:#1a2b5c; }
+.page-btn.active { background:#1a2b5c; color:#fff; border-color:#1a2b5c; font-weight:700; }
+.page-btn:disabled { opacity:.4; cursor:default; }
+.page-ellipsis { color:#aaa; padding:0 2px; }
+</style></head><body>
+<nav class="topnav">
+  <a href="dashboard.html" class="">📊 Dashboard หลัก</a>
+  <a href="news-dashboard.html" class="active">📰 News & Media</a>
+  <a href="criteria.html">📋 เกณฑ์ตรวจจับ</a>
+</nav>
+<div class="wrap">
+
+<header>
+  <h1>Bangkok Bank — AEM Migration Parity Dashboard · NEWS</h1>
+  <p class="meta">เป้าหมาย: AEM ต้องเหมือน Production มากที่สุด · 20 หน้า · 3/7/2569 17:21:38</p>
+</header>
+
+<section class="cards">
+  <div class="card big"><div class="num">69<span class="pct">%</span></div><div class="lbl">PARITY เฉลี่ย</div></div>
+  <div class="card"><div class="num good">0</div><div class="lbl">PASS (≥85)</div></div>
+  <div class="card"><div class="num mid">19</div><div class="lbl">REVIEW (50–84)</div></div>
+  <div class="card"><div class="num bad">1</div><div class="lbl">FAIL (&lt;50)</div></div>
+  <div class="card"><div class="num good">0</div><div class="lbl">AEM LOW CONTENT</div></div>
+  <div class="card"><div class="num">20</div><div class="lbl">TOTAL</div></div>
+</section>
+
+
+<section class="two-col">
+  <div class="panel">
+    <h2>Parity Distribution</h2>
+    <div class="bars">
+      
+        <div class="bar-row">
+          <span class="bar-lbl">90-100</span>
+          <div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>
+          <span class="bar-val">0</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-lbl">75-89</span>
+          <div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>
+          <span class="bar-val">0</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-lbl">50-74</span>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+          <span class="bar-val">19</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-lbl">0-49</span>
+          <div class="bar-track"><div class="bar-fill" style="width:5%"></div></div>
+          <span class="bar-val">1</span>
+        </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>By Category</h2>
+    <table class="cat-table"><thead><tr><th>Category</th><th>Pages</th><th>Avg</th><th>&lt;85</th></tr></thead>
+    <tbody><tr><td>News And Media</td><td>20</td><td class="parity-mid"><b>69</b></td><td>20</td></tr></tbody></table>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="toolbar">
+    <h2 style="margin:0">Page Detail</h2>
+    <div class="filters">
+      <input type="search" id="filter" placeholder="Filter path or category…" oninput="render()">
+      <select id="categoryFilter" onchange="onCategoryChange()">
+        <option value="">All categories</option>
+      </select>
+      <select id="subCategoryFilter" onchange="render()">
+        <option value="">All sub-categories</option>
+      </select>
+      <select id="statusFilter" onchange="render()">
+        <option value="">All statuses</option>
+        <option value="prod404">Prod 404</option>
+        <option value="aem404">AEM 404</option>
+        <option value="both404">Both 404</option>
+        <option value="blocked">Blocked</option>
+        <option value="pass">Pass</option>
+        <option value="warn">Review</option>
+        <option value="fail">Fail</option>
+      </select>
+      <label class="cb"><input type="checkbox" id="gapsOnly" onchange="render()"> Gaps only</label>
+    </div>
+  </div>
+  <table class="pages-table" id="pagesTable">
+    <thead><tr>
+      <th>#</th>
+      <th class="sortable" data-sort="parity" onclick="sortBy('parity')">Parity ↕</th>
+      <th class="sortable" data-sort="path" onclick="sortBy('path')">Page ↕</th>
+      <th class="sortable" data-sort="category" onclick="sortBy('category')">Category ↕</th>
+      <th class="sortable" data-sort="subCategory" onclick="sortBy('subCategory')">Sub-Category ↕</th>
+      <th class="sortable" data-sort="gaps" onclick="sortBy('gaps')">Gaps ↕</th>
+      <th>Status</th>
+    </tr></thead>
+    <tbody id="rowsBody"></tbody>
+  </table>
+  <div class="pagination" id="pagination"></div>
+</section>
+
+<footer class="foot">Production = source of truth · AEM = target to fix · Click any row to drill down</footer>
+</div>
+<script>
+const ROWS = [{"id":"1","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=39939202-9154-4326-B38B-4FD15AA57C79&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":2,"status":"warn","loadError":false,"lowContent":false},{"id":"2","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=3AE3CE57-9512-436B-9F18-BA198E727E2C&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":3,"status":"warn","loadError":false,"lowContent":false},{"id":"3","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=10D8F9ED-6CA0-4DD6-A611-CA5FB67065B5&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"4","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=7F87FB40-E0EC-444F-A587-0A1273B38689&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"5","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=6D4270D9-7238-4841-8F44-81DC42E88EF7&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"6","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=44AA3250-7F2A-486B-89F3-8FBA572F70EE&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"7","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=56002FFC-EC1C-4DE8-AC3F-9F302FCE0BC5&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"8","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=816C9667-0F89-4BD2-8009-A1129A249864&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"9","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=FEF8C80D-B3A1-4D61-8AD5-3E3FDBB37E47&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"10","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=AA50702B-5E62-46BC-897C-36611956F32C&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"11","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=46C7BE32-87B0-4F47-A672-691CCC764760&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"12","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=AC826BF7-3A3F-4CC4-937D-F6AD2512A3E2&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"13","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=FFBE5AB0-5F47-4FCF-8CAB-DF4D7B338C44&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"14","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=7389E9BE-C86A-43BB-BACD-22FADC3C63E2&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"15","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=4CE9F6CF-0737-44B5-B187-211BB6674FB8&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"16","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=F033BB0F-FF61-4E5A-B29C-BC13EBC181CC&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"17","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=1FB87567-71E7-489D-8B41-5437346694C8&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"18","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=D2FD1886-EA32-4907-9F3E-023868EDA298&tag=New","category":"News And Media","subCategory":"","parity":45,"gaps":5,"status":"fail","loadError":false,"lowContent":false},{"id":"19","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=9A6BED0D-1CFC-48BF-8385-2C6D5BF490E8&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false},{"id":"20","path":"/th-TH/About-Us/News-and-Media/News-Detail?id=B2E7D768-EA33-4536-9295-2A21B561E4C9&tag=New","category":"News And Media","subCategory":"","parity":70,"gaps":4,"status":"warn","loadError":false,"lowContent":false}];
+const PAGE_SIZE = 25;
+let sortKey = 'id', sortDir = 1;
+let currentPage = 1;
+let filteredRows = [];
+
+function statusBadge(s) { return {
+  pass:'<span class="badge pass">PASS</span>',
+  warn:'<span class="badge warn">REVIEW</span>',
+  fail:'<span class="badge fail">FAIL</span>',
+  prod404:'<span class="badge prod404">PROD 404</span>',
+  aem404:'<span class="badge aem404">AEM 404</span>',
+  both404:'<span class="badge both404">BOTH 404</span>',
+  blocked:'<span class="badge blocked">BLOCKED</span>',
+}[s] || ''; }
+function parityClass(p){ return p>=85?'good':p>=50?'mid':'bad'; }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// Populate category + sub-category dropdowns from data.
+(function initDropdowns() {
+  const cats = [...new Set(ROWS.map(r => r.category).filter(Boolean))].sort();
+  const catSel = document.getElementById('categoryFilter');
+  cats.forEach(c => { const o = document.createElement('option'); o.value = o.textContent = c; catSel.appendChild(o); });
+  populateSubCats('');
+})();
+
+function populateSubCats(cat) {
+  const subSel = document.getElementById('subCategoryFilter');
+  subSel.innerHTML = '<option value="">All sub-categories</option>';
+  const subs = [...new Set(ROWS.filter(r => (!cat || r.category === cat)).map(r => r.subCategory).filter(Boolean))].sort();
+  subs.forEach(s => { const o = document.createElement('option'); o.value = o.textContent = s; subSel.appendChild(o); });
+}
+
+function onCategoryChange() {
+  populateSubCats(document.getElementById('categoryFilter').value);
+  currentPage = 1;
+  render();
+}
+
+function getFiltered() {
+  const f = document.getElementById('filter').value.toLowerCase();
+  const cf = document.getElementById('categoryFilter').value;
+  const sf2 = document.getElementById('subCategoryFilter').value;
+  const sf = document.getElementById('statusFilter').value;
+  const go = document.getElementById('gapsOnly').checked;
+  let rows = ROWS.filter(r =>
+    (!f || r.path.toLowerCase().includes(f) || r.category.toLowerCase().includes(f) || r.subCategory.toLowerCase().includes(f)) &&
+    (!cf || r.category === cf) &&
+    (!sf2 || r.subCategory === sf2) &&
+    (!sf || r.status === sf) &&
+    (!go || r.gaps > 0)
+  );
+  rows.sort((a,b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (sortKey === 'id') return (parseInt(va,10) - parseInt(vb,10)) * sortDir;
+    if (typeof va === 'string') return va.localeCompare(vb) * sortDir;
+    return (va - vb) * sortDir;
+  });
+  return rows;
+}
+
+function render() {
+  filteredRows = getFiltered();
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = filteredRows.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('rowsBody').innerHTML = pageRows.map(function(r) {
+    const rowNum = start + pageRows.indexOf(r) + 1;
+    return '<tr class="row '+r.status+'" data-href="news-pages/'+r.id+'.html" style="cursor:pointer">' +
+      '<td class="row-num">'+rowNum+'</td>' +
+      '<td class="parity-'+parityClass(r.parity)+'"><b>'+r.parity+'</b></td>' +
+      '<td class="path">'+escapeHtml(r.path)+(r.loadError?' <span class="err">⚠ load error</span>':'')+(r.lowContent?' <span class="err">⚠ low content</span>':'')+'</td>' +
+      '<td>'+escapeHtml(r.category||'—')+'</td>' +
+      '<td>'+escapeHtml(r.subCategory||'—')+'</td>' +
+      '<td>'+(r.gaps>0?'<b class="gapn">'+r.gaps+'</b>':'<span class="muted">—</span>')+'</td>' +
+      '<td>'+statusBadge(r.status)+'</td>' +
+    '</tr>';
+  }).join('') || '<tr><td colspan=7 class="muted">No matching pages</td></tr>';
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const p = document.getElementById('pagination');
+  if (totalPages <= 1) { p.innerHTML = '<span class="page-info">'+filteredRows.length+' page(s)</span>'; return; }
+  let html = '<span class="page-info">'+filteredRows.length+' pages · page '+currentPage+'/'+totalPages+'</span> ';
+  html += '<button class="page-btn" onclick="goPage(1)" '+(currentPage===1?'disabled':'')+'>⟪</button> ';
+  html += '<button class="page-btn" onclick="goPage('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>‹</button> ';
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+      html += '<button class="page-btn'+(i===currentPage?' active':'')+'" onclick="goPage('+i+')">'+i+'</button> ';
+    } else if (i === 2 || i === totalPages - 1) {
+      html += '<span class="page-ellipsis">…</span> ';
+    }
+  }
+  html += '<button class="page-btn" onclick="goPage('+(currentPage+1)+')" '+(currentPage===totalPages?'disabled':'')+'>›</button> ';
+  html += '<button class="page-btn" onclick="goPage('+totalPages+')" '+(currentPage===totalPages?'disabled':'')+'>⟫</button>';
+  p.innerHTML = html;
+}
+
+function goPage(n) {
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+  currentPage = Math.max(1, Math.min(n, totalPages));
+  render();
+  document.querySelector('.pages-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function sortBy(k){ if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=(k==='parity'||k==='gaps')?-1:1; } render(); }
+
+document.getElementById('rowsBody').addEventListener('click', function(e) {
+  var tr = e.target.closest('tr[data-href]');
+  if (tr) window.location.href = tr.getAttribute('data-href');
+});
+render();
+</script>
+</body></html>

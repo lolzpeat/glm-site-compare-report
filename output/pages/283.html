@@ -1,0 +1,201 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="utf-8">
+<title>Page 283 — BTCare</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,"Segoe UI","Sukhumvit Set",Roboto,sans-serif; color:#1a1a1a; background:#f4f5f7; line-height:1.5; }
+.topnav { display:flex; gap:4px; background:#1a2b5c; padding:0 40px; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+.topnav a { color:rgba(255,255,255,.7); text-decoration:none; padding:12px 18px; font-size:14px; font-weight:500; border-bottom:3px solid transparent; transition:all .15s; }
+.topnav a:hover { color:#fff; background:rgba(255,255,255,.1); }
+.topnav a.active { color:#fff; border-bottom-color:#4dabf7; font-weight:600; }
+.wrap { max-width:1200px; margin:0 auto; padding:32px 40px; }
+h1 { font-size:22px; color:#1a2b5c; }
+h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
+.meta { color:#777; font-size:12px; margin-top:3px; }
+.panel { background:#fff; border-radius:10px; padding:18px 20px; margin:14px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.foot { margin-top:30px; padding-top:14px; border-top:1px solid #e0e0e0; color:#999; font-size:11px; text-align:center; }
+.muted { color:#aaa; }
+.err { color:#c00; font-weight:600; }
+.parity-good { color:#1a6b3c; } .parity-mid { color:#b8860b; } .parity-bad { color:#c00; }
+.tag { padding:2px 7px; border-radius:4px; font-size:10px; font-weight:700; color:#fff; margin-right:5px; }
+.tag.src { background:#1a2b5c; } .tag.tgt { background:#8a5a00; }
+.bad { color:#c00; font-weight:700; }
+.ok { color:#1a6b3c; font-weight:700; }
+
+/* Parity check expandable blocks */
+.checks-list { display:flex; flex-direction:column; gap:6px; }
+.check-block { border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; }
+.check-block.failed { border-color:#f5c2c2; background:#fffafa; }
+.check-block.passed { border-color:#c3e6cb; background:#f8fff9; }
+.check-block summary { cursor:pointer; padding:10px 14px; display:flex; align-items:center; gap:10px; font-size:13px; list-style:none; }
+.check-block summary::-webkit-details-marker { display:none; }
+.check-status { font-weight:700; width:18px; text-align:center; }
+.check-status.ok { color:#1a6b3c; } .check-status.bad { color:#c00; }
+.check-label { font-weight:600; min-width:130px; }
+.check-weight { background:#1a2b5c; color:#fff; font-size:10px; padding:1px 6px; border-radius:3px; }
+.check-detail { color:#666; font-size:12px; flex:1; }
+.expand-hint { color:#1a2b5c; font-size:11px; font-weight:600; white-space:nowrap; }
+.diff-body { padding:0 14px 12px; border-top:1px solid #f0f0f0; }
+.diff-section { padding:8px 0; }
+.diff-title { font-size:12px; font-weight:600; margin-bottom:6px; }
+.diff-title.bad { color:#c00; } .diff-title.ok { color:#1a6b3c; }
+.chip-list { display:flex; flex-wrap:wrap; gap:5px; }
+.chip { font-size:11px; padding:3px 8px; border-radius:4px; background:#f0f1f3; color:#555; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chip-missing { background:#fde8e8; color:#c00; }
+.chip-extra { background:#e6f4ea; color:#1a6b3c; }
+.chip-empty { background:#fff4e0; color:#8a5a00; }
+
+/* Heading outline side-by-side */
+.outline-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.outline-col { border:1px solid #e0e0e0; border-radius:6px; overflow:hidden; }
+.outline-head { padding:7px 10px; font-size:11px; font-weight:700; color:#fff; }
+.outline-head.src { background:#1a2b5c; } .outline-head.tgt { background:#8a5a00; }
+.outline-body { padding:6px 4px; max-height:500px; overflow-y:auto; }
+.outline-empty { padding:16px; color:#aaa; text-align:center; font-size:12px; }
+.hrow { display:flex; align-items:center; gap:5px; padding:2px 6px; font-size:12px; border-radius:3px; }
+.hrow-matched { background:transparent; }
+.hrow-missing { background:#fde8e8; }
+.htag { font-size:9px; font-weight:700; padding:1px 4px; border-radius:2px; min-width:22px; text-align:center; color:#fff; }
+.htag-H1 { background:#1a2b5c; } .htag-H2 { background:#2d4a8a; } .htag-H3 { background:#5b7bb5; } .htag-H4 { background:#8aa0c8; color:#1a2b5c; }
+.hicon { font-weight:700; width:14px; text-align:center; }
+.hrow-matched .hicon { color:#1a6b3c; } .hrow-missing .hicon { color:#c00; }
+.htext { flex:1; word-break:break-word; }
+.outline-legend { margin-top:8px; font-size:11px; color:#666; }
+
+/* Link rows */
+.lrow { display:flex; align-items:center; gap:5px; padding:2px 6px; font-size:12px; border-radius:3px; }
+.lrow-matched { background:transparent; }
+.lrow-missing { background:#fde8e8; }
+.ltext { flex:1; word-break:break-word; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lhref { font-size:10px; color:#5b7bb5; font-family:monospace; text-decoration:none; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lhref:hover { text-decoration:underline; }
+
+/* Content text sample + keywords */
+.text-sample { padding:10px; font-size:11px; line-height:1.5; white-space:pre-wrap; word-break:break-word; background:#fafbfc; max-height:250px; overflow-y:auto; color:#444; }
+.kw-body { padding:8px; max-height:250px; overflow-y:auto; }
+.kw { display:inline-block; font-size:11px; padding:2px 7px; border-radius:3px; margin:2px; }
+.kw em { font-style:normal; font-weight:700; font-size:10px; opacity:.7; }
+.kw-shared { background:#e6f4ea; color:#1a6b3c; }
+.kw-missing { background:#fde8e8; color:#c00; }
+.meta-diff { width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
+.meta-diff th, .meta-diff td { padding:5px 8px; border:1px solid #eee; text-align:left; vertical-align:top; }
+.meta-diff th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
+.meta-diff code { font-size:11px; }
+
+.back { display:inline-block; font-size:12px; color:#1a2b5c; text-decoration:none; margin-bottom:8px; }
+.score-row { display:flex; gap:18px; align-items:center; background:#fff; border-radius:10px; padding:16px 20px; margin:14px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.score { text-align:center; min-width:90px; }
+.score .big { font-size:42px; font-weight:800; } .score .pct { font-size:18px; }
+.score .lbl { font-size:11px; color:#888; }
+.urls { flex:1; font-size:12px; word-break:break-all; }
+.urls a { color:#1a2b5c; }
+.diff, .checks { width:100%; border-collapse:collapse; font-size:13px; }
+.diff th, .diff td, .checks th, .checks td { padding:7px 10px; border:1px solid #eee; text-align:left; }
+.diff th, .checks th { background:#f7f8fa; font-size:11px; text-transform:uppercase; color:#888; }
+.gap-list { list-style:none; }
+.gap-list li { padding:8px 0; border-bottom:1px solid #f0f0f0; font-size:13px; }
+.gap-list .sev { display:inline-block; padding:1px 6px; border-radius:3px; font-size:10px; font-weight:700; color:#fff; margin-right:6px; }
+.gap.critical .sev { background:#c00; } .gap.high .sev { background:#d97706; } .gap.medium .sev { background:#f0ad4e; }
+.sxs { display:flex; gap:14px; }
+.sxs figure { flex:1; display:flex; flex-direction:column; }
+.sxs figcaption { font-size:12px; font-weight:700; color:#fff; padding:7px 10px; }
+.pcap { background:#1a2b5c; } .acap { background:#8a5a00; }
+.sxs img { width:100%; border:1px solid #ddd; border-top:none; display:block; }
+/* Synced-scroll panes — fixed height, internal scroll. */
+.shot-pane { max-height:600px; overflow-y:auto; border:1px solid #ddd; border-top:none; }
+.shot-pane img { border:none; }
+.links-table { width:100%; border-collapse:collapse; font-size:12px; }
+.links-table th, .links-table td { padding:5px 8px; border:1px solid #eee; text-align:left; }
+.links-table th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
+.lhref-cell { font-family:monospace; font-size:11px; word-break:break-all; }
+
+/* Image issue cards with preview */
+.img-issue-list { list-style:none; }
+.img-issue { background:#f8f9fb; border:1px solid #e8eaed; border-radius:8px; padding:12px 14px; margin:10px 0; }
+.img-issue-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; }
+.img-issue-head .muted { font-size:12px; }
+.sev-ratio { background:#ea580c; } .sev-distortion { background:#dc2626; } .sev-missing { background:#6366f1; }
+.img-preview-grid { display:flex; gap:12px; margin-top:10px; }
+.img-preview-cell { flex:1; }
+.img-preview-label { font-size:10px; font-weight:700; color:#666; margin-bottom:4px; text-transform:uppercase; }
+.img-thumb { max-width:200px; max-height:120px; border:1px solid #ddd; border-radius:4px; display:block; }
+.noimg { padding:40px; text-align:center; color:#aaa; border:1px solid #ddd; border-top:none; }
+@media print { .sxs{break-inside:avoid;} }
+</style></head><body>
+<nav class="topnav">
+  <a href="../dashboard.html">📊 Dashboard หลัก</a>
+  <a href="../news-dashboard.html">📰 News & Media</a>
+  <a href="../criteria.html">📋 เกณฑ์ตรวจจับ</a>
+</nav>
+<div class="wrap">
+<a href="../dashboard.html" class="back">← Back to dashboard</a>
+<header>
+  <h1>/th-TH/Personal/My-Family-and-Me/Bancassurance/AIA/BTCare</h1>
+  <p class="meta">Personal · My Family &amp; Me · Page 283 of 632</p>
+</header>
+
+<section class="score-row">
+  <div class="score parity-bad"><span class="big">0</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="urls">
+    <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Bancassurance/AIA/BTCare" target="_blank">https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Bancassurance/AIA/BTCare</a></div>
+    <div><b class="tag tgt">AEM</b> <a href="https://prod-aem.bangkokbank.com/th/personal/my-family-and-me/bancassurance/aia/btcare" target="_blank">https://prod-aem.bangkokbank.com/th/personal/my-family-and-me/bancassurance/aia/btcare</a></div>
+    
+  </div>
+</section>
+
+<section class="panel sxs-panel"><h2>Visual Comparison (full-page screenshot) <span class="muted" style="font-weight:400;font-size:12px">— เลื่อนรูปข้างนึง อีกข้างเลื่อนตาม</span></h2>
+<div class="sxs sync-scroll">
+  <figure>
+    <figcaption class="pcap">PRODUCTION (ต้นฉบับ)</figcaption>
+    <div class="shot-pane"><img src="../screenshots/283/prod.jpg" loading="lazy" alt="production"></div>
+  </figure>
+  <figure>
+    <figcaption class="acap">AEM (ต้องแก้ให้เหมือนซ้าย)</figcaption>
+    <div class="shot-pane"><img src="../screenshots/283/aem.jpg" loading="lazy" alt="aem"></div>
+  </figure>
+</div></section>
+
+
+<section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
+<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>AEM page is 404</b> AEM title: &quot;404 error&quot;</li></ul></section>
+
+
+<section class="panel"><h2>Metric Comparison</h2>
+<table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
+<tbody><tr><td>Headings</td><td>42</td><td>24</td><td class="bad">✗</td></tr><tr><td>Links</td><td>204</td><td>101</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>27137</td><td>3308</td><td class="bad">✗</td></tr><tr><td>Images</td><td>13</td><td>2</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>8</td><td>0</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>3</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>148</td><td>65</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>32</td><td>32</td><td class="ok">✓</td></tr><tr><td>Page height (px)</td><td>3790</td><td>900</td><td class="bad">✗</td></tr></tbody></table></section>
+
+
+<section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
+<div class="checks-list">
+    <details class="check-block failed">
+      <summary>
+        <span class="check-status bad">✗</span>
+        <span class="check-label">AEM page is 404</span>
+        <span class="check-weight">100%</span>
+        <span class="check-detail">AEM title: &quot;404 error&quot;</span>
+        
+      </summary>
+      
+    </details></div></section>
+
+
+
+
+<footer class="foot"><a href="../dashboard.html">← Back to dashboard</a></footer>
+</div>
+<script>
+// Synced scroll: scrolling one screenshot pane scrolls the other proportionally.
+(function(){
+  var panes = document.querySelectorAll('.sync-scroll .shot-pane');
+  if (panes.length < 2) return;
+  var a = panes[0], b = panes[1], lock = false;
+  var sync = function(src, dst){ return function(){
+    if (lock) return; lock = true;
+    var sr = src.scrollHeight - src.clientHeight || 1;
+    dst.scrollTop = src.scrollTop / sr * (dst.scrollHeight - dst.clientHeight || 0);
+    requestAnimationFrame(function(){ lock = false; });
+  }; };
+  a.addEventListener('scroll', sync(a,b));
+  b.addEventListener('scroll', sync(b,a));
+})();
+</script>
+</body></html>

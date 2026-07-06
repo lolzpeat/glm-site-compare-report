@@ -1,0 +1,22 @@
+{
+  "name": "bbl-migration-parity-checker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Compare production vs AEM-migrated Bangkok Bank pages at scale",
+  "scripts": {
+    "fetch": "node src/fetch-urls.js",
+    "fetch:news": "node src/fetch-urls.js --gid=1728025962 --output=data/urls-news.csv",
+    "compare": "node src/compare.js",
+    "compare:news": "node src/compare.js --news --urls=data/urls-news.csv --output=data/results-news.json --source=data/results-news.json",
+    "dashboard": "node src/build-dashboard.js && node src/build-dashboard.js --source=data/results-news.json --prefix=news",
+    "dashboard:main": "node src/build-dashboard.js",
+    "dashboard:news": "node src/build-dashboard.js --source=data/results-news.json --prefix=news",
+    "docs": "node src/build-docs.js",
+    "all": "node src/fetch-urls.js && node src/compare.js && node src/build-dashboard.js && node src/build-docs.js"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.0.0",
+    "sharp": "^0.35.2"
+  }
+}

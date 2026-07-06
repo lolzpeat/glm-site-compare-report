@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Generated data (regenerate via: npm run fetch && npm run compare)
+data/
+
+# Generated reports ARE tracked (deployed to Vercel)
+# output/
+
+# OS / editor
+.DS_Store
+*.log
