@@ -81,6 +81,20 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 .meta-diff th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
 .meta-diff code { font-size:11px; }
 
+/* Grouped check sections (Template / Content / Structure + Other fallback) */
+.groups { display:flex; flex-direction:column; gap:10px; }
+.group-block { border:1px solid #e0e0e0; border-radius:8px; margin-bottom:0; overflow:hidden; }
+.group-head { padding:8px 12px; font-size:13px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+.group-head.template { background:#eef2ff; color:#1a2b5c; }
+.group-head.content { background:#f0f7e6; color:#1a6b3c; }
+.group-head.structure { background:#fdf0e6; color:#8a5a00; }
+.group-head.other { background:#f0f1f3; color:#555; }
+.group-pct { font-size:12px; opacity:.8; font-weight:600; }
+.group-block .checks-list { padding:4px; }
+.group-block .check-block { margin:2px; border:none; border-radius:4px; }
+.group-block .check-block summary.check-row { padding:7px 12px; gap:10px; font-size:12px; }
+.group-block .check-status.ins { color:#aaa; }
+.ins-tag { background:#eee; color:#888; font-size:9px; padding:1px 5px; border-radius:3px; margin-left:6px; text-transform:uppercase; font-weight:700; }
 .back { display:inline-block; font-size:12px; color:#1a2b5c; text-decoration:none; margin-bottom:8px; }
 .score-row { display:flex; gap:18px; align-items:center; background:#fff; border-radius:10px; padding:16px 20px; margin:14px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
 .score { text-align:center; min-width:90px; }
@@ -146,11 +160,11 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 <div class="sxs sync-scroll">
   <figure>
     <figcaption class="pcap">PRODUCTION (ต้นฉบับ)</figcaption>
-    <div class="shot-pane"><img src="../screenshots/556/prod.jpg" loading="lazy" alt="production"></div>
+    <div class="shot-pane"><img src="../screenshots/../../../../../../../ZCodeProject/bbl-compare/data/screenshots/556/prod.jpg" loading="lazy" alt="production"></div>
   </figure>
   <figure>
     <figcaption class="acap">AEM (ต้องแก้ให้เหมือนซ้าย)</figcaption>
-    <div class="shot-pane"><img src="../screenshots/556/aem.jpg" loading="lazy" alt="aem"></div>
+    <div class="shot-pane"><img src="../screenshots/../../../../../../../ZCodeProject/bbl-compare/data/screenshots/556/aem.jpg" loading="lazy" alt="aem"></div>
   </figure>
 </div></section>
 
@@ -165,17 +179,19 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
-<div class="checks-list">
+<div class="groups"><div class="group-block">
+        <div class="group-head other"><span>Other checks</span><span class="group-pct">0/1 passed</span></div>
+        <div class="checks-list">
     <details class="check-block failed">
-      <summary>
+      <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">AEM page is 404</span>
-        <span class="check-weight">100%</span>
         <span class="check-detail">AEM title: &quot;404 error&quot;</span>
         
       </summary>
       
-    </details></div></section>
+    </details></div>
+      </div></div></section>
 
 
 

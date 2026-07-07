@@ -81,6 +81,20 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 .meta-diff th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
 .meta-diff code { font-size:11px; }
 
+/* Grouped check sections (Template / Content / Structure + Other fallback) */
+.groups { display:flex; flex-direction:column; gap:10px; }
+.group-block { border:1px solid #e0e0e0; border-radius:8px; margin-bottom:0; overflow:hidden; }
+.group-head { padding:8px 12px; font-size:13px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+.group-head.template { background:#eef2ff; color:#1a2b5c; }
+.group-head.content { background:#f0f7e6; color:#1a6b3c; }
+.group-head.structure { background:#fdf0e6; color:#8a5a00; }
+.group-head.other { background:#f0f1f3; color:#555; }
+.group-pct { font-size:12px; opacity:.8; font-weight:600; }
+.group-block .checks-list { padding:4px; }
+.group-block .check-block { margin:2px; border:none; border-radius:4px; }
+.group-block .check-block summary.check-row { padding:7px 12px; gap:10px; font-size:12px; }
+.group-block .check-status.ins { color:#aaa; }
+.ins-tag { background:#eee; color:#888; font-size:9px; padding:1px 5px; border-radius:3px; margin-left:6px; text-transform:uppercase; font-weight:700; }
 .back { display:inline-block; font-size:12px; color:#1a2b5c; text-decoration:none; margin-bottom:8px; }
 .score-row { display:flex; gap:18px; align-items:center; background:#fff; border-radius:10px; padding:16px 20px; margin:14px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
 .score { text-align:center; min-width:90px; }
@@ -134,7 +148,7 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 </header>
 
 <section class="score-row">
-  <div class="score parity-bad"><span class="big">15</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="score parity-bad"><span class="big">34</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
   <div class="urls">
     <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds/Alternative-Asset-Funds/B-IR-FOF" target="_blank">https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds/Alternative-Asset-Funds/B-IR-FOF</a></div>
     <div><b class="tag tgt">AEM</b> <a href="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof" target="_blank">https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof</a></div>
@@ -156,27 +170,150 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Headings match</b> 8/42 headings (Jaccard 18%)</li><li class="gap critical"><span class="sev">critical</span> <b>Links match</b> 17/209 links (7% of prod link-texts found)</li><li class="gap critical"><span class="sev">critical</span> <b>Content length</b> 1742/24863 chars (ratio 7%)</li><li class="gap critical"><span class="sev">critical</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap critical"><span class="sev">critical</span> <b>Accordions filled</b> prod 8 / aem 11 (11 empty)</li><li class="gap high"><span class="sev">high</span> <b>Header &amp; Footer</b> header 0/148 links, footer 0/32 links</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing login</b> prod has login, AEM does not</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 12 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 5 image issue(s)</li></ul></section>
+<ul class="gap-list"><li class="gap medium"><span class="sev">medium</span> <b>Header menu (label + count)</b> 0/80 labels · 80 missing</li><li class="gap medium"><span class="sev">medium</span> <b>Footer menu (label + count)</b> 0/31 labels · 31 missing</li><li class="gap high"><span class="sev">high</span> <b>Components (accordion/table/form/video)</b> accordion 11/8 · table 0/1✗ · form 0/1✗ · video 0/0 · advisory: carousel 0/2</li><li class="gap high"><span class="sev">high</span> <b>Content length (±30%)</b> 1929/24863 chars (8%)</li><li class="gap high"><span class="sev">high</span> <b>Missing text blocks</b> 15 prod block(s) missing</li><li class="gap high"><span class="sev">high</span> <b>Missing keywords</b> 20/30 prod keywords missing</li><li class="gap high"><span class="sev">high</span> <b>Missing image (≥80% + alt)</b> 4/7 images · alt match 0%</li><li class="gap high"><span class="sev">high</span> <b>Headings (Jaccard)</b> 10/42 headings (Jaccard 24%)</li><li class="gap medium"><span class="sev">medium</span> <b>Links match</b> 17/209 links (7% of prod link-texts found)</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing login</b> prod has login, AEM does not</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 12 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 5 image issue(s)</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
-<tbody><tr><td>Headings</td><td>42</td><td>8</td><td class="bad">✗</td></tr><tr><td>Links</td><td>209</td><td>17</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>24863</td><td>1742</td><td class="bad">✗</td></tr><tr><td>Images</td><td>10</td><td>4</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>8</td><td>11</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>3</td><td>11</td><td class="bad">✗</td></tr><tr><td>Header links</td><td>148</td><td>0</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>32</td><td>0</td><td class="bad">✗</td></tr><tr><td>Page height (px)</td><td>3967</td><td>1107</td><td class="bad">✗</td></tr></tbody></table></section>
+<tbody><tr><td>Headings</td><td>42</td><td>10</td><td class="bad">✗</td></tr><tr><td>Links</td><td>209</td><td>17</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>24863</td><td>1929</td><td class="bad">✗</td></tr><tr><td>Images</td><td>7</td><td>4</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>8</td><td>11</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>3</td><td>11</td><td class="bad">✗</td></tr><tr><td>Header links</td><td>148</td><td>0</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>32</td><td>0</td><td class="bad">✗</td></tr><tr><td>Page height (px)</td><td>3967</td><td>1107</td><td class="bad">✗</td></tr></tbody></table></section>
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
-<div class="checks-list">
+<div class="groups"><div class="group-block">
+        <div class="group-head template">
+          <span>Template</span>
+          <span class="group-pct">5/25 · 20%</span>
+        </div>
+        <div class="checks-list">
     <details class="check-block failed">
-      <summary>
+      <summary class="check-row">
         <span class="check-status bad">✗</span>
-        <span class="check-label">Headings match</span>
-        <span class="check-weight">25%</span>
-        <span class="check-detail">8/42 headings (Jaccard 18%)</span>
+        <span class="check-label">Header menu (label + count)</span>
+        <span class="check-detail">0/80 labels · 80 missing</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section"><div class="diff-title bad">Missing labels (20)</div><div class="chip-list"><span class="chip chip-missing">กิจการธนาคารต่างประเทศ</span><span class="chip chip-missing">นักลงทุนสัมพันธ์</span><span class="chip chip-missing">เกี่ยวกับธนาคารกรุงเทพ</span><span class="chip chip-missing">華人事務</span><span class="chip chip-missing">日本語</span><span class="chip chip-missing">en</span><span class="chip chip-missing">ค้นหา</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">หน้าแรกลูกค้าบุคคล</span><span class="chip chip-missing">การออมและการลงทุน</span><span class="chip chip-missing">ผลิตภัณฑ์เพื่อการออม</span><span class="chip chip-missing">กองทุนรวม</span><span class="chip chip-missing">พันธบัตรและหุ้นกู้</span><span class="chip chip-missing">เปิดบัญชีซื้อขายหลักทรัพย์</span><span class="chip chip-missing">ผลิตภัณฑ์บัตร</span><span class="chip chip-missing">บัตรเครดิต</span><span class="chip chip-missing">บัตรธนาคารกรุงเทพ เอ็ม วีซ่า</span><span class="chip chip-missing">ตรวจสอบสถานะการสมัครบัตรเครดิต</span><span class="chip chip-missing">บัตรเดบิตบีเฟิสต์</span><span class="chip chip-missing">บัตรทราเวลธนาคารกรุงเทพ</span></div></div>
+        
+        
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Footer menu (label + count)</span>
+        <span class="check-detail">0/31 labels · 31 missing</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section"><div class="diff-title bad">Missing labels (20)</div><div class="chip-list"><span class="chip chip-missing">การออม/การลงทุน</span><span class="chip chip-missing">ผลิตภัณฑ์บัตร</span><span class="chip chip-missing">ผลิตภัณฑ์เพื่อครอบครัว</span><span class="chip chip-missing">บ้านและที่อยู่อาศัย</span><span class="chip chip-missing">ดิจิทัลแบงก์กิ้ง</span><span class="chip chip-missing">บริการอื่นๆ</span><span class="chip chip-missing">บริหารธุรกิจ</span><span class="chip chip-missing">การเงินเพื่อธุรกิจ</span><span class="chip chip-missing">บริการการค้าระหว่างประเทศ</span><span class="chip chip-missing">คุ้มครองธุรกิจ</span><span class="chip chip-missing">บริการด้านหลักทรัพย์</span><span class="chip chip-missing">วานิชธนกิจ</span><span class="chip chip-missing">ข้อมูลธนาคาร</span><span class="chip chip-missing">ความยั่งยืน</span><span class="chip chip-missing">กิจกรรมเพื่อสังคม</span><span class="chip chip-missing">สมัครงาน</span><span class="chip chip-missing">sip by bangkok bank</span><span class="chip chip-missing">ทุนการศึกษาธนาคารกรุงเทพ</span><span class="chip chip-missing">อาเซียน</span><span class="chip chip-missing">เอเชียตะวันออก</span></div></div>
+        
+        
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Components (accordion/table/form/video)</span>
+        <span class="check-detail">accordion 11/8 · table 0/1✗ · form 0/1✗ · video 0/0 · advisory: carousel 0/2</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section"><table class="meta-diff"><thead><tr><th>Type</th><th>Prod</th><th>AEM</th><th>Status</th></tr></thead><tbody><tr><td><code>accordion</code></td><td>8</td><td class="ok">11</td><td class="ok">✓</td></tr><tr><td><code>table</code></td><td>1</td><td class="bad">0</td><td class="bad">✗</td></tr><tr><td><code>form</code></td><td>1</td><td class="bad">0</td><td class="bad">✗</td></tr><tr><td><code>video</code></td><td>0</td><td class="ok">0</td><td class="ok">✓</td></tr></tbody></table></div>
+        <div class="diff-section"><div class="diff-title">Advisory: carousel 0/2</div></div>
+        <div class="diff-section"><div class="diff-title">Other components: <span class="chip">dialog/modal</span> <span class="chip">notification</span></div></div>
+      </div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head content">
+          <span>Content</span>
+          <span class="group-pct">21/50 · 42%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Content length (±30%)</span>
+        <span class="check-detail">1929/24863 chars (8%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">เทียบเนื้อหา (text sample · ratio 8%)</div>
+          <div class="outline-grid">
+            <div class="outline-col">
+              <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
+              <div class="text-sample">กิจการธนาคารต่างประเทศ นักลงทุนสัมพันธ์ เกี่ยวกับธนาคารกรุงเทพ 華人事務 日本語 EN ค้นหา ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม พันธบัตรและหุ้นกู้ เปิดบัญชีซื้อขายหลักทรัพย์ ผลิตภัณฑ์บัตร บัตรเครดิต บัตรธนาคารกรุงเทพ เอ็ม วีซ่า ตรวจสอบสถานะการสมัครบัตรเครดิต บัตรเดบิตบีเฟิสต์ บัตรทราเวลธนาคารกรุงเทพ บัตรเติมเงินธนาคารกรุงเทพ ผลิตภัณฑ์เพื่อครอบครัว แบงก์แอสชัวรันส์ สินเชื่อส่วนบุคคล สินเชื่อเพื่อข้าราชการบำนาญ ทิปทางการเงิน บ้านและที่อยู่อาศัย สินเชื่อบ้านบัวหลวง สินเชื่ออเนกประสงค์ที่ใช้ที่อยู่อาศัยเป็นหลักประกัน ทรัพย์สินพร้อมขาย ทรัพย์หลักประกันทางธุรกิจ พร้อ</div>
+            </div>
+            <div class="outline-col">
+              <div class="outline-head tgt">AEM (migrate)</div>
+              <div class="text-sample">กองทุนรวม กองทุนเปิดฟันด์ออฟฟันด์บัวหลวงโครงสร้างพื้นฐานและอสังหาริมทรัพย์ (B-IR-FOF) ให้คุณเติมเต็มโอกาสลงทุนไปกับ “ธุรกิจโครงสร้างพื้นฐานและธุรกิจอสังหาริมทรัพย์ทั่วโลก” จุดเด่นกองทุนจุดเด่นกองทุนรายละเอียดกองทุนข้อมูลสำคัญกองทุนเครื่องมือช่วยเหลือ จุดเด่นกองทุน scrollable โอกาสการลงทุนในหน่วยลงทุน และ/หรือ ETF ที่เน้นการลงทุนในกองทุนรวมอสังหาริมทรัพย์ REITs และ IFFsกระจายการลงทุนทั้งในและต่างประเทศ เพื่อเพิ่มโอกาสในการแสวงหาผลตอบแทนโอกาสรับผลตอบแทนจากเงินปันผล และส่วนต่างราคาซื้อขาย รายละเอียดกองทุนExpand AllPrint ข้อมูลสำคัญกองทุนดาวน์โหลดไฟล์ข้อมูลต่างๆ ของกองทุนเปิดฟันด์ออฟฟันด์บัวหลวงโค</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing text blocks</span>
+        <span class="check-detail">15 prod block(s) missing</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (15/141)</div>
+          <div class="chip-list"><span class="chip chip-missing">กิจการธนาคารต่างประเทศ</span><span class="chip chip-missing">นักลงทุนสัมพันธ์</span><span class="chip chip-missing">เกี่ยวกับธนาคารกรุงเทพ</span><span class="chip chip-missing">ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม </span><span class="chip chip-missing">หน้าแรกลูกค้าบุคคล</span><span class="chip chip-missing">การออมและการลงทุน</span><span class="chip chip-missing">ผลิตภัณฑ์เพื่อการออม</span><span class="chip chip-missing">พันธบัตรและหุ้นกู้</span><span class="chip chip-missing">เปิดบัญชีซื้อขายหลักทรัพย์</span><span class="chip chip-missing">ผลิตภัณฑ์บัตร</span><span class="chip chip-missing">บัตรเครดิต</span><span class="chip chip-missing">บัตรธนาคารกรุงเทพ เอ็ม วีซ่า</span><span class="chip chip-missing">ตรวจสอบสถานะการสมัครบัตรเครดิต</span><span class="chip chip-missing">บัตรเดบิตบีเฟิสต์</span><span class="chip chip-missing">บัตรทราเวลธนาคารกรุงเทพ</span></div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing keywords</span>
+        <span class="check-detail">20/30 prod keywords missing</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">10 shared <b class="ok">✓</b> · 20 missing <b class="bad">✗</b></div>
+          <div class="chip-list"><span class="chip chip-missing">ใช้</span><span class="chip chip-missing">จำกัด</span><span class="chip chip-missing">ได้แก่</span><span class="chip chip-missing">เช่น</span><span class="chip chip-missing">มหาชน</span><span class="chip chip-missing">ไอแบงก์กิ้ง</span><span class="chip chip-missing">ธนาคารกรุงเทพ</span><span class="chip chip-missing">ทั้งนี้</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">ดิจิทัลแบงก์กิ้ง</span><span class="chip chip-missing">โมบายแบงก์กิ้ง</span><span class="chip chip-missing">ไอแคช</span><span class="chip chip-missing">address</span><span class="chip chip-missing">กิจการธนาคารต่างประเทศ</span><span class="chip chip-missing">เกี่ยวกับธนาคารกรุงเทพ</span><span class="chip chip-missing">บริการ</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">ไอซัพพลาย</span><span class="chip chip-missing">bualuang</span><span class="chip chip-missing">ไอฟันด์</span></div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing image (≥80% + alt)</span>
+        <span class="check-detail">4/7 images · alt match 0%</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">prod 7 / aem 4 images · alt match 0%</div>
+        </div>
+        <div class="diff-section"><div class="outline-grid">
+          <div class="outline-col"><div class="outline-head src">PROD alts (5)</div><div class="kw-body"><span class="kw kw-shared">en</span><span class="kw kw-shared">logo</span><span class="kw kw-shared">ไอคอนทางการเงิน</span><span class="kw kw-shared">ไอคอน livechat</span><span class="kw kw-shared">call us</span></div></div>
+          <div class="outline-col"><div class="outline-head tgt">AEM alts (0)</div><div class="kw-body"></div></div>
+        </div></div>
+      </div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head structure">
+          <span>Structure / SEO</span>
+          <span class="group-pct">8/25 · 30%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Headings (Jaccard)</span>
+        <span class="check-detail">10/42 headings (Jaccard 24%)</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body">
       <div class="diff-section">
-        <div class="diff-title">เทียบ heading outline ทั้งสองฝั่ง — <b class="ok">7 ✓</b> / <b class="bad">35 ✗ ขาด</b> (จาก 42 ใน Production)</div>
+        <div class="diff-title">เทียบ heading outline ทั้งสองฝั่ง — <b class="ok">10 ✓</b> / <b class="bad">32 ✗ ขาด</b> (จาก 42 ใน Production)</div>
         <div class="outline-grid">
           <div class="outline-col">
             <div class="outline-head src">PRODUCTION (ต้นฉบับ) · 42 headings</div>
@@ -256,21 +393,21 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
           <span class="htag htag-H3">H3</span>
           <span class="hicon">✗</span>
           <span class="htext">ลูกค้าธุรกิจ</span>
-        </div><div class="hrow hrow-missing" style="margin-left:40px">
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
           <span class="htag htag-H3">H3</span>
-          <span class="hicon">✗</span>
+          <span class="hicon">✓</span>
           <span class="htext">กองทุนรวม</span>
         </div><div class="hrow hrow-missing" style="margin-left:40px">
           <span class="htag htag-H3">H3</span>
           <span class="hicon">✗</span>
           <span class="htext">กองทุนเปิดฟันด์ออฟฟันด์บัวหลวง โครงสร้างพื้นฐานและอสังหาริมทรัพย์ (B-IR-FOF)</span>
-        </div><div class="hrow hrow-missing" style="margin-left:40px">
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
           <span class="htag htag-H3">H3</span>
-          <span class="hicon">✗</span>
+          <span class="hicon">✓</span>
           <span class="htext">กองทุนรวม</span>
-        </div><div class="hrow hrow-missing" style="margin-left:40px">
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
           <span class="htag htag-H3">H3</span>
-          <span class="hicon">✗</span>
+          <span class="hicon">✓</span>
           <span class="htext">กองทุนเปิดฟันด์ออฟฟันด์บัวหลวงโครงสร้างพื้นฐานและอสังหาริมทรัพย์ (B-IR-FOF)</span>
         </div><div class="hrow hrow-matched" style="margin-left:20px">
           <span class="htag htag-H2">H2</span>
@@ -351,8 +488,16 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
         </div></div>
           </div>
           <div class="outline-col">
-            <div class="outline-head tgt">AEM (migrate) · 8 headings</div>
-            <div class="outline-body"><div class="hrow hrow-matched" style="margin-left:20px">
+            <div class="outline-head tgt">AEM (migrate) · 10 headings</div>
+            <div class="outline-body"><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กองทุนรวม</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กองทุนเปิดฟันด์ออฟฟันด์บัวหลวงโครงสร้างพื้นฐานและอสังหาริมทรัพย์ (B-IR-FOF)</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
           <span class="htag htag-H2">H2</span>
           <span class="hicon">✓</span>
           <span class="htext">จุดเด่นกองทุน</span>
@@ -395,347 +540,20 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
     </div>
     </details>
     <details class="check-block failed">
-      <summary>
+      <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">Links match</span>
-        <span class="check-weight">20%</span>
         <span class="check-detail">17/209 links (7% of prod link-texts found)</span>
         <span class="expand-hint">▾</span>
       </summary>
-      <div class="diff-body">
-      <div class="diff-section">
-        <div class="diff-title">เทียบ links — <b class="ok">0 ✓</b> / <b class="bad">50 ✗ ขาด</b> (จาก 50 ใน Production)</div>
-        <div class="outline-grid">
-          <div class="outline-col">
-            <div class="outline-head src">PRODUCTION · 50 links</div>
-            <div class="outline-body"><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">กิจการธนาคารต่างประเทศ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/International-Banking" target="_blank" title="https://www.bangkokbank.com/th-TH/International-Banking">https://www.bangkokbank.com/th-TH/Intern</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">นักลงทุนสัมพันธ์</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Investor-Relations" target="_blank" title="https://www.bangkokbank.com/th-TH/Investor-Relations">https://www.bangkokbank.com/th-TH/Invest</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">เกี่ยวกับธนาคารกรุงเทพ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/About-Us" target="_blank" title="https://www.bangkokbank.com/th-TH/About-Us">https://www.bangkokbank.com/th-TH/About-</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">華人事務</span>
-          <a class="lhref" href="https://www.bangkokbank.com/en/Chinese-Section" target="_blank" title="https://www.bangkokbank.com/en/Chinese-Section">https://www.bangkokbank.com/en/Chinese-S</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">日本語</span>
-          <a class="lhref" href="https://www.bangkokbank.com/en/Japanese-Section" target="_blank" title="https://www.bangkokbank.com/en/Japanese-Section">https://www.bangkokbank.com/en/Japanese-</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">EN</span>
-          <a class="lhref" href="https://www.bangkokbank.com/en/Personal/Save-And-Invest/Mutual-Funds/Alternative-Asset-Funds/B-IR-FOF" target="_blank" title="https://www.bangkokbank.com/en/Personal/Save-And-Invest/Mutual-Funds/Alternative-Asset-Funds/B-IR-FOF">https://www.bangkokbank.com/en/Personal/</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ค้นหา</span>
-          <a class="lhref" href="javascript:;" target="_blank" title="javascript:;">javascript:;</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ลูกค้าบุคคล</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds/Alternative-Asset-Funds/B-IR-FOF#" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds/Alternative-Asset-Funds/B-IR-FOF#">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">หน้าแรกลูกค้าบุคคล</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">การออมและการลงทุน</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ผลิตภัณฑ์เพื่อการออม</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Save" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Save">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">กองทุนรวม</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">พันธบัตรและหุ้นกู้</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Investment" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Investment">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">เปิดบัญชีซื้อขายหลักทรัพย์</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Investment/Introducing-Agent-Service" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Investment/Introducing-Agent-Service">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ผลิตภัณฑ์บัตร</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Cards" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Cards">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บัตรเครดิต</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Cards/Credit-Cards" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Cards/Credit-Cards">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บัตรธนาคารกรุงเทพ เอ็ม วีซ่า</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Cards/BangkokBankM" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Cards/BangkokBankM">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ตรวจสอบสถานะการสมัครบัตรเครดิต</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Cards/Credit-Cards/Credit-Card-Application-Status-Tracking" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Cards/Credit-Cards/Credit-Card-Application-Status-Tracking">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บัตรเดบิตบีเฟิสต์</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Cards/Be1st-Smart-Card" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Cards/Be1st-Smart-Card">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บัตรทราเวลธนาคารกรุงเทพ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Cards/Travel-Card" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Cards/Travel-Card">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บัตรเติมเงินธนาคารกรุงเทพ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Cards/Prepaid-Card" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Cards/Prepaid-Card">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ผลิตภัณฑ์เพื่อครอบครัว</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">แบงก์แอสชัวรันส์</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Bancassurance" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Bancassurance">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">สินเชื่อส่วนบุคคล</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Personal-Loan" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Personal-Loan">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">สินเชื่อเพื่อข้าราชการบำนาญ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Loan-for-Pensioner" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Loan-for-Pensioner">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ทิปทางการเงิน</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Tips" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Tips">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บ้านและที่อยู่อาศัย</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Home" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Home">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">สินเชื่อบ้านบัวหลวง</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Home/Home-Loan" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Home/Home-Loan">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">สินเชื่ออเนกประสงค์ที่ใช้ที่อยู่อาศัยเป็นหลักประกัน</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Home/Home-Equity-Loan" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Home/Home-Equity-Loan">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ทรัพย์สินพร้อมขาย</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Home/Bank-Properties-for-Sales" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Home/Bank-Properties-for-Sales">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ทรัพย์หลักประกันทางธุรกิจ พร้อมขาย</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/My-Home/Business-Securities" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/My-Home/Business-Securities">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ดิจิทัลแบงก์กิ้ง</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">โมบายแบงก์กิ้ง</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/Bualuang-mBanking" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/Bualuang-mBanking">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บัวหลวง ไอแบงก์กิ้ง</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/Bualuang-iBanking" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/Bualuang-iBanking">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บริการยืนยันตัวตน (NDID)</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/NDID" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/NDID">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บริการ dStatement</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/dStatement" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/dStatement">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บริการ SMS</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/SMS-Services" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/SMS-Services">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">เอทีเอ็ม/ธนาคารอัตโนมัติ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/Self-Services" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/Self-Services">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ธนาคารกรุงเทพ พร้อมเพย์</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/PromptPay" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Digital-Banking/PromptPay">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บริการอื่นๆ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Other-Services" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Other-Services">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">สิทธิประโยชน์ของผู้มีบัญชีเงินเดือน</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Bualuang-Payroll" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Bualuang-Payroll">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บริการตัวแทนธนาคาร</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Banking-Agent" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Banking-Agent">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บริการโอนเงิน</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Transfers" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Transfers">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บริการชำระเงิน</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Payment-and-Top-Up" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Payment-and-Top-Up">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บริการแลกเปลี่ยนเงินตราต่างประเทศ และตราสารต่างประเทศ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Currency-Exchange" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Currency-Exchange">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">บริการที่สาขา</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Branch-Services" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Branch-Services">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">Work Café</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Work-Cafe" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Work-Cafe">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ลูกค้าชาวต่างประเทศ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Foreign-Customers" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Other-Services/Foreign-Customers">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">อัตราและค่าธรรมเนียม</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Personal/Other-Services/View-Rates" target="_blank" title="https://www.bangkokbank.com/th-TH/Personal/Other-Services/View-Rates">https://www.bangkokbank.com/th-TH/Person</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">สนใจสมัครผลิตภัณฑ์/บริการ</span>
-          <a class="lhref" href="https://www.bangkokbank.com/th-TH/Web-Forms" target="_blank" title="https://www.bangkokbank.com/th-TH/Web-Forms">https://www.bangkokbank.com/th-TH/Web-Fo</a>
-        </div></div>
-          </div>
-          <div class="outline-col">
-            <div class="outline-head tgt">AEM · 17 links</div>
-            <div class="outline-body"><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">จุดเด่นกองทุน</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof#" target="_blank" title="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof#">https://prod-aem.bangkokbank.com/th/pers</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">รายละเอียดกองทุน</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof#" target="_blank" title="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof#">https://prod-aem.bangkokbank.com/th/pers</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">ข้อมูลสำคัญกองทุน</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof#" target="_blank" title="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof#">https://prod-aem.bangkokbank.com/th/pers</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">เครื่องมือช่วยเหลือ</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof#" target="_blank" title="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/b-ir-fof#">https://prod-aem.bangkokbank.com/th/pers</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">หนังสือชี้ชวนส่วนสรุปข้อมูลสำคัญ</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-funds/fact-sheet/birfof_factsheet_th.pdf" target="_blank" title="https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-funds/fact-sheet/birfof_factsheet_th.pdf">https://prod-aem.bangkokbank.com/-/media</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">หนังสือชี้ชวนส่วนข้อมูลกองทุนรวม</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/fund-information/b-ir-fof/b-ir-fof_prospectus.pdf" target="_blank" title="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/fund-information/b-ir-fof/b-ir-fof_prospectus.pdf">https://prod-aem.bangkokbank.com/content</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">รายงานรอบระยะเวลา 6 เดือน</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/fund-information/b-ir-fof/b-ir-fof_6monthreport.pdf" target="_blank" title="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/fund-information/b-ir-fof/b-ir-fof_6monthreport.pdf">https://prod-aem.bangkokbank.com/content</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">รายงานประจำปี</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/fund-information/b-ir-fof/b-ir-fof_annualreport.pdf" target="_blank" title="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/fund-information/b-ir-fof/b-ir-fof_annualreport.pdf">https://prod-aem.bangkokbank.com/content</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">ตารางแสดงวันทำการซื้อขายหน่วยลงทุน</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/fund-information/b-ir-fof/b-ir-fof_tradingdays.pdf" target="_blank" title="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/fund-information/b-ir-fof/b-ir-fof_tradingdays.pdf">https://prod-aem.bangkokbank.com/content</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">ประกาศการจ่ายเงินปันผล</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-funds/announcement/dividend-payment/9mar2026_birfof.pdf" target="_blank" title="https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-funds/announcement/dividend-payment/9mar2026_birfof.pdf">https://prod-aem.bangkokbank.com/-/media</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">ประกาศเปลี่ยนแปลงดัชนีชี้วัด</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/announcement/others/12jun2024-benchmark-51-funds.pdf" target="_blank" title="https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/personal-banking/save-and-invest/mutual-funds/announcement/others/12jun2024-benchmark-51-funds.pdf">https://prod-aem.bangkokbank.com/content</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">ประกาศแก้ไขโครงการจัดการกองทุนจำนวน 73 กองทุน</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-funds/announcement/others/16mar2026_74-funds.pdf" target="_blank" title="https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-funds/announcement/others/16mar2026_74-funds.pdf">https://prod-aem.bangkokbank.com/-/media</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">www.bangkokbank.com</span>
-          <a class="lhref" href="http://www.bangkokbank.com/" target="_blank" title="http://www.bangkokbank.com/">http://www.bangkokbank.com/</a>
-        </div><div class="lrow lrow-matched">
-          <span class="hicon">✓</span>
-          <span class="ltext">www.bblam.co.th</span>
-          <a class="lhref" href="http://www.bblam.co.th/" target="_blank" title="http://www.bblam.co.th/">http://www.bblam.co.th/</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">/content/bangkokbank/th/personal/save-and-invest/mutual-funds/fund-prices</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/fund-prices" target="_blank" title="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/fund-prices">https://prod-aem.bangkokbank.com/th/pers</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">/content/bangkokbank/th/personal/save-and-invest</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/th/personal/save-and-invest" target="_blank" title="https://prod-aem.bangkokbank.com/th/personal/save-and-invest">https://prod-aem.bangkokbank.com/th/pers</a>
-        </div><div class="lrow lrow-missing">
-          <span class="hicon">✗</span>
-          <span class="ltext">/th-TH/Contact-Us</span>
-          <a class="lhref" href="https://prod-aem.bangkokbank.com/th-TH/Contact-Us" target="_blank" title="https://prod-aem.bangkokbank.com/th-TH/Contact-Us">https://prod-aem.bangkokbank.com/th-TH/C</a>
-        </div></div>
-          </div>
-        </div>
-        <div class="outline-legend">
-          <span class="lrow lrow-matched" style="display:inline-flex;margin-right:12px"><span class="hicon">✓</span> มีในทั้งคู่</span>
-          <span class="lrow lrow-missing" style="display:inline-flex"><span class="hicon">✗</span> มีฝั่งเดียว</span>
-        </div>
-      </div>
-    </div>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">10 prod link-text <b class="ok">✓ พบใน AEM</b></div>
+      </div></div>
     </details>
     <details class="check-block failed">
-      <summary>
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Content length</span>
-        <span class="check-weight">15%</span>
-        <span class="check-detail">1742/24863 chars (ratio 7%)</span>
-        <span class="expand-hint">▾</span>
-      </summary>
-      <div class="diff-body">
-      <div class="diff-section">
-        <div class="diff-title">เทียบเนื้อหา (text sample)</div>
-        <div class="outline-grid">
-          <div class="outline-col">
-            <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
-            <div class="text-sample">กิจการธนาคารต่างประเทศ นักลงทุนสัมพันธ์ เกี่ยวกับธนาคารกรุงเทพ 華人事務 日本語 EN ค้นหา ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม พันธบัตรและหุ้นกู้ เปิดบัญชีซื้อขายหลักทรัพย์ ผลิตภัณฑ์บัตร บัตรเครดิต บัตรธนาคารกรุงเทพ เอ็ม วีซ่า ตรวจสอบสถานะการสมัครบัตรเครดิต บัตรเดบิตบีเฟิสต์ บัตรทราเวลธนาคารกรุงเทพ บัตรเติมเงินธนาคารกรุงเทพ ผลิตภัณฑ์เพื่อครอบครัว แบงก์แอสชัวรันส์ สินเชื่อส่วนบุคคล สินเชื่อเพื่อข้าราชการบำนาญ ทิปทางการเงิน บ้านและที่อยู่อาศัย สินเชื่อบ้านบัวหลวง สินเชื่ออเนกประสงค์ที่ใช้ที่อยู่อาศัยเป็นหลักประกัน ทรัพย์สินพร้อมขาย ทรัพย์หลักประกันทางธุรกิจ พร้อ</div>
-          </div>
-          <div class="outline-col">
-            <div class="outline-head tgt">AEM (migrate)</div>
-            <div class="text-sample">จุดเด่นกองทุนจุดเด่นกองทุนรายละเอียดกองทุนข้อมูลสำคัญกองทุนเครื่องมือช่วยเหลือ จุดเด่นกองทุน scrollable โอกาสการลงทุนในหน่วยลงทุน และ/หรือ ETF ที่เน้นการลงทุนในกองทุนรวมอสังหาริมทรัพย์ REITs และ IFFsกระจายการลงทุนทั้งในและต่างประเทศ เพื่อเพิ่มโอกาสในการแสวงหาผลตอบแทนโอกาสรับผลตอบแทนจากเงินปันผล และส่วนต่างราคาซื้อขาย รายละเอียดกองทุน ข้อมูลสำคัญกองทุนดาวน์โหลดไฟล์ข้อมูลต่างๆ ของกองทุนเปิดฟันด์ออฟฟันด์บัวหลวงโครงสร้างพื้นฐานและอสังหาริมทรัพย์ (B-IR-FOF) หนังสือชี้ชวนส่วนสรุปข้อมูลสำคัญ หนังสือชี้ชวนส่วนข้อมูลกองทุนรวม รายงานรอบระยะเวลา 6 เดือน รายงานประจำปี ตารางแสดงวันทำการซื้อขายหน่วยลงทุน ปร</div>
-          </div>
-        </div>
-      </div>
-      <div class="diff-section">
-        <div class="diff-title">คำสำคัญ (top keywords) — <b class="ok">8 ✓ ตรง</b> / <b class="bad">20 ✗ ขาดใน AEM</b></div>
-        <div class="outline-grid">
-          <div class="outline-col">
-            <div class="outline-head src">PRODUCTION keywords</div>
-            <div class="kw-body"><span class="kw kw-shared" title="AEM:1">หรือ <em>32</em></span><span class="kw kw-shared" title="AEM:2">บัวหลวง <em>18</em></span><span class="kw kw-missing" title="AEM:0">ใช้ <em>17</em></span><span class="kw kw-shared" title="AEM:2">และ <em>14</em></span><span class="kw kw-missing" title="AEM:0">จำกัด <em>12</em></span><span class="kw kw-missing" title="AEM:0">ได้แก่ <em>9</em></span><span class="kw kw-missing" title="AEM:0">เช่น <em>8</em></span><span class="kw kw-missing" title="AEM:0">มหาชน <em>7</em></span><span class="kw kw-missing" title="AEM:0">ไอแบงก์กิ้ง <em>6</em></span><span class="kw kw-missing" title="AEM:0">ธนาคารกรุงเทพ <em>6</em></span><span class="kw kw-missing" title="AEM:0">ทั้งนี้ <em>6</em></span><span class="kw kw-shared" title="AEM:1">fof <em>5</em></span><span class="kw kw-missing" title="AEM:0">ลูกค้าบุคคล <em>4</em></span><span class="kw kw-missing" title="AEM:0">กองทุนรวม <em>4</em></span><span class="kw kw-missing" title="AEM:0">ดิจิทัลแบงก์กิ้ง <em>4</em></span><span class="kw kw-missing" title="AEM:0">โมบายแบงก์กิ้ง <em>4</em></span><span class="kw kw-missing" title="AEM:0">ไอแคช <em>4</em></span><span class="kw kw-shared" title="AEM:2">บลจ <em>4</em></span><span class="kw kw-missing" title="AEM:0">address <em>4</em></span><span class="kw kw-missing" title="AEM:0">กิจการธนาคารต่างประเทศ <em>3</em></span><span class="kw kw-missing" title="AEM:0">เกี่ยวกับธนาคารกรุงเทพ <em>3</em></span><span class="kw kw-missing" title="AEM:0">บริการ <em>3</em></span><span class="kw kw-missing" title="AEM:0">ลูกค้าธุรกิจ <em>3</em></span><span class="kw kw-missing" title="AEM:0">ไอซัพพลาย <em>3</em></span><span class="kw kw-missing" title="AEM:0">bualuang <em>3</em></span><span class="kw kw-missing" title="AEM:0">ไอฟันด์ <em>3</em></span><span class="kw kw-shared" title="AEM:1">reits <em>3</em></span><span class="kw kw-missing" title="AEM:0">ของมูลค่าทรัพย์สินสุทธิของกองทุน <em>3</em></span><span class="kw kw-shared" title="AEM:2">โทร <em>3</em></span><span class="kw kw-shared" title="AEM:3">bangkokbank <em>3</em></span></div>
-          </div>
-          <div class="outline-col">
-            <div class="outline-head tgt">AEM keywords</div>
-            <div class="kw-body"><span class="kw kw-shared" title="Prod:3">bangkokbank <em>3</em></span><span class="kw kw-shared" title="Prod:14">และ <em>2</em></span><span class="kw kw-shared" title="Prod:3">โทร <em>2</em></span><span class="kw kw-missing" title="Prod:0">www <em>2</em></span><span class="kw kw-shared" title="Prod:4">บลจ <em>2</em></span><span class="kw kw-shared" title="Prod:18">บัวหลวง <em>2</em></span><span class="kw kw-missing" title="Prod:0">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณในทุกธุรกรรมทางการเงิน <em>2</em></span><span class="kw kw-missing" title="Prod:0">fund <em>2</em></span><span class="kw kw-missing" title="Prod:0">content <em>2</em></span><span class="kw kw-missing" title="Prod:0">personal <em>2</em></span><span class="kw kw-missing" title="Prod:0">save <em>2</em></span><span class="kw kw-missing" title="Prod:0">and <em>2</em></span><span class="kw kw-missing" title="Prod:0">invest <em>2</em></span><span class="kw kw-missing" title="Prod:0">จุดเด่นกองทุนจุดเด่นกองทุนรายละเอียดกองทุนข้อมูลสำคัญกองทุนเครื่องมือช่วยเหลือ <em>1</em></span><span class="kw kw-missing" title="Prod:0">จุดเด่นกองทุน <em>1</em></span><span class="kw kw-missing" title="Prod:0">scrollable <em>1</em></span><span class="kw kw-missing" title="Prod:0">โอกาสการลงทุนในหน่วยลงทุน <em>1</em></span><span class="kw kw-shared" title="Prod:32">หรือ <em>1</em></span><span class="kw kw-missing" title="Prod:0">etf <em>1</em></span><span class="kw kw-missing" title="Prod:0">ที่เน้นการลงทุนในกองทุนรวมอสังหาริมทรัพย์ <em>1</em></span><span class="kw kw-shared" title="Prod:3">reits <em>1</em></span><span class="kw kw-missing" title="Prod:0">iffs <em>1</em></span><span class="kw kw-missing" title="Prod:0">กระจายการลงทุนทั้งในและต่างประเทศ <em>1</em></span><span class="kw kw-missing" title="Prod:0">เพื่อเพิ่มโอกาสในการแสวงหาผลตอบแทนโอกาสรับผลตอบแทนจากเงินปันผล <em>1</em></span><span class="kw kw-missing" title="Prod:0">และส่วนต่างราคาซื้อขาย <em>1</em></span><span class="kw kw-missing" title="Prod:0">รายละเอียดกองทุน <em>1</em></span><span class="kw kw-missing" title="Prod:0">ข้อมูลสำคัญกองทุนดาวน์โหลดไฟล์ข้อมูลต่างๆ <em>1</em></span><span class="kw kw-missing" title="Prod:0">ของกองทุนเปิดฟันด์ออฟฟันด์บัวหลวงโครงสร้างพื้นฐานและอสังหาริมทรัพย์ <em>1</em></span><span class="kw kw-shared" title="Prod:5">fof <em>1</em></span><span class="kw kw-missing" title="Prod:0">หนังสือชี้ชวนส่วนสรุปข้อมูลสำคัญ <em>1</em></span></div>
-          </div>
-        </div>
-        <div class="outline-legend">
-          <span class="kw kw-shared" style="margin-right:12px">เขียว = มีในทั้งคู่</span>
-          <span class="kw kw-missing">แดง = มีฝั่งเดียว</span>
-        </div>
-      </div>
-    </div>
-    </details>
-    <details class="check-block failed">
-      <summary>
+      <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">Meta tags</span>
-        <span class="check-weight">15%</span>
         <span class="check-detail">3/6 matched — missing: ogImage, keywords</span>
         <span class="expand-hint">▾</span>
       </summary>
@@ -777,46 +595,34 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
         <td class="bad">✗ ต่างกัน</td>
       </tr></tbody></table></div>
     </details>
-    <details class="check-block failed">
-      <summary>
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Accordions filled</span>
-        <span class="check-weight">15%</span>
-        <span class="check-detail">prod 8 / aem 11 (11 empty)</span>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Thai/English balance</span>
+        <span class="check-detail">delta 9% (≤10%)</span>
         <span class="expand-hint">▾</span>
       </summary>
-      <div class="diff-body">
-      <div class="diff-section">
-        <div class="diff-title bad">Accordion ว่างเปล่าใน AEM (10/11)</div>
-        <div class="chip-list"><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span></div>
-      </div><div class="diff-section"><div class="diff-title">จำนวนต่างกัน: Production 8 / AEM 11</div></div></div>
-    </details>
-    <details class="check-block failed">
-      <summary>
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Header &amp; Footer</span>
-        <span class="check-weight">10%</span>
-        <span class="check-detail">header 0/148 links, footer 0/32 links</span>
-        <span class="expand-hint">▾</span>
-      </summary>
-      <div class="diff-body"><table class="meta-diff"><thead><tr><th>ส่วน</th><th>Production</th><th>AEM</th><th>Status</th></tr></thead><tbody><tr><td>Header links</td><td>148</td><td class="bad">0</td><td class="bad">✗ หาย</td></tr><tr><td>Footer links</td><td>32</td><td class="bad">0</td><td class="bad">✗ หาย</td></tr></tbody></table></div>
-    </details></div></section>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">prod 97% Thai vs aem 88% Thai · delta 9%</div>
+      </div></div>
+    </details></div>
+      </div></div></section>
 
 
 <section class="panel"><h2>Broken Links on AEM (12)</h2>
-<table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-f</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-f</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">unreachable</td><td class="lhref-cell">http://www.bangkokbank.com/</td></tr><tr><td class="bad">unreachable</td><td class="lhref-cell">http://www.bblam.co.th/</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/fund-p</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-f</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th-TH/Contact-Us</td></tr></tbody></table></section>
+<table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-f</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-f</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">unreachable</td><td class="lhref-cell">http://www.bangkokbank.com/</td></tr><tr><td class="bad">unreachable</td><td class="lhref-cell">http://www.bblam.co.th/</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/fund-p</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/content/dam/bangkokbank/Business%20Units/person</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/-/media/files/personal/save-and-invest/mutual-f</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th-TH/Contact-Us</td></tr></tbody></table></section>
 
 <section class="panel"><h2>Image Distortion / Ratio Issues (5)</h2>
 <ul class="img-issue-list"><li class="img-issue">
       <div class="img-issue-head">
         <span class="sev sev-ratio">ratio</span>
-        <b>media_1c28970cc1ea25cc</b>
+        <b>media_16f3657853bbcf83</b>
         <span class="muted">rendered ratio prod 1.00 vs aem 2.86</span>
       </div>
       
       <div class="img-preview-grid">
         <div class="img-preview-cell"><div class="img-preview-label">PROD 21×21</div><img src="https://www.bangkokbank.com/-/media/feature/common/bbl-corporate/language-icons/flag-us.png" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 1440×504</div><img src="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/media_1c28970cc1ea25cc" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+        <div class="img-preview-cell"><div class="img-preview-label">AEM 1440×504</div><img src="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/media_16f3657853bbcf83" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
       </div>
     </li><li class="img-issue">
       <div class="img-issue-head">
@@ -844,18 +650,18 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
       <div class="img-issue-head">
         <span class="sev sev-ratio">ratio</span>
         <b>media_14d36c5822780164</b>
-        <span class="muted">rendered ratio prod 1.01 vs aem 1.31</span>
+        <span class="muted">rendered ratio prod 1.00 vs aem 1.31</span>
       </div>
       
       <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 81×80</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/icons/ls-18.svg?iar=0&amp;hash=26A2060A4FA4232CCD0D1E" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+        <div class="img-preview-cell"><div class="img-preview-label">PROD 48×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-financial.svg?h=48&amp;iar=0" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
         <div class="img-preview-cell"><div class="img-preview-label">AEM 105×80</div><img src="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/alternative-asset-funds/media_14d36c5822780164" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
       </div>
     </li><li class="img-issue">
       <div class="img-issue-head">
         <span class="sev sev-missing">missing</span>
         <b>(page-wide)</b>
-        <span class="muted">AEM renders 4 images vs 10 on prod</span>
+        <span class="muted">AEM renders 4 images vs 7 on prod</span>
       </div>
       
     </li></ul></section>

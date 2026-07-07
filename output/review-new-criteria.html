@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review — New Criteria (Pilot)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Sukhumvit Set", "Noto Sans Thai", sans-serif; margin: 0; background: #f4f5f7; color: #1a1a1a; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+  h1 { color: #1a2b5c; font-size: 22px; margin: 0 0 4px; }
+  h2 { color: #1a2b5c; font-size: 17px; margin: 32px 0 10px; border-bottom: 2px solid #e0e0e0; padding-bottom: 6px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 18px; }
+  .warn-banner { background: #fff3cd; border: 1px solid #ffe69c; border-radius: 8px; padding: 12px 16px; margin: 14px 0; font-size: 13px; color: #664d03; }
+  .cards { display: flex; gap: 12px; margin: 16px 0; }
+  .card { flex: 1; background: #fff; border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .card .num { font-size: 28px; font-weight: 800; color: #1a2b5c; }
+  .card .num.good { color: #1a6b3c; } .card .num.bad { color: #c00; }
+  .card .lbl { font-size: 11px; color: #888; margin-top: 2px; }
+
+  /* Weight breakdown bar */
+  .weight-table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .weight-table th, .weight-table td { padding: 8px 12px; border-bottom: 1px solid #eee; text-align: left; }
+  .weight-table th { background: #f7f8fa; color: #888; font-size: 11px; text-transform: uppercase; }
+  .weight-table .group td { background: #eef2ff; font-weight: 700; color: #1a2b5c; }
+  .weight-table .mock { color: #b8860b; font-style: italic; font-size: 11px; }
+  .pct-cell { font-weight: 700; }
+
+  /* Sample page drill-down */
+  .sample { background: #fff; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .sample-head { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+  .sample-score { font-size: 32px; font-weight: 800; min-width: 80px; }
+  .sample-score.good { color: #1a6b3c; } .sample-score.mid { color: #b8860b; } .sample-score.bad { color: #c00; }
+  .sample-path { font-family: monospace; font-size: 11px; color: #555; word-break: break-all; }
+  .sample-cat { font-size: 11px; color: #888; }
+  .group-block { border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .group-head { padding: 8px 12px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .group-head.template { background: #eef2ff; color: #1a2b5c; }
+  .group-head.content { background: #f0f7e6; color: #1a6b3c; }
+  .group-head.structure { background: #fdf0e6; color: #8a5a00; }
+  .group-pct { font-size: 12px; opacity: .8; }
+  .check-row { display: flex; gap: 10px; align-items: center; padding: 7px 12px; font-size: 12px; border-top: 1px solid #f0f0f0; }
+  .check-status { font-weight: 700; width: 16px; text-align: center; }
+  .check-status.ok { color: #1a6b3c; } .check-status.bad { color: #c00; }
+  .check-label { font-weight: 600; min-width: 150px; }
+  .check-weight { background: #1a2b5c; color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 3px; }
+  .check-weight.mock { background: #b8860b; }
+  .check-detail { color: #666; flex: 1; }
+  .mock-tag { background: #fff3cd; color: #664d03; font-size: 9px; padding: 1px 5px; border-radius: 3px; margin-left: 6px; text-transform: uppercase; font-weight: 700; }
+  .legend { font-size: 12px; color: #666; margin: 8px 0 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📋 Review — New Criteria (Pilot)</h1>
+  <div class="sub">Re-scored 632 pages with the planned <b>WEIGHTS_MAIN</b> (11 checks · 3 groups). Preview layout before coding.</div>
+
+  <div class="warn-banner">
+    ⚠️ <b>ส่วนที่เป็น MOCK</b> — checks ที่ติดแท็ก <span style="background:#fff3cd;padding:1px 5px;border-radius:3px;font-weight:700;font-size:11px;">MOCK</span>
+    (headerMenu, footerMenu, components) คำนวณจากข้อมูลที่มีอยู่แบบหยาบ เพราะ extract.js ยังไม่ได้ extract
+    label/count ของเมนู และ component types (table/form/video) — ค่าจริงจะเปลี่ยนหลัง re-capture 20 หน้า pilot.
+  </div>
+
+  <div class="cards">
+    <div class="card"><div class="num bad">30<span style="font-size:16px">%</span></div><div class="lbl">Avg parity (new criteria)</div></div>
+    <div class="card"><div class="num">632</div><div class="lbl">Pages scored</div></div>
+    <div class="card"><div class="num good">78</div><div class="lbl">Passed (≥85%)</div></div>
+    <div class="card"><div class="num bad">554</div><div class="lbl">Below threshold</div></div>
+  </div>
+
+  <h2>1. โครงสร้างน้ำหนักใหม่ (11 checks · 3 กลุ่ม)</h2>
+  <table class="weight-table">
+    <thead><tr><th>กลุ่ม</th><th>Check</th><th>Weight</th><th>เกณฑ์ผ่าน</th><th>Partial</th><th>ข้อมูล</th></tr></thead>
+    <tbody>
+      <tr class="group"><td colspan="6">🏛 Template — 25%</td></tr>
+      <tr><td></td><td>Header menu (label + count)</td><td class="pct-cell">8%</td><td>count เท่ากัน + label 100%</td><td>= labelMatch%</td><td><span class="mock">MOCK</span></td></tr>
+      <tr><td></td><td>Footer menu (label + count)</td><td class="pct-cell">7%</td><td>count เท่ากัน + label 100%</td><td>= labelMatch%</td><td><span class="mock">MOCK</span></td></tr>
+      <tr><td></td><td>Components (acc/table/form/video)</td><td class="pct-cell">10%</td><td>แต่ละ type ≥80%</td><td>= avg ratio</td><td><span class="mock">MOCK</span></td></tr>
+
+      <tr class="group"><td colspan="6">📝 Content — 50%</td></tr>
+      <tr><td></td><td>Content length (±30%)</td><td class="pct-cell">14%</td><td>|1−ratio| ≤ 0.30</td><td>= ratio</td><td>real</td></tr>
+      <tr><td></td><td>Missing text blocks</td><td class="pct-cell">14%</td><td>missing = 0</td><td>= 1−missingRatio</td><td>real</td></tr>
+      <tr><td></td><td>Missing keywords</td><td class="pct-cell">12%</td><td>missing = 0</td><td>= 1−missingRatio</td><td>real</td></tr>
+      <tr><td></td><td>Missing image (≥80% + alt)</td><td class="pct-cell">10%</td><td>count ≥80% & alt &gt;50%</td><td>= avg</td><td>real</td></tr>
+
+      <tr class="group"><td colspan="6">🔗 Structure / SEO — 25%</td></tr>
+      <tr><td></td><td>Headings (Jaccard)</td><td class="pct-cell">10%</td><td>Jaccard &gt; 0.6</td><td>= Jaccard</td><td>real</td></tr>
+      <tr><td></td><td>Links match</td><td class="pct-cell">8%</td><td>hit &gt; 50%</td><td>= hit</td><td>real</td></tr>
+      <tr><td></td><td>Meta tags</td><td class="pct-cell">5%</td><td>ทั้ง 6 ตรง</td><td>= metaScore</td><td>real</td></tr>
+      <tr><td></td><td>Thai/English balance</td><td class="pct-cell">2%</td><td>delta ≤ 0.10</td><td>binary</td><td>real</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. ตัวอย่างหน้า drill-down (6 หน้า — ต่ำ→สูง)</h2>
+  <div class="legend">
+    แสดง 6 หน้าจากคะแนนต่ำสุด → สูงสุด เพื่อเห็นการแสดงผลของแต่ละ check.
+    หน้าจริงใน dashboard จะใช้ layout เดียวกันนี้.
+  </div>
+  
+  <div class="sample">
+    <div class="sample-head">
+      <div class="sample-score bad">9<span style="font-size:16px">%</span></div>
+      <div>
+        <div class="sample-path">/th-TH/Personal/Save-And-Invest/Mutual-Funds/Foreign-Investment-Funds/B-HY-AI</div>
+        <div class="sample-cat">id 63 · Personal / Save &amp; Invest</div>
+      </div>
+    </div>
+    
+    <div class="group-block">
+      <div class="group-head template">
+        <span>🏛 🏛 Template</span>
+        <span class="group-pct">7/25 · 28%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Header menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">0/148 links · label match (mock 0%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status ok">✓</span>
+          <span class="check-label">Footer menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">32/32 links · label match (mock 100%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Components (accordion/table/form/video)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">accordion 0/10 (0 empty) · table/form/video = MOCK (0/0 each)</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head content">
+        <span>📝 📝 Content</span>
+        <span class="group-pct">2/50 · 3%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Content length (±30%)</span>
+          <span class="check-detail">1069/25257 chars (4%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing text blocks</span>
+          <span class="check-detail">190/192 prod blocks missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing keywords</span>
+          <span class="check-detail">30/30 prod keywords missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing image (≥80% + alt)</span>
+          <span class="check-detail">1/7 imgs · alt match 0%</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head structure">
+        <span>🔗 🔗 Structure / SEO</span>
+        <span class="group-pct">0/25 · 1%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Headings (Jaccard)</span>
+          <span class="check-detail">0/43 (Jaccard 0%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Links match</span>
+          <span class="check-detail">2% of prod link-texts found</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Meta tags (partial)</span>
+          <span class="check-detail">0/6 matched</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Thai/English balance</span>
+          <span class="check-detail">delta 81% (≤10%)</span>
+        </div>
+    </div>
+  </div>
+  <div class="sample">
+    <div class="sample-head">
+      <div class="sample-score bad">15<span style="font-size:16px">%</span></div>
+      <div>
+        <div class="sample-path">/th-TH/Personal/My-Family-and-Me/Bancassurance/BLA/Gain1st-Savings-Care15-10</div>
+        <div class="sample-cat">id 315 · Personal / My Family &amp; Me</div>
+      </div>
+    </div>
+    
+    <div class="group-block">
+      <div class="group-head template">
+        <span>🏛 🏛 Template</span>
+        <span class="group-pct">11/25 · 42%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Header menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">65/148 links · label match (mock 43%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status ok">✓</span>
+          <span class="check-label">Footer menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">32/32 links · label match (mock 100%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Components (accordion/table/form/video)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">accordion 0/8 (0 empty) · table/form/video = MOCK (0/0 each)</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head content">
+        <span>📝 📝 Content</span>
+        <span class="group-pct">4/50 · 7%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Content length (±30%)</span>
+          <span class="check-detail">3308/27641 chars (11%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing text blocks</span>
+          <span class="check-detail">184/191 prod blocks missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing keywords</span>
+          <span class="check-detail">30/30 prod keywords missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing image (≥80% + alt)</span>
+          <span class="check-detail">2/9 imgs · alt match 0%</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head structure">
+        <span>🔗 🔗 Structure / SEO</span>
+        <span class="group-pct">1/25 · 3%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Headings (Jaccard)</span>
+          <span class="check-detail">1/54 (Jaccard 1%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Links match</span>
+          <span class="check-detail">8% of prod link-texts found</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Meta tags (partial)</span>
+          <span class="check-detail">0/6 matched</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Thai/English balance</span>
+          <span class="check-detail">delta 92% (≤10%)</span>
+        </div>
+    </div>
+  </div>
+  <div class="sample">
+    <div class="sample-head">
+      <div class="sample-score bad">16<span style="font-size:16px">%</span></div>
+      <div>
+        <div class="sample-path">/th-TH/Business-Banking/Finance-My-Business/e-Guarantee/Electronic-Government-Procurement</div>
+        <div class="sample-cat">id 536 · Business Banking / Finance My Business</div>
+      </div>
+    </div>
+    
+    <div class="group-block">
+      <div class="group-head template">
+        <span>🏛 🏛 Template</span>
+        <span class="group-pct">11/25 · 42%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Header menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">65/148 links · label match (mock 43%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status ok">✓</span>
+          <span class="check-label">Footer menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">32/32 links · label match (mock 100%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Components (accordion/table/form/video)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">accordion 0/8 (0 empty) · table/form/video = MOCK (0/0 each)</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head content">
+        <span>📝 📝 Content</span>
+        <span class="group-pct">5/50 · 9%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Content length (±30%)</span>
+          <span class="check-detail">3308/23218 chars (14%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing text blocks</span>
+          <span class="check-detail">184/193 prod blocks missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing keywords</span>
+          <span class="check-detail">28/30 prod keywords missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing image (≥80% + alt)</span>
+          <span class="check-detail">2/11 imgs · alt match 0%</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head structure">
+        <span>🔗 🔗 Structure / SEO</span>
+        <span class="group-pct">1/25 · 3%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Headings (Jaccard)</span>
+          <span class="check-detail">1/55 (Jaccard 1%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Links match</span>
+          <span class="check-detail">7% of prod link-texts found</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Meta tags (partial)</span>
+          <span class="check-detail">0/6 matched</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Thai/English balance</span>
+          <span class="check-detail">delta 91% (≤10%)</span>
+        </div>
+    </div>
+  </div>
+  <div class="sample">
+    <div class="sample-head">
+      <div class="sample-score bad">18<span style="font-size:16px">%</span></div>
+      <div>
+        <div class="sample-path">/th-TH/Business-Banking/Manage-My-Business/Commercial-Cards/BBL-Caltex-Fleet-Card</div>
+        <div class="sample-cat">id 489 · Business Banking / Manage My Business</div>
+      </div>
+    </div>
+    
+    <div class="group-block">
+      <div class="group-head template">
+        <span>🏛 🏛 Template</span>
+        <span class="group-pct">7/25 · 28%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Header menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">0/148 links · label match (mock 0%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Footer menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">0/32 links · label match (mock 0%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Components (accordion/table/form/video)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">accordion 11/8 (11 empty) · table/form/video = MOCK (0/0 each)</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head content">
+        <span>📝 📝 Content</span>
+        <span class="group-pct">6/50 · 13%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Content length (±30%)</span>
+          <span class="check-detail">735/22883 chars (3%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing text blocks</span>
+          <span class="check-detail">171/195 prod blocks missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing keywords</span>
+          <span class="check-detail">28/30 prod keywords missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing image (≥80% + alt)</span>
+          <span class="check-detail">5/9 imgs · alt match 0%</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head structure">
+        <span>🔗 🔗 Structure / SEO</span>
+        <span class="group-pct">4/25 · 18%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Headings (Jaccard)</span>
+          <span class="check-detail">7/36 (Jaccard 19%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Links match</span>
+          <span class="check-detail">0% of prod link-texts found</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Meta tags (partial)</span>
+          <span class="check-detail">3/6 matched</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Thai/English balance</span>
+          <span class="check-detail">delta 18% (≤10%)</span>
+        </div>
+    </div>
+  </div>
+  <div class="sample">
+    <div class="sample-head">
+      <div class="sample-score bad">30<span style="font-size:16px">%</span></div>
+      <div>
+        <div class="sample-path">/th-TH/Personal/Save-And-Invest/Mutual-Funds/Fixed-Income-Funds/BCAP-GFIO</div>
+        <div class="sample-cat">id 48 · Personal / Save &amp; Invest</div>
+      </div>
+    </div>
+    
+    <div class="group-block">
+      <div class="group-head template">
+        <span>🏛 🏛 Template</span>
+        <span class="group-pct">15/25 · 60%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Header menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">65/148 links · label match (mock 43%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status ok">✓</span>
+          <span class="check-label">Footer menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">32/32 links · label match (mock 100%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Components (accordion/table/form/video)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">accordion 4/8 (4 empty) · table/form/video = MOCK (0/0 each)</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head content">
+        <span>📝 📝 Content</span>
+        <span class="group-pct">10/50 · 21%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Content length (±30%)</span>
+          <span class="check-detail">4478/24550 chars (18%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing text blocks</span>
+          <span class="check-detail">162/194 prod blocks missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing keywords</span>
+          <span class="check-detail">29/30 prod keywords missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing image (≥80% + alt)</span>
+          <span class="check-detail">20/10 imgs · alt match 20%</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head structure">
+        <span>🔗 🔗 Structure / SEO</span>
+        <span class="group-pct">5/25 · 21%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Headings (Jaccard)</span>
+          <span class="check-detail">9/53 (Jaccard 16%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Links match</span>
+          <span class="check-detail">13% of prod link-texts found</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Meta tags (partial)</span>
+          <span class="check-detail">3/6 matched</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Thai/English balance</span>
+          <span class="check-detail">delta 62% (≤10%)</span>
+        </div>
+    </div>
+  </div>
+  <div class="sample">
+    <div class="sample-head">
+      <div class="sample-score good">100<span style="font-size:16px">%</span></div>
+      <div>
+        <div class="sample-path">/th-TH/Personal/Digital-Banking/Bualuang-mBanking/RoV</div>
+        <div class="sample-cat">id 461 · Personal / Digital Banking</div>
+      </div>
+    </div>
+    
+    <div class="group-block">
+      <div class="group-head template">
+        <span>🏛 🏛 Template</span>
+        <span class="group-pct">25/25 · 100%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status ok">✓</span>
+          <span class="check-label">Header menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">65/0 links · label match (mock 100%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status ok">✓</span>
+          <span class="check-label">Footer menu (label + count)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">32/0 links · label match (mock 100%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status ok">✓</span>
+          <span class="check-label">Components (accordion/table/form/video)<span class="mock-tag">mock</span></span>
+          <span class="check-detail">accordion 0/0 (0 empty) · table/form/video = MOCK (0/0 each)</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head content">
+        <span>📝 📝 Content</span>
+        <span class="group-pct">197/50 · 394%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Content length (±30%)</span>
+          <span class="check-detail">3308/251 chars (1317%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing text blocks</span>
+          <span class="check-detail">2/2 prod blocks missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing keywords</span>
+          <span class="check-detail">18/23 prod keywords missing</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Missing image (≥80% + alt)</span>
+          <span class="check-detail">2/0 imgs · alt match 100%</span>
+        </div>
+    </div>
+    <div class="group-block">
+      <div class="group-head structure">
+        <span>🔗 🔗 Structure / SEO</span>
+        <span class="group-pct">3/25 · 11%</span>
+      </div>
+      
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Headings (Jaccard)</span>
+          <span class="check-detail">0/21 (Jaccard 0%)</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Links match</span>
+          <span class="check-detail">0% of prod link-texts found</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status bad">✗</span>
+          <span class="check-label">Meta tags (partial)</span>
+          <span class="check-detail">1/6 matched</span>
+        </div>
+        <div class="check-row">
+          <span class="check-status ok">✓</span>
+          <span class="check-label">Thai/English balance</span>
+          <span class="check-detail">delta 5% (≤10%)</span>
+        </div>
+    </div>
+  </div>
+
+  <h2>3. หมายเหตุ</h2>
+  <div style="font-size:13px; color:#555; line-height:1.7;">
+    <p>• <b>errorPage check ถูกตัดออก</b> — 404/blocked ยังคงเป็น early-return parity=0 เหมือนเดิม (โหลดไม่ได้ = พัง)</p>
+    <p>• <b>Meta เปลี่ยนจาก binary → partial</b> — เดิมต้องตรง 100% ถึงจะได้คะแนน ใหม่ให้ partial ตามจำนวน tag ที่ตรง</p>
+    <p>• <b>Weights นี้เป็น pilot</b> — ปรับทีหลังได้จาก config.js โดยไม่ต้อง re-capture (re-score จาก cache พอ)</p>
+    <p>• หลัง re-capture 20 หน้า pilot, MOCK tags จะหายไปและแสดงค่าจริง</p>
+  </div>
+</div>
+</body>
+</html>
