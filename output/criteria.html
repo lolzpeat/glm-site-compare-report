@@ -22,6 +22,7 @@ h3 { font-size:15px; color:#1a2b5c; margin-bottom:8px; }
 .crit-table th, .crit-table td { padding:8px 10px; border:1px solid #e0e0e0; text-align:left; vertical-align:top; }
 .crit-table th { background:#1a2b5c; color:#fff; font-weight:600; font-size:12px; }
 .crit-table tr:nth-child(even) { background:#f7f8fa; }
+.crit-table tr.group td { background:#eef2fb !important; color:#1a2b5c; font-size:13px; }
 .note { background:#fff8e1; border-left:4px solid #ffc107; padding:10px 14px; border-radius:6px; font-size:12px; color:#664d03; margin:10px 0; }
 .check-card { background:#f8f9fb; border:1px solid #e8eaed; border-radius:8px; padding:14px 16px; margin:12px 0; }
 .check-row { font-size:13px; margin:4px 0; }
@@ -54,16 +55,11 @@ code { background:#eef0f3; padding:1px 5px; border-radius:3px; font-size:12px; c
 <!-- ─── SCORING ─────────────────────────────────────────────────── -->
 <section class="panel">
   <h2>1. การให้คะแนน Parity Score</h2>
-  <p>แต่ละหน้าจะได้ <b>Parity Score (0–100%)</b> คำนวณจาก weighted metrics 6 ตัว ผ่านเมื่อ <b>≥ 85%</b></p>
+  <p>แต่ละหน้าจะได้ <b>Parity Score (0–100%)</b> คำนวณจาก <b>11 checks ใน 3 groups</b> ผ่านเมื่อ <b>≥ 85%</b></p>
   <table class="crit-table">
     <thead><tr><th>Check</th><th>น้ำหนัก</th><th>เกณฑ์ผ่าน</th><th>วิธีคำนวณ</th></tr></thead>
     <tbody>
-      <tr><td><b>Headings match</b></td><td>25%</td><td>Jaccard similarity > 60%</td><td>เปรียบเทียบเซตของ heading text (lowercase) ระหว่าง prod และ AEM ด้วย Jaccard index = 交集 / ยูเนียน</td></tr>
-      <tr><td><b>Links match</b></td><td>20%</td><td>match > 50%</td><td>เปอร์เซ็นต์ของ link text ใน prod ที่พบใน AEM (เทียบด้วย text ไม่ใช่ href เพราะ URL pattern ต่างกัน)</td></tr>
-      <tr><td><b>Content length</b></td><td>15%</td><td>AEM อยู่ใน ±30% ของ prod</td><td>เทียบ textContent length (หลังกรอง script/style/iframe) — ถ้า AEM สั้นหรือยาวเกิน 30% ของ prod = fail</td></tr>
-      <tr><td><b>Meta tags</b></td><td>15%</td><td>ทั้งหมดตรง</td><td>เทียบ title, description, canonical, og:title, og:image, keywords — normalized (lowercase, strip non-alphanum/Thai)</td></tr>
-      <tr><td><b>Accordions</b></td><td>15%</td><td>จำนวนใกล้เคียง + ไม่มีว่าง</td><td>นับ accordion sections และตรวจว่ามีเนื้อหา (bodyChars > 40) — AEM ที่ accordion ว่างเปล่า = fail</td></tr>
-      <tr><td><b>Header & Footer</b></td><td>10%</td><td>มี links ทั้งคู่</td><td>ตรวจว่า AEM มี header nav links และ footer links (เหมือน prod ที่มี mega menu)</td></tr>
+<tr class="group"><td colspan="4"><b>Template</b> — 25%</td></tr><tr><td><b>Header menu (label + count)</b></td><td>8%</td><td>count เท่ากัน + label 100%</td><td>header label + จำนวนเมนูต้องตรงกันทั้งหมด</td></tr><tr><td><b>Footer menu (label + count)</b></td><td>7%</td><td>count เท่ากัน + label 100%</td><td>footer label + จำนวนเมนูต้องตรงกันทั้งหมด</td></tr><tr><td><b>Components (accordion/table/form/video)</b></td><td>10%</td><td>แต่ละ type ≥ 80%</td><td>component แต่ละประเภทที่ prod มี AEM ต้องมีอย่างน้อย 80%</td></tr><tr class="group"><td colspan="4"><b>Content</b> — 50%</td></tr><tr><td><b>Content length</b></td><td>14%</td><td>AEM อยู่ใน ±30% ของ prod</td><td>เทียบ textContent length — AEM สั้นหรือยาวเกิน 30% ของ prod = fail</td></tr><tr><td><b>Missing text blocks</b></td><td>14%</td><td>missing = 0</td><td>ประโยค/บล็อก text ของ prod ต้องมีใน AEM ครบ (กรอง dynamic content)</td></tr><tr><td><b>Missing keywords</b></td><td>12%</td><td>missing = 0</td><td>คำสำคัญของ prod ต้องมีใน AEM</td></tr><tr><td><b>Missing image</b></td><td>10%</td><td>count ≥ 80% + alt match > 50%</td><td>AEM ต้องมีรูป ≥ 80% ของ prod และ alt text ตรงกัน > 50%</td></tr><tr class="group"><td colspan="4"><b>Structure / SEO</b> — 25%</td></tr><tr><td><b>Headings (Jaccard)</b></td><td>10%</td><td>Jaccard > 0.6</td><td>เปรียบเทียบ heading text sets ด้วย Jaccard index</td></tr><tr><td><b>Links match</b></td><td>8%</td><td>match > 50%</td><td>เปอร์เซ็นต์ของ link text ใน prod ที่พบใน AEM</td></tr><tr><td><b>Meta tags</b></td><td>5%</td><td>ทั้งหมดตรง (partial credit)</td><td>เทียบ title, description, canonical, og:title, og:image, keywords — ให้ partial credit</td></tr><tr><td><b>Thai/English balance</b></td><td>2%</td><td>delta ≤ 10%</td><td>สัดส่วนอักขระไทย vs อังกฤษต้องใกล้เคียงกัน</td></tr>
     </tbody>
   </table>
   <div class="note">
@@ -194,7 +190,7 @@ code { background:#eef0f3; padding:1px 5px; border-radius:3px; font-size:12px; c
 
 <footer class="foot">
   BBL Migration Parity Checker · Detection Criteria Documentation<br>
-  อัปเดตล่าสุด: 3/7/2569 · <a href="dashboard.html">← กลับ Dashboard</a>
+  อัปเดตล่าสุด: 7/7/2569 · <a href="dashboard.html">← กลับ Dashboard</a>
 </footer>
 
 </div></body></html>

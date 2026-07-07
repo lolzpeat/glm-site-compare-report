@@ -2,8 +2,9 @@
 // Output: output/criteria.html — deployed alongside the dashboard.
 
 import { writeFile, mkdir } from 'node:fs/promises';
-import { DIR, WEIGHTS, PASS_THRESHOLD, THAI_RATIO_DELTA, IMAGE_RATIO_TOLERANCE,
-  TEXT_MATCH_TOLERANCE, MAX_LINK_CHECKS, LINK_CHECK_BATCH } from '../config.js';
+import { DIR, PASS_THRESHOLD, THAI_RATIO_DELTA, IMAGE_RATIO_TOLERANCE,
+  TEXT_MATCH_TOLERANCE, MAX_LINK_CHECKS, LINK_CHECK_BATCH,
+  WEIGHTS_MAIN, CRITERIA_GROUPS } from '../config.js';
 
 async function main() {
   await mkdir(DIR.output, { recursive: true });
@@ -13,6 +14,28 @@ async function main() {
 }
 
 function renderDoc() {
+  const criteriaRows = CRITERIA_GROUPS.map(g => {
+    const head = `<tr class="group"><td colspan="4"><b>${g.label}</b> — ${Math.round(g.weight * 100)}%</td></tr>`;
+    const labels = {
+      headerMenu:      ['Header menu (label + count)', 'count เท่ากัน + label 100%', 'header label + จำนวนเมนูต้องตรงกันทั้งหมด'],
+      footerMenu:      ['Footer menu (label + count)', 'count เท่ากัน + label 100%', 'footer label + จำนวนเมนูต้องตรงกันทั้งหมด'],
+      components:      ['Components (accordion/table/form/video)', 'แต่ละ type ≥ 80%', 'component แต่ละประเภทที่ prod มี AEM ต้องมีอย่างน้อย 80%'],
+      contentLength:   ['Content length', 'AEM อยู่ใน ±' + Math.round(TEXT_MATCH_TOLERANCE * 100) + '% ของ prod', 'เทียบ textContent length — AEM สั้นหรือยาวเกิน ' + Math.round(TEXT_MATCH_TOLERANCE * 100) + '% ของ prod = fail'],
+      missingText:     ['Missing text blocks', 'missing = 0', 'ประโยค/บล็อก text ของ prod ต้องมีใน AEM ครบ (กรอง dynamic content)'],
+      missingKeywords: ['Missing keywords', 'missing = 0', 'คำสำคัญของ prod ต้องมีใน AEM'],
+      missingImage:    ['Missing image', 'count ≥ 80% + alt match > 50%', 'AEM ต้องมีรูป ≥ 80% ของ prod และ alt text ตรงกัน > 50%'],
+      headings:        ['Headings (Jaccard)', 'Jaccard > 0.6', 'เปรียบเทียบ heading text sets ด้วย Jaccard index'],
+      links:           ['Links match', 'match > 50%', 'เปอร์เซ็นต์ของ link text ใน prod ที่พบใน AEM'],
+      meta:            ['Meta tags', 'ทั้งหมดตรง (partial credit)', 'เทียบ title, description, canonical, og:title, og:image, keywords — ให้ partial credit'],
+      thaiBalance:     ['Thai/English balance', 'delta ≤ ' + Math.round(THAI_RATIO_DELTA * 100) + '%', 'สัดส่วนอักขระไทย vs อังกฤษต้องใกล้เคียงกัน'],
+    };
+    const body = g.checks.map(id => {
+      const [name, pass, desc] = labels[id] || [id, '', ''];
+      return `<tr><td><b>${name}</b></td><td>${Math.round(WEIGHTS_MAIN[id] * 100)}%</td><td>${pass}</td><td>${desc}</td></tr>`;
+    }).join('');
+    return head + body;
+  }).join('');
+
   return `<!DOCTYPE html>
 <html lang="th"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -34,16 +57,11 @@ function renderDoc() {
 <!-- ─── SCORING ─────────────────────────────────────────────────── -->
 <section class="panel">
   <h2>1. การให้คะแนน Parity Score</h2>
-  <p>แต่ละหน้าจะได้ <b>Parity Score (0–100%)</b> คำนวณจาก weighted metrics 6 ตัว ผ่านเมื่อ <b>≥ ${PASS_THRESHOLD}%</b></p>
+  <p>แต่ละหน้าจะได้ <b>Parity Score (0–100%)</b> คำนวณจาก <b>11 checks ใน 3 groups</b> ผ่านเมื่อ <b>≥ ${PASS_THRESHOLD}%</b></p>
   <table class="crit-table">
     <thead><tr><th>Check</th><th>น้ำหนัก</th><th>เกณฑ์ผ่าน</th><th>วิธีคำนวณ</th></tr></thead>
     <tbody>
-      <tr><td><b>Headings match</b></td><td>${Math.round(WEIGHTS.headings*100)}%</td><td>Jaccard similarity > 60%</td><td>เปรียบเทียบเซตของ heading text (lowercase) ระหว่าง prod และ AEM ด้วย Jaccard index = 交集 / ยูเนียน</td></tr>
-      <tr><td><b>Links match</b></td><td>${Math.round(WEIGHTS.links*100)}%</td><td>match > 50%</td><td>เปอร์เซ็นต์ของ link text ใน prod ที่พบใน AEM (เทียบด้วย text ไม่ใช่ href เพราะ URL pattern ต่างกัน)</td></tr>
-      <tr><td><b>Content length</b></td><td>${Math.round(WEIGHTS.text*100)}%</td><td>AEM อยู่ใน ±${Math.round(TEXT_MATCH_TOLERANCE*100)}% ของ prod</td><td>เทียบ textContent length (หลังกรอง script/style/iframe) — ถ้า AEM สั้นหรือยาวเกิน 30% ของ prod = fail</td></tr>
-      <tr><td><b>Meta tags</b></td><td>${Math.round(WEIGHTS.meta*100)}%</td><td>ทั้งหมดตรง</td><td>เทียบ title, description, canonical, og:title, og:image, keywords — normalized (lowercase, strip non-alphanum/Thai)</td></tr>
-      <tr><td><b>Accordions</b></td><td>${Math.round(WEIGHTS.accordions*100)}%</td><td>จำนวนใกล้เคียง + ไม่มีว่าง</td><td>นับ accordion sections และตรวจว่ามีเนื้อหา (bodyChars > 40) — AEM ที่ accordion ว่างเปล่า = fail</td></tr>
-      <tr><td><b>Header & Footer</b></td><td>${Math.round(WEIGHTS.headerFooter*100)}%</td><td>มี links ทั้งคู่</td><td>ตรวจว่า AEM มี header nav links และ footer links (เหมือน prod ที่มี mega menu)</td></tr>
+${criteriaRows}
     </tbody>
   </table>
   <div class="note">
@@ -200,6 +218,7 @@ h3 { font-size:15px; color:#1a2b5c; margin-bottom:8px; }
 .crit-table th, .crit-table td { padding:8px 10px; border:1px solid #e0e0e0; text-align:left; vertical-align:top; }
 .crit-table th { background:#1a2b5c; color:#fff; font-weight:600; font-size:12px; }
 .crit-table tr:nth-child(even) { background:#f7f8fa; }
+.crit-table tr.group td { background:#eef2fb !important; color:#1a2b5c; font-size:13px; }
 .note { background:#fff8e1; border-left:4px solid #ffc107; padding:10px 14px; border-radius:6px; font-size:12px; color:#664d03; margin:10px 0; }
 .check-card { background:#f8f9fb; border:1px solid #e8eaed; border-radius:8px; padding:14px 16px; margin:12px 0; }
 .check-row { font-size:13px; margin:4px 0; }
