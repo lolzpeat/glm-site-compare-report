@@ -44,6 +44,36 @@ export const WEIGHTS = {
   headerFooter: 0.10,
 };
 
+// Main-dashboard criteria (pilot): 11 checks in 3 groups, sums to 1.00.
+// Replaces WEIGHTS for main-mode scoring. Weights/thresholds here can be tuned
+// later without re-capturing pages (re-score from cached metrics is enough).
+export const WEIGHTS_MAIN = {
+  // Template parity (25%)
+  headerMenu:      0.08,  // header label + count match
+  footerMenu:      0.07,  // footer label + count match
+  components:      0.10,  // accordion/table/form/video parity
+
+  // Content parity (50%)
+  contentLength:   0.14,  // text length within ±30%
+  missingText:     0.14,  // prod text blocks present in AEM
+  missingKeywords: 0.12,  // prod keywords present in AEM
+  missingImage:    0.10,  // image count ≥80% + alt match >50%
+
+  // Structure / SEO (25%)
+  headings:        0.10,  // Jaccard > 0.6
+  links:           0.08,  // link-text hit > 50%
+  meta:            0.05,  // meta tags match (partial credit)
+  thaiBalance:     0.02,  // Thai/Latin ratio delta
+};
+
+// Group definitions — used by both compare (sub-score calc) and dashboard
+// (grouped rendering). `checks` lists the WEIGHTS_MAIN keys in display order.
+export const CRITERIA_GROUPS = [
+  { id: 'template',  label: 'Template',         weight: 0.25, checks: ['headerMenu', 'footerMenu', 'components'] },
+  { id: 'content',   label: 'Content',          weight: 0.50, checks: ['contentLength', 'missingText', 'missingKeywords', 'missingImage'] },
+  { id: 'structure', label: 'Structure / SEO',  weight: 0.25, checks: ['headings', 'links', 'meta', 'thaiBalance'] },
+];
+
 // News article weights — focused on 5 news-specific elements only.
 // Ignores generic checks (accordions, mega menu, etc.) that don't apply to articles.
 export const WEIGHTS_NEWS = {
