@@ -661,6 +661,12 @@ async function processPair(browser, pair, index, total, existing, force, newsMod
   const id = String(index + 1);
   if (!force && existing && existing[id] && existing[id].prod?.metrics && existing[id].aem?.metrics) {
     const sc = scoreParity(existing[id].prod.metrics, existing[id].aem.metrics, newsMode);
+    // Sync metadata from the current CSV (source of truth) — the sheet may have
+    // filled in/updated category, subCategory, or corrected a URL since capture.
+    existing[id].prodUrl = pair.prodUrl;
+    existing[id].aemUrl = pair.aemUrl;
+    existing[id].category = pair.category;
+    existing[id].subCategory = pair.subCategory;
     existing[id].parity = sc.parity;
     existing[id].checks = sc.checks;
     existing[id].gaps = sc.gaps;
@@ -752,7 +758,11 @@ async function processPair(browser, pair, index, total, existing, force, newsMod
 }
 
 // ─── Concurrency pool ──────────────────────────────────────────────────────
-async function runPool(browser, pairs, concurrency, existing, force, newsMode) {
+// `preserveMap` = the existing results that are OUTSIDE this run's scope
+// (kept as-is so a partial re-run never drops them). It is the full `existing`
+// map minus the ids in this run. `existing` (resumeMap) is still used by
+// processPair to decide whether to skip re-capture of in-scope pages.
+async function runPool(browser, pairs, concurrency, existing, force, newsMode, preserveMap) {
   const results = new Array(pairs.length);
   let cursor = 0;
   let done = 0;
@@ -770,22 +780,39 @@ async function runPool(browser, pairs, concurrency, existing, force, newsMode) {
         process.stdout.write(`   ─ progress ${done}/${pairs.length} · ${rate}/s · ETA ${eta}s · ${elapsed}s elapsed\r`);
       }
       // Incremental save every 10 pages so a crash doesn't lose everything.
-      if (done % 10 === 0) await saveResults(results.filter(Boolean), start);
+      if (done % 10 === 0) await saveResults(results.filter(Boolean), start, preserveMap);
     }
   }
 
   await Promise.all(Array.from({ length: concurrency }, worker));
-  await saveResults(results, start);
-  return results;
+  const final = await saveResults(results, start, preserveMap);
+  return { results, ...final };
 }
 
-async function saveResults(results, start) {
+// Merge this run's results with pages captured previously but outside this run
+// (e.g. refreshing a --limit subset). Keeps results.json cumulative so a partial
+// re-run never drops everything else. `preserveMap` is null only when the file
+// didn't exist; --force still preserves out-of-scope pages — it only forces
+// re-capture of the pages within this run's scope.
+function mergePreserved(results, preserveMap) {
+  const runIds = new Set(results.filter(Boolean).map(r => r.id));
+  const preserved = preserveMap
+    ? Object.values(preserveMap).filter(p => p && p.id && !runIds.has(p.id))
+    : [];
+  const allPages = [...results.filter(Boolean), ...preserved];
+  allPages.sort((a, b) => (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0));
+  return { allPages, preservedCount: preserved.length };
+}
+
+async function saveResults(results, start, preserveMap = null) {
+  const { allPages, preservedCount } = mergePreserved(results, preserveMap);
   const payload = {
     generatedAt: new Date().toISOString(),
     totalDurationMs: start ? Date.now() - start : 0,
-    pages: results,
+    pages: allPages,
   };
   await writeFile(OUTPUT_PATH, JSON.stringify(payload, null, 1), 'utf8');
+  return { total: allPages.length, refreshed: results.filter(Boolean).length, preservedCount };
 }
 
 // ─── Chrome binary resolution ──────────────────────────────────────────────
@@ -815,20 +842,39 @@ async function main() {
   const pairs = await readPairs();
   const subset = limit > 0 ? pairs.slice(0, limit) : pairs;
 
-  // Resumable: load existing results so successfully-captured pages are skipped.
-  // Use --force to re-capture everything from scratch.
+  // Load the existing results file once. We use it two ways:
+  //   - existing (resumeMap): tells processPair to SKIP re-capture of in-scope
+  //     pages that were already captured. Ignored under --force.
+  //   - preserveMap: pages OUTSIDE this run's scope, kept verbatim on save so a
+  //     partial re-run (--limit / subset) never drops the rest of the dataset.
+  //     Loaded regardless of --force — forcing re-capture of the in-scope pages
+  //     should not wipe out the others.
   let existing = null;
-  if (!force && existsSync(RESULTS_PATH)) {
+  let allPrevMap = null;
+  if (existsSync(RESULTS_PATH)) {
     try {
       const prev = JSON.parse(await readFile(RESULTS_PATH, 'utf8'));
-      existing = {};
-      for (const p of (prev.pages || [])) existing[String(p.id)] = p;
-      const cached = Object.keys(existing).length;
-      console.log(`📥 Loaded ${cached} existing result(s) for resume (use --force to re-capture all)`);
+      allPrevMap = {};
+      for (const p of (prev.pages || [])) allPrevMap[String(p.id)] = p;
+      if (!force) existing = allPrevMap;
+      const cached = Object.keys(allPrevMap).length;
+      console.log(`📥 Loaded ${cached} existing result(s)${force ? ' · --force will re-capture in-scope pages' : ' for resume (use --force to re-capture all)'}`);
     } catch { /* ignore corrupt results */ }
   }
 
   console.log(`🚀 Comparing ${subset.length} page pair(s) · concurrency ${concurrency}${force ? ' · --force' : ''}`);
+
+  // Pages outside this run's scope (e.g. only --limit=N of the full list) are
+  // preserved on save so results.json stays cumulative across partial re-runs.
+  // Built from ALL previously-known pages (not just the resume map), so --force
+  // on a subset still keeps the rest of the dataset intact.
+  const scopeIds = new Set(subset.map((_, i) => String(i + 1)));
+  const preserveMap = allPrevMap
+    ? Object.fromEntries(Object.entries(allPrevMap).filter(([id]) => !scopeIds.has(id)))
+    : null;
+  if (preserveMap && Object.keys(preserveMap).length) {
+    console.log(`   Preserving ${Object.keys(preserveMap).length} page(s) outside this run's scope`);
+  }
 
   const exe = await resolveChrome();
   console.log(`   Chrome: ${exe}`);
@@ -840,12 +886,12 @@ async function main() {
 
   try {
     const t0 = Date.now();
-    const results = await runPool(browser, subset, concurrency, existing, force, newsMode);
+    const { results, total, preservedCount } = await runPool(browser, subset, concurrency, existing, force, newsMode, preserveMap);
     const dur = ((Date.now() - t0) / 1000).toFixed(1);
     const avg = results.filter(r => r.parity != null).reduce((s, r) => s + r.parity, 0) / (results.length || 1);
     const passed = results.filter(r => r.parity >= 85).length;
     console.log(`\n✅ Done in ${dur}s · avg parity ${avg.toFixed(0)} · ${passed}/${results.length} passed (≥85)`);
-    console.log(`   Results → ${OUTPUT_PATH}`);
+    console.log(`   Results → ${OUTPUT_PATH} · ${results.length} refreshed${preservedCount ? ` · ${preservedCount} preserved` : ''} · ${total} total`);
     console.log(`   Next: npm run dashboard`);
   } finally {
     await browser.close();
