@@ -10,7 +10,7 @@
 import { readFile, writeFile, mkdir, copyFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, relative, basename } from 'node:path';
-import { DIR } from '../config.js';
+import { DIR, CRITERIA_GROUPS } from '../config.js';
 
 const PASS_THRESHOLD = 85;
 
@@ -96,6 +96,9 @@ async function main() {
       status,
       loadError: loadErr,
       lowContent,
+      failedGroups: CRITERIA_GROUPS
+        .filter(g => (p.checks || []).some(c => g.checks.includes(c.id) && !c.passed && !c.insufficient))
+        .map(g => g.id),
     };
   });
 
@@ -195,6 +198,12 @@ ${lowContent > 0 ? `<div class="warn-banner">⚠ <b>${lowContent} หน้า</
         <option value="warn">Review</option>
         <option value="fail">Fail</option>
       </select>
+      <select id="groupFilter" onchange="render()">
+        <option value="">หมวดที่ fail: ทั้งหมด</option>
+        <option value="template">Template</option>
+        <option value="content">Content</option>
+        <option value="structure">Structure</option>
+      </select>
       <label class="cb"><input type="checkbox" id="gapsOnly" onchange="render()"> Gaps only</label>
     </div>
   </div>
@@ -260,12 +269,14 @@ function getFiltered() {
   const cf = document.getElementById('categoryFilter').value;
   const sf2 = document.getElementById('subCategoryFilter').value;
   const sf = document.getElementById('statusFilter').value;
+  const gf = document.getElementById('groupFilter').value;
   const go = document.getElementById('gapsOnly').checked;
   let rows = ROWS.filter(r =>
     (!f || r.path.toLowerCase().includes(f) || r.category.toLowerCase().includes(f) || r.subCategory.toLowerCase().includes(f)) &&
     (!cf || r.category === cf) &&
     (!sf2 || r.subCategory === sf2) &&
     (!sf || r.status === sf) &&
+    (!gf || (r.failedGroups && r.failedGroups.includes(gf))) &&
     (!go || r.gaps > 0)
   );
   rows.sort((a,b) => {
@@ -369,21 +380,64 @@ function renderPage(p, total, opts = {}) {
     metricRow('Page height (px)', prod.pageHeight, aem.pageHeight),
   ].join('') : '';
 
-  // Render each parity check with an expandable diff section showing what's missing.
-  const checkBlocks = (p.checks || []).map((c, idx) => {
-    const diffHtml = renderDiffDetails(c.diff, esc);
+  // Render each parity check as a row (shared by grouped + fallback rendering).
+  const renderCheckRow = (c) => {
+    const diffHtml = renderDiffDetails(c, esc);
+    const insufficient = !!c.insufficient;
+    const statusIcon = insufficient ? '–' : c.passed ? '✓' : '✗';
+    const statusCls = insufficient ? 'ins' : c.passed ? 'ok' : 'bad';
     return `
     <details class="check-block ${c.passed ? 'passed' : 'failed'}">
-      <summary>
-        <span class="check-status ${c.passed ? 'ok' : 'bad'}">${c.passed ? '✓' : '✗'}</span>
-        <span class="check-label">${esc(c.label)}</span>
-        <span class="check-weight">${Math.round(c.weight * 100)}%</span>
+      <summary class="check-row">
+        <span class="check-status ${statusCls}">${statusIcon}</span>
+        <span class="check-label">${esc(c.label)}${insufficient ? '<span class="ins-tag">insufficient</span>' : ''}</span>
         <span class="check-detail">${esc(c.detail)}</span>
         ${diffHtml ? '<span class="expand-hint">▾</span>' : ''}
       </summary>
       ${diffHtml}
     </details>`;
-  }).join('');
+  };
+
+  // Group checks into CRITERIA_GROUPS (Template/Content/Structure). Checks whose
+  // id matches no group (news-mode checks, error placeholder) fall into an
+  // "Other" fallback section so those pages still render.
+  const checks = p.checks || [];
+  const groupedIds = new Set(CRITERIA_GROUPS.flatMap(g => g.checks));
+  const subScore = (groupChecks) => {
+    let earned = 0, possible = 0;
+    for (const c of groupChecks) {
+      if (c.insufficient) continue;
+      possible += c.weight;
+      earned += c.weight * (c.passed ? 1 : (c.partial || 0));
+    }
+    const pct = possible > 0 ? Math.round((earned / possible) * 100) : 0;
+    return { earned, possible, pct };
+  };
+
+  const groupBlocks = CRITERIA_GROUPS
+    .map(g => {
+      const gc = checks.filter(c => g.checks.includes(c.id));
+      if (!gc.length) return null; // skip empty groups
+      const { earned, possible, pct } = subScore(gc);
+      return `<div class="group-block">
+        <div class="group-head ${g.id}">
+          <span>${esc(g.label)}</span>
+          <span class="group-pct">${(earned * 100).toFixed(0)}/${(possible * 100).toFixed(0)} · ${pct}%</span>
+        </div>
+        <div class="checks-list">${gc.map(renderCheckRow).join('')}</div>
+      </div>`;
+    })
+    .filter(Boolean)
+    .join('');
+
+  // Fallback: checks whose id is in no group (news checks, 'error' placeholder).
+  const otherChecks = checks.filter(c => !groupedIds.has(c.id));
+  const otherBlock = otherChecks.length
+    ? `<div class="group-block">
+        <div class="group-head other"><span>Other checks</span><span class="group-pct">${otherChecks.filter(c => c.passed).length}/${otherChecks.length} passed</span></div>
+        <div class="checks-list">${otherChecks.map(renderCheckRow).join('')}</div>
+      </div>`
+    : '';
 
   const gapItems = [...(p.gaps || []), ...(p.aemIssues || [])].map(g => {
     const sev = g.severity || (g.weight >= 0.15 ? 'critical' : g.weight >= 0.1 ? 'high' : 'medium');
@@ -467,9 +521,9 @@ ${hasMetrics && !p.newsMode ? `
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
 <tbody>${diffRows}</tbody></table></section>` : ''}
 
-${checkBlocks ? `
+${(groupBlocks || otherBlock) ? `
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
-<div class="checks-list">${checkBlocks}</div></section>` : ''}
+<div class="groups">${groupBlocks}${otherBlock}</div></section>` : ''}
 
 ${brokenLinksSection}
 ${imageIssuesSection}
@@ -508,9 +562,97 @@ function metricRow(label, prodVal, aemVal, prodNum, aemNum, lowerIsBetter) {
 }
 
 // Render the "what's missing" detail for a check's diff object.
-// Returns HTML string (empty if no diff or nothing to show).
-function renderDiffDetails(diff, esc) {
+// Accepts either a check object `{id, diff, ...}` (preferred) or a bare diff
+// (legacy callers). Returns HTML string (empty if no diff or nothing to show).
+function renderDiffDetails(check, esc) {
+  const diff = check && check.diff !== undefined ? check.diff : check;
+  const id = (check && check.id) || '';
   if (!diff) return '';
+
+  // ─── Main-mode (WEIGHTS_MAIN) check renderers, keyed by check id. ──────────
+  // These match the diff shapes emitted by compare.js scoreParity().
+  // Shape-based branches below still handle news-mode + legacy diffs.
+  switch (id) {
+    case 'contentLength':
+      // diff = { ratio, prodSample, aemSample }
+      return `<div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">เทียบเนื้อหา (text sample · ratio ${diff.ratio}%)</div>
+          <div class="outline-grid">
+            <div class="outline-col">
+              <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
+              <div class="text-sample">${esc(diff.prodSample || '(empty)')}</div>
+            </div>
+            <div class="outline-col">
+              <div class="outline-head tgt">AEM (migrate)</div>
+              <div class="text-sample">${esc(diff.aemSample || '(empty)')}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    case 'missingText':
+      // diff = { missingTextBlocks, prodBlockCount }
+      if (!diff.missingTextBlocks || !diff.missingTextBlocks.length) {
+        return `<div class="diff-body"><div class="diff-section"><div class="diff-title ok">ไม่มี text block ขาด ✓ (${diff.prodBlockCount || 0} blocks)</div></div></div>`;
+      }
+      return `<div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (${diff.missingTextBlocks.length}/${diff.prodBlockCount || 0})</div>
+          <div class="chip-list">${diff.missingTextBlocks.map(t => `<span class="chip chip-missing">${esc(String(t).slice(0, 80))}</span>`).join('')}</div>
+        </div>
+      </div>`;
+
+    case 'missingKeywords':
+      // diff = { missingKeywords, sharedCount }
+      return `<div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">${diff.sharedCount ?? 0} shared <b class="ok">✓</b> · ${diff.missingKeywords?.length || 0} missing <b class="bad">✗</b></div>
+          ${diff.missingKeywords?.length ? `<div class="chip-list">${diff.missingKeywords.map(k => `<span class="chip chip-missing">${esc(k)}</span>`).join('')}</div>` : '<div class="diff-title ok">ครบทุกคำสำคัญ ✓</div>'}
+        </div>
+      </div>`;
+
+    case 'links':
+      // diff = { matchedCount }  (new main-mode shape)
+      return `<div class="diff-body"><div class="diff-section">
+        <div class="diff-title">${diff.matchedCount ?? 0} prod link-text <b class="ok">✓ พบใน AEM</b></div>
+      </div></div>`;
+
+    case 'headerMenu':
+    case 'footerMenu':
+      // diff = { prodCount, aemCount, missing, extra }
+      return `<div class="diff-body">
+        ${diff.missing?.length ? `<div class="diff-section"><div class="diff-title bad">Missing labels (${diff.missing.length})</div><div class="chip-list">${diff.missing.map(l => `<span class="chip chip-missing">${esc(l)}</span>`).join('')}</div></div>` : ''}
+        ${diff.extra?.length ? `<div class="diff-section"><div class="diff-title ok">Extra in AEM (${diff.extra.length})</div><div class="chip-list">${diff.extra.map(l => `<span class="chip chip-extra">${esc(l)}</span>`).join('')}</div></div>` : ''}
+        ${(!diff.missing?.length && !diff.extra?.length) ? `<div class="diff-section"><div class="diff-title ok">labels ตรงทั้งหมด ✓ (${diff.prodCount}/${diff.prodCount})</div></div>` : ''}
+      </div>`;
+
+    case 'components':
+      // diff = { perType:[{type,prod,aem,ratio,ok}], advisory:[{type,prod,aem}], otherComponents:[] }
+      return `<div class="diff-body">
+        ${diff.perType?.length ? `<div class="diff-section"><table class="meta-diff"><thead><tr><th>Type</th><th>Prod</th><th>AEM</th><th>Status</th></tr></thead><tbody>${diff.perType.map(t => `<tr><td><code>${esc(t.type)}</code></td><td>${t.prod}</td><td class="${t.ok ? 'ok' : 'bad'}">${t.aem}</td><td class="${t.ok ? 'ok' : 'bad'}">${t.ok ? '✓' : '✗'}</td></tr>`).join('')}</tbody></table></div>` : ''}
+        ${diff.advisory?.length ? `<div class="diff-section"><div class="diff-title">Advisory: ${diff.advisory.map(t => `${esc(t.type)} ${t.aem}/${t.prod}`).join(' · ')}</div></div>` : ''}
+        ${diff.otherComponents?.length ? `<div class="diff-section"><div class="diff-title">Other components: ${diff.otherComponents.map(c => `<span class="chip">${esc(c)}</span>`).join(' ')}</div></div>` : ''}
+      </div>`;
+
+    case 'missingImage':
+      // diff = { prodCount, aemCount, altMatchPct, prodAlts, aemAlts }
+      return `<div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">prod ${diff.prodCount} / aem ${diff.aemCount} images · alt match ${diff.altMatchPct}%</div>
+        </div>
+        ${diff.prodAlts?.length || diff.aemAlts?.length ? `<div class="diff-section"><div class="outline-grid">
+          <div class="outline-col"><div class="outline-head src">PROD alts (${diff.prodAlts?.length || 0})</div><div class="kw-body">${(diff.prodAlts || []).map(a => `<span class="kw kw-shared">${esc(a)}</span>`).join('')}</div></div>
+          <div class="outline-col"><div class="outline-head tgt">AEM alts (${diff.aemAlts?.length || 0})</div><div class="kw-body">${(diff.aemAlts || []).map(a => `<span class="kw kw-shared">${esc(a)}</span>`).join('')}</div></div>
+        </div></div>` : ''}
+      </div>`;
+
+    case 'thaiBalance':
+      // diff = { prod, aem, delta }
+      return `<div class="diff-body"><div class="diff-section">
+        <div class="diff-title">prod ${Math.round((diff.prod || 0) * 100)}% Thai vs aem ${Math.round((diff.aem || 0) * 100)}% Thai · delta ${Math.round((diff.delta || 0) * 100)}%</div>
+      </div></div>`;
+  }
 
   // Headings diff: list missing headings + extra ones.
   // Headings diff: side-by-side outline tree (prod left, aem right).
@@ -848,6 +990,20 @@ const DASHBOARD_CSS = SHARED + `
 `;
 
 const PAGE_CSS = SHARED + `
+/* Grouped check sections (Template / Content / Structure + Other fallback) */
+.groups { display:flex; flex-direction:column; gap:10px; }
+.group-block { border:1px solid #e0e0e0; border-radius:8px; margin-bottom:0; overflow:hidden; }
+.group-head { padding:8px 12px; font-size:13px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+.group-head.template { background:#eef2ff; color:#1a2b5c; }
+.group-head.content { background:#f0f7e6; color:#1a6b3c; }
+.group-head.structure { background:#fdf0e6; color:#8a5a00; }
+.group-head.other { background:#f0f1f3; color:#555; }
+.group-pct { font-size:12px; opacity:.8; font-weight:600; }
+.group-block .checks-list { padding:4px; }
+.group-block .check-block { margin:2px; border:none; border-radius:4px; }
+.group-block .check-block summary.check-row { padding:7px 12px; gap:10px; font-size:12px; }
+.group-block .check-status.ins { color:#aaa; }
+.ins-tag { background:#eee; color:#888; font-size:9px; padding:1px 5px; border-radius:3px; margin-left:6px; text-transform:uppercase; font-weight:700; }
 .back { display:inline-block; font-size:12px; color:#1a2b5c; text-decoration:none; margin-bottom:8px; }
 .score-row { display:flex; gap:18px; align-items:center; background:#fff; border-radius:10px; padding:16px 20px; margin:14px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
 .score { text-align:center; min-width:90px; }
