@@ -188,6 +188,13 @@ advisory). For each type: `ratio = prod > 0 ? min(1, aem / (prod × 0.8)) : 1`.
 Average the ratios for the partial value. Pass only when every prod-present
 type meets ≥80%.
 
+**Insufficient-data handling (explicit):** for pages captured before the
+`extract.js` change, the new metrics (`tables/forms/videos/headerMenus/...`)
+will be `undefined`. A check with `prod === undefined || aem === undefined`
+for all of its inputs is marked `insufficient` and **excluded** from both the
+group's earned and possible totals (so groupPct stays meaningful) rather than
+counted as a fail. This only affects the 612 non-pilot pages during the pilot.
+
 ### Per-check `diff` payloads (for drill-down rendering)
 
 Each `add()` call attaches a `diff` object the dashboard renders. Existing
@@ -205,13 +212,12 @@ diffs:
 (category fix from earlier). The new checks are computed from the same metrics
 object, so a cached re-score picks them up automatically — **except** the new
 extract fields (`tables/forms/videos/headerMenus/footerMenus`) which only exist
-on pages captured after the `extract.js` change. For pages captured before the
-change, the new checks degrade gracefully: missing fields count as "no data"
-and the check is skipped (weight redistributed, or marked `insufficient`).
+on pages captured after the `extract.js` change. Those checks degrade to
+`insufficient` on old captures (see "Insufficient-data handling" above).
 
-> **Pilot note:** Because of this, only the 20 re-captured pages will have
-> real component/headerMenu/footerMenu data. The other 612 will show those
-> checks as `insufficient` until re-captured. This is acceptable for a pilot.
+> **Pilot note:** only the 20 re-captured pages will have real
+> component/headerMenu/footerMenu data. The other 612 will show those checks
+> as `insufficient` until re-captured. This is acceptable for a pilot.
 
 ---
 
