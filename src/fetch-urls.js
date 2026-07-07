@@ -64,8 +64,10 @@ async function main() {
   // Main sheet: URL / Migrated Prod URL. News sheet: Article URL / AEM Path.
   const iUrl = col('URL') >= 0 ? col('URL') : col('Article URL');
   const iMig = col('Migrated Prod URL') >= 0 ? col('Migrated Prod URL') : col('AEM Path');
-  const iCat = col('Category');
-  const iSub = col('Sub-Category');
+  // Category/Sub-Category: prefer header name, but fall back to column position
+  // (D=3, E=4) — the sheet sometimes has data in column D without a header label.
+  const iCat = col('Category') >= 0 ? col('Category') : 3;
+  const iSub = col('Sub-Category') >= 0 ? col('Sub-Category') : 4;
 
   const pairs = [];
   for (let r = headerIdx + 1; r < rows.length; r++) {
