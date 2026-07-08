@@ -17,6 +17,24 @@ export const DIR = {
 export const SHEET_CSV_URL =
   'https://docs.google.com/spreadsheets/d/1iwZ4lj3RfLM1aCGSeGUqbCoI-R8PWuzE/export?format=csv&gid=1796448275';
 
+// ─── Sheet write-back (src/sync-sheet.js) ──────────────────────────────────
+// A separate spreadsheet (the manual QA master file) with tracking columns
+// this tool writes into: F=Automatiion Validation Status, G=Open Issues.
+// Requires a Google service-account key at SYNC_KEY_PATH, shared as EDITOR
+// on this spreadsheet — see README "Sheet sync" section.
+export const SYNC_SPREADSHEET_ID = '1K2t3E8tYkL7ff3IK8j3j09I6zMIc_mHnES1L3SVwl2w';
+export const SYNC_SHEET_GID = 1196950349; // "TH Pages - Categorized" — the main 631-page list
+export const SYNC_KEY_PATH = process.env.SHEET_SYNC_KEY_PATH || join(ROOT, '.secrets', 'sheet-sync-key.json');
+export const SYNC_STATUS_COL = 'F';
+export const SYNC_ISSUES_COL = 'G';
+export const SYNC_ISSUES_MAX = 3;    // max distinct issue labels per cell (kept concise)
+export const SYNC_BATCH_SIZE = 200;  // ranges per batchUpdate call
+export const SYNC_BATCH_DELAY = 500; // ms between batchUpdate calls
+// Tracks the results.json `generatedAt` last synced to the sheet, per source
+// file, so re-running sync-sheet.js against the SAME compare run doesn't
+// advance the validation round again — only a fresh `npm run compare` does.
+export const SYNC_STATE_PATH = join(DIR.data, 'sync-state.json');
+
 // Browser / capture
 export const VIEWPORT = { width: 1440, height: 900 };
 export const NAV_TIMEOUT = 25000;      // ms per page navigation (prod is slow to fully load)

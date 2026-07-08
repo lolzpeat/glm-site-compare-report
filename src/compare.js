@@ -84,6 +84,7 @@ async function readPairs() {
     if (!lines[i].trim()) continue;
     const c = parseCsvLine(lines[i]);
     pairs.push({
+      id: String(pairs.length + 1), // stable id, independent of any later filtering/slicing
       prodUrl: c[idx.prod],
       aemUrl: c[idx.aem],
       category: c[idx.cat] || '',
@@ -91,6 +92,20 @@ async function readPairs() {
     });
   }
   return pairs;
+}
+
+// Parses "3,7,19-25" into a Set of string ids ("3","7","19",...,"25").
+function parseIdRanges(spec) {
+  const ids = new Set();
+  for (const part of spec.split(',').map(s => s.trim()).filter(Boolean)) {
+    const range = part.match(/^(\d+)-(\d+)$/);
+    if (range) {
+      for (let n = parseInt(range[1], 10); n <= parseInt(range[2], 10); n++) ids.add(String(n));
+    } else {
+      ids.add(part);
+    }
+  }
+  return ids;
 }
 
 // Handles quoted CSV fields.
@@ -651,14 +666,18 @@ function normCompare(a, b) {
 }
 
 // ─── Worker ────────────────────────────────────────────────────────────────
-async function processPair(browser, pair, index, total, existing, force, newsMode) {
-  const tag = `[${index + 1}/${total}]`;
+// `posInRun`/`total` are only for the progress tag — the actual page id
+// (used for resume lookup and the saved result) always comes from `pair.id`,
+// which is assigned once in readPairs() and stays stable across any
+// filtering/slicing of the pairs list (--limit, --ids, --retry-failed).
+async function processPair(browser, pair, posInRun, total, existing, force, newsMode) {
+  const tag = `[${posInRun + 1}/${total}]`;
   const prodPath = pair.prodUrl.split('/').slice(3).join('/') || 'home';
+  const id = pair.id;
 
   // Resumable: skip pages already captured successfully (unless --force).
   // If the existing result has cached metrics, re-score from those (no browser
   // needed) — this picks up logic changes (e.g. new error detection) cheaply.
-  const id = String(index + 1);
   if (!force && existing && existing[id] && existing[id].prod?.metrics && existing[id].aem?.metrics) {
     const sc = scoreParity(existing[id].prod.metrics, existing[id].aem.metrics, newsMode);
     // Sync metadata from the current CSV (source of truth) — the sheet may have
@@ -683,8 +702,7 @@ async function processPair(browser, pair, index, total, existing, force, newsMod
   console.log(`${tag} ${prodPath}`);
 
   const result = {
-    id: String(index + 1),
-    ...pair,
+    ...pair, // includes pair.id
     prod: null,
     aem: null,
     parity: null,
@@ -834,21 +852,22 @@ async function resolveChrome() {
 // ─── Main ──────────────────────────────────────────────────────────────────
 async function main() {
   const limit = parseInt(process.argv.find(a => a.startsWith('--limit='))?.split('=')[1] || '0', 10);
+  const idsArg = process.argv.find(a => a.startsWith('--ids='))?.split('=')[1];
+  const retryFailed = process.argv.includes('--retry-failed');
   const concurrency = parseInt(process.argv.find(a => a.startsWith('--concurrency='))?.split('=')[1] || String(CONCURRENCY), 10);
   const force = process.argv.includes('--force');
   const newsMode = process.argv.includes('--news');
 
   await mkdir(SS_DIR, { recursive: true });
   const pairs = await readPairs();
-  const subset = limit > 0 ? pairs.slice(0, limit) : pairs;
 
   // Load the existing results file once. We use it two ways:
   //   - existing (resumeMap): tells processPair to SKIP re-capture of in-scope
   //     pages that were already captured. Ignored under --force.
   //   - preserveMap: pages OUTSIDE this run's scope, kept verbatim on save so a
-  //     partial re-run (--limit / subset) never drops the rest of the dataset.
-  //     Loaded regardless of --force — forcing re-capture of the in-scope pages
-  //     should not wipe out the others.
+  //     partial re-run (--limit/--ids/--retry-failed) never drops the rest of
+  //     the dataset. Loaded regardless of --force — forcing re-capture of the
+  //     in-scope pages should not wipe out the others.
   let existing = null;
   let allPrevMap = null;
   if (existsSync(RESULTS_PATH)) {
@@ -862,13 +881,35 @@ async function main() {
     } catch { /* ignore corrupt results */ }
   }
 
-  console.log(`🚀 Comparing ${subset.length} page pair(s) · concurrency ${concurrency}${force ? ' · --force' : ''}`);
+  // Scope selection — mutually exclusive, checked in priority order:
+  //   --ids=3,7,19-25   explicit id list/ranges
+  //   --retry-failed    only pages previously attempted that lack real checks
+  //                     (load failure, WAF block, etc.) — from allPrevMap
+  //   --limit=N         first N pairs from the top of urls.csv
+  //   (none)            every pair
+  let subset = pairs;
+  let scopeDesc = `all ${pairs.length}`;
+  if (idsArg) {
+    const wanted = parseIdRanges(idsArg);
+    subset = pairs.filter(p => wanted.has(p.id));
+    scopeDesc = `--ids=${idsArg} (${subset.length} matched)`;
+  } else if (retryFailed) {
+    if (!allPrevMap) throw new Error('--retry-failed needs an existing results file to know what failed.');
+    const failedIds = new Set(Object.values(allPrevMap).filter(p => !p.checks || !p.checks.length).map(p => String(p.id)));
+    subset = pairs.filter(p => failedIds.has(p.id));
+    scopeDesc = `--retry-failed (${subset.length} page(s) previously without real checks)`;
+  } else if (limit > 0) {
+    subset = pairs.slice(0, limit);
+    scopeDesc = `--limit=${limit}`;
+  }
 
-  // Pages outside this run's scope (e.g. only --limit=N of the full list) are
-  // preserved on save so results.json stays cumulative across partial re-runs.
-  // Built from ALL previously-known pages (not just the resume map), so --force
-  // on a subset still keeps the rest of the dataset intact.
-  const scopeIds = new Set(subset.map((_, i) => String(i + 1)));
+  console.log(`🚀 Comparing ${subset.length} page pair(s) · concurrency ${concurrency}${force ? ' · --force' : ''} · scope: ${scopeDesc}`);
+
+  // Pages outside this run's scope are preserved on save so results.json stays
+  // cumulative across partial re-runs. Built from ALL previously-known pages
+  // (not just the resume map), so --force on a subset still keeps the rest of
+  // the dataset intact.
+  const scopeIds = new Set(subset.map(p => p.id));
   const preserveMap = allPrevMap
     ? Object.fromEntries(Object.entries(allPrevMap).filter(([id]) => !scopeIds.has(id)))
     : null;

@@ -125,7 +125,9 @@ News ใช้ criteria แยก (ปรับใน `config.js` → `WEIGHTS_N
 node src/compare.js [options]
 
 Options:
-  --limit=N              จำกัดจำนวนหน้า
+  --limit=N              จำกัดจำนวนหน้า (N หน้าแรกจาก urls.csv)
+  --ids=3,7,19-25        เจาะจงหน้าตาม id (คอมมา + range) — เช่น re-capture เฉพาะหน้าที่พัง
+  --retry-failed         capture เฉพาะหน้าที่เคย fail มาก่อน (ไม่มี checks ใน results.json ปัจจุบัน)
   --concurrency=N        จำนวน workers ขนานกัน (default: 4)
   --force                บังคับ re-capture ทุกหน้า (ignore resume)
   --news                 ใช้ news-specific scoring criteria
@@ -133,6 +135,37 @@ Options:
   --output=PATH          ไฟล์ผลลัพธ์ (default: data/results.json)
   --source=PATH          ไฟล์ resume source (default: เดียวกับ output)
 ```
+
+`--ids`/`--retry-failed`/`--limit` เลือกได้ทีละอย่าง (ลำดับความสำคัญ: `--ids` > `--retry-failed` >
+`--limit`) หน้าที่อยู่นอก scope ของ run นั้นจะถูก **preserve** ไว้เหมือนเดิมเสมอ — ผลลัพธ์เก่าไม่มีวันหาย
+แม้ re-run บางส่วนซ้ำหลายรอบ
+
+## Sheet sync (เขียนผลกลับ Google Sheet)
+
+เขียนผล validation กลับไปที่ Google Sheet (QA master file แยกจาก `SHEET_CSV_URL` — ต้องเป็น
+**native Google Sheet**, ไม่ใช่ไฟล์ .xlsx ที่อัปโหลด เพราะ Sheets API เขียนไฟล์ Office ไม่ได้)
+— คอลัมน์ `Automatiion Validation Status` + `Open Issues`. จับคู่แถวด้วย URL (column A) ไม่ใช่
+ตำแหน่งแถว ดังนั้น sort/แทรกแถวใน sheet ไม่กระทบ sync.
+
+`Automatiion Validation Status` นับ**รอบการรัน full report** (ตัวเลขเดียวกันทุกแถวในรอบเดียวกัน)
+ไม่ใช่ pass/fail — **1st Validation** → **2nd Validation** → ... โดย increment **เฉพาะตอนที่ report
+ทั้งหมดไป compare มาใหม่จริง ๆ** (ตรวจจาก `generatedAt` ใน results.json เทียบกับค่าที่บันทึกไว้ใน
+`data/sync-state.json` ตอน sync ครั้งล่าสุด) — รัน `sync-sheet.js` ซ้ำกับ results.json ชุดเดิม
+(generatedAt ไม่เปลี่ยน) จะไม่เพิ่มรอบ ทุกแถวยังเป็นเลขเดิม อัปเดตแค่ `Open Issues`.
+
+`Open Issues` สรุปเป็นภาษาไทยแบบกระชับ — เช็คที่ไม่ผ่านสูงสุด `SYNC_ISSUES_MAX` รายการ (ปรับได้ใน
+config.js) คั่นด้วย comma เช่น `เมนูบนไม่ครบ, ลิงก์ขาด, เนื้อหาไม่ครบ +5 รายการ`
+
+```bash
+node src/sync-sheet.js --dry-run       # ดูค่าที่จะเขียน โดยไม่เขียนจริง
+node src/sync-sheet.js                 # sync data/results.json → sheet
+node src/sync-sheet.js --limit=5       # sync แค่ N แถวแรกที่จับคู่ได้
+node src/sync-sheet.js --source=data/results-news.json
+```
+
+ต้องมี **service-account key** ที่ `.secrets/sheet-sync-key.json` (gitignored) และ share sheet
+ให้ service account นั้นเป็น **Editor** (ไม่ใช่แค่ Viewer) — ไม่งั้น batchUpdate จะ fail ด้วย 403.
+ปรับ spreadsheet ID / gid / คอลัมน์เป้าหมายได้ใน `config.js` (`SYNC_*`).
 
 ## ข้อกำหนด
 
