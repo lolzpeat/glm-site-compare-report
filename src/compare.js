@@ -118,6 +118,10 @@ async function capturePage(page, url) {
   const result = { url, ok: false, error: null, metrics: null, screenshot: null };
   if (!url) { result.error = 'no URL'; return result; }
   try {
+    // BBL AEM has anti-bot detection that returns a blank page without a
+    // realistic User-Agent. Set one on every page before navigating.
+    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36').catch(() => {});
+    await page.setExtraHTTPHeaders({ 'Accept-Language': 'th-TH,th;q=0.9,en;q=0.8' }).catch(() => {});
     await page.goto(url, { waitUntil: NAV_WAIT_UNTIL, timeout: NAV_TIMEOUT });
 
     // AEM is client-side rendered: the DOM populates quickly but layout
@@ -134,6 +138,27 @@ async function capturePage(page, url) {
       // Layout never settled — capture whatever we have (may be sparse/blank).
     }
     await new Promise(r => setTimeout(r, SETTLE_AFTER_LOAD));
+
+    // AEM loads the global <header>/<footer> nav lazily (client-rendered) and
+    // they don't appear until ~2-3s after the body, by which point the body has
+    // already reached full height so the layout wait above resolves early. With
+    // the default 800ms settle the header is still empty (0 links) at extract
+    // time. Wait a bit longer for the header/footer to populate, with a short
+    // bounded timeout so prod pages aren't penalised.
+    try {
+      await page.waitForFunction(
+        () => {
+          const h = document.querySelector('header');
+          const f = document.querySelector('footer');
+          const hOk = h ? h.querySelectorAll('a[href]').length > 0 : true;
+          const fOk = f ? f.querySelectorAll('a[href]').length > 0 : true;
+          return hOk && fOk;
+        },
+        { timeout: SETTLE_AFTER_LOAD + 4000, polling: 250 }
+      );
+    } catch {
+      // Header/footer never populated within the window — extract whatever we have.
+    }
 
     result.metrics = await page.evaluate(EXTRACT_FN);
     result.ok = true;
