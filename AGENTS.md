@@ -55,6 +55,7 @@ src/sync-sheet.js       ← writes results.json back to the QA Google Sheet (sep
 ## Gotchas
 
 - **News concurrency must stay 1.** Higher values trigger the site's WAF/anti-bot → `BLOCKED` status. Do not "optimize" this.
+- **A full `--force` run at concurrency 4 gets the whole IP banned by Akamai.** Happened 2026-07-08: after ~200 pages the WAF started serving "Access Denied" to every request on BOTH prod and AEM, then dropped connections outright (`ERR_HTTP2_PROTOCOL_ERROR`); the ban persisted after the run ended. For full re-captures use `--concurrency=1` (or 2 max), verify the first ~20 pages look sane before letting it continue, and back up `data/results.json` first — a banned run "succeeds" fast and fills the file with garbage.
 - **`NAV_WAIT_UNTIL = 'domcontentloaded'`, never `networkidle0`.** Tracking/analytics keep the network busy forever on prod; waiting for idle times out every page. AEM is client-rendered, so `compare.js` additionally scroll-stimulates lazy content (`MIN_TEXT_LEN`, `SCROLL_STIMULATE_*`).
 - **Chrome path is machine-specific.** `config.js` hardcodes a path under `/Users/prapon.t/.cache/puppeteer/...`. Override without editing the file via `PUPPETEER_EXECUTABLE_PATH=<path>`. `puppeteer-core` will not download one.
 - **`data/` is gitignored and regeneratable.** `output/` is **committed** — it *is* the deployed site. Never gitignore `output/`.

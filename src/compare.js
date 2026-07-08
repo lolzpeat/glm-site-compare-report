@@ -428,8 +428,11 @@ export function scoreParity(prod, aem, newsMode = false) {
       ? `${side} page is BLOCKED (Access Denied / WAF)`
       : `${side} page is 404`;
     const type = (p, a) => {
-      if (p && a) return 'both404';
+      // blocked must win over 404: BLOCKED means "retry later", both404 means
+      // "URL doesn't exist" — a WAF ban hitting both sides is NOT a dead URL
+      // (a full-force run once mislabeled 404 banned pages as both404).
       if (p === 'blocked' || a === 'blocked') return 'blocked';
+      if (p && a) return 'both404';
       if (p) return 'prod404';
       return 'aem404';
     };
