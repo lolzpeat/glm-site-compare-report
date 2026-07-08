@@ -857,10 +857,11 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
 }
 
 // ─── Concurrency pool ──────────────────────────────────────────────────────
-// `preserveMap` = the existing results that are OUTSIDE this run's scope
-// (kept as-is so a partial re-run never drops them). It is the full `existing`
-// map minus the ids in this run. `existing` (resumeMap) is still used by
-// processPair to decide whether to skip re-capture of in-scope pages.
+// `preserveMap` = ALL previously-known results. On every save, pages this run
+// has processed win; every other page keeps its last-known result — so neither
+// a partial run (--limit/--ids) nor an INTERRUPTED full run can drop pages it
+// didn't reach. `existing` (resumeMap) is still used by processPair to decide
+// whether to skip re-capture of in-scope pages.
 async function runPool(browser, pairs, concurrency, existing, force, newsMode, preserveMap) {
   const results = new Array(pairs.length);
   let cursor = 0;
@@ -888,12 +889,13 @@ async function runPool(browser, pairs, concurrency, existing, force, newsMode, p
   return { results, ...final };
 }
 
-// Merge this run's results with pages captured previously but outside this run
-// (e.g. refreshing a --limit subset). Keeps results.json cumulative so a partial
-// re-run never drops everything else. `preserveMap` is null only when the file
-// didn't exist; --force still preserves out-of-scope pages — it only forces
-// re-capture of the pages within this run's scope.
-function mergePreserved(results, preserveMap) {
+// Merge this run's processed results (priority) over all previously-known
+// pages. Keeps results.json cumulative: a --limit/--ids subset re-run keeps
+// the rest of the dataset, and an interrupted full run keeps every page it
+// never reached. `preserveMap` is null only when the file didn't exist;
+// --force still preserves unprocessed pages — it only forces re-capture of
+// the pages this run actually processes.
+export function mergePreserved(results, preserveMap) {
   const runIds = new Set(results.filter(Boolean).map(r => r.id));
   const preserved = preserveMap
     ? Object.values(preserveMap).filter(p => p && p.id && !runIds.has(p.id))
@@ -986,16 +988,20 @@ async function main() {
 
   console.log(`🚀 Comparing ${subset.length} page pair(s) · concurrency ${concurrency}${force ? ' · --force' : ''} · scope: ${scopeDesc}`);
 
-  // Pages outside this run's scope are preserved on save so results.json stays
-  // cumulative across partial re-runs. Built from ALL previously-known pages
-  // (not just the resume map), so --force on a subset still keeps the rest of
-  // the dataset intact.
-  const scopeIds = new Set(subset.map(p => p.id));
-  const preserveMap = allPrevMap
-    ? Object.fromEntries(Object.entries(allPrevMap).filter(([id]) => !scopeIds.has(id)))
-    : null;
-  if (preserveMap && Object.keys(preserveMap).length) {
-    console.log(`   Preserving ${Object.keys(preserveMap).length} page(s) outside this run's scope`);
+  // EVERY previously-known page is the fallback on save (mergePreserved gives
+  // this run's processed results priority). This covers both cases:
+  //   - partial runs (--limit/--ids/--retry-failed): out-of-scope pages kept
+  //   - interrupted FULL runs: pages not yet reached keep their last-known
+  //     result instead of being wiped by the every-10-pages incremental save
+  // --force still re-captures in-scope pages; it only stops old data from
+  // filling in for pages the run never got to.
+  const preserveMap = allPrevMap;
+  if (preserveMap) {
+    const scopeIds = new Set(subset.map(p => p.id));
+    const outOfScope = Object.keys(preserveMap).filter(id => !scopeIds.has(id)).length;
+    console.log(`   Keeping last-known results as fallback: ${Object.keys(preserveMap).length} page(s)` +
+      (outOfScope ? ` (${outOfScope} outside this run's scope)` : '') +
+      ` — an interrupted run no longer drops unreached pages`);
   }
 
   const exe = await resolveChrome();
