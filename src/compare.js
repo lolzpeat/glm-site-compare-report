@@ -16,12 +16,14 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { glob } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 import puppeteer from 'puppeteer-core';
 import {
   DIR, VIEWPORT, NAV_TIMEOUT, NAV_WAIT_UNTIL, SETTLE_AFTER_LOAD, LAZY_WAIT_TIMEOUT, LAYOUT_WAIT_TIMEOUT, CONCURRENCY,
   SCREENSHOT_FULLPAGE, SCREENSHOT_MAX_WIDTH, MIN_TEXT_LEN, SCROLL_STIMULATE_STEPS, SCROLL_STIMULATE_DELAY,
-  WEIGHTS, WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
+  WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
   THAI_RATIO_DELTA, IMAGE_RATIO_TOLERANCE, MAX_LINK_CHECKS, LINK_CHECK_BATCH, LINK_CHECK_DELAY,
+  CAPTURE_USER_AGENT, CAPTURE_ACCEPT_LANGUAGE, HEADER_FOOTER_WAIT_EXTRA, HEADER_FOOTER_POLL,
 } from '../config.js';
 import sharp from 'sharp';
 import { EXTRACT_FN } from './extract.js';
@@ -120,8 +122,8 @@ async function capturePage(page, url) {
   try {
     // BBL AEM has anti-bot detection that returns a blank page without a
     // realistic User-Agent. Set one on every page before navigating.
-    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36').catch(() => {});
-    await page.setExtraHTTPHeaders({ 'Accept-Language': 'th-TH,th;q=0.9,en;q=0.8' }).catch(() => {});
+    await page.setUserAgent(CAPTURE_USER_AGENT).catch(() => {});
+    await page.setExtraHTTPHeaders({ 'Accept-Language': CAPTURE_ACCEPT_LANGUAGE }).catch(() => {});
     await page.goto(url, { waitUntil: NAV_WAIT_UNTIL, timeout: NAV_TIMEOUT });
 
     // AEM is client-side rendered: the DOM populates quickly but layout
@@ -146,15 +148,19 @@ async function capturePage(page, url) {
     // time. Wait a bit longer for the header/footer to populate, with a short
     // bounded timeout so prod pages aren't penalised.
     try {
+      // Must use the SAME selectors extract.js uses to capture header/footer —
+      // BBL markup is often <nav class="..."> / <div class="site-footer">, not
+      // literal <header>/<footer> tags, and a narrower selector here would
+      // resolve immediately and never actually wait for the extracted element.
       await page.waitForFunction(
         () => {
-          const h = document.querySelector('header');
-          const f = document.querySelector('footer');
+          const h = document.querySelector('header, [class*="header" i], nav');
+          const f = document.querySelector('footer, [class*="footer" i]');
           const hOk = h ? h.querySelectorAll('a[href]').length > 0 : true;
           const fOk = f ? f.querySelectorAll('a[href]').length > 0 : true;
           return hOk && fOk;
         },
-        { timeout: SETTLE_AFTER_LOAD + 4000, polling: 250 }
+        { timeout: SETTLE_AFTER_LOAD + HEADER_FOOTER_WAIT_EXTRA, polling: HEADER_FOOTER_POLL }
       );
     } catch {
       // Header/footer never populated within the window — extract whatever we have.
@@ -374,7 +380,7 @@ function hasNewMetrics(m) {
   return !!(m && m.componentCounts && m.headerMenus && m.footerMenus);
 }
 
-function scoreParity(prod, aem, newsMode = false) {
+export function scoreParity(prod, aem, newsMode = false) {
   const checks = [];
 
   // ─── Error-page guard ────────────────────────────────────────────────────
@@ -444,46 +450,65 @@ function scoreParity(prod, aem, newsMode = false) {
 
   // ── Template group ──
   if (newDataOk) {
-    // headerMenu: count equal + 100% label match (strict).
-    const pHL = new Set((prod.headerMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
-    const aHL = new Set((aem.headerMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
-    const hMissing = [...pHL].filter(l => !aHL.has(l));
-    const hExtra = [...aHL].filter(l => !pHL.has(l));
-    const hLabelHit = pHL.size > 0 ? (pHL.size - hMissing.length) / pHL.size : 1;
-    const hPass = pHL.size === aHL.size && hMissing.length === 0;
-    add('headerMenu', 'Header menu (label + count)', hPass,
-      `${aHL.size}/${pHL.size} labels${hMissing.length ? ` · ${hMissing.length} missing` : ''}${hExtra.length ? ` · ${hExtra.length} extra` : ''}`,
-      hLabelHit,
-      { prodCount: pHL.size, aemCount: aHL.size, missing: hMissing.slice(0, 20), extra: hExtra.slice(0, 20) });
-
-    // footerMenu: same logic as header.
-    const pFL = new Set((prod.footerMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
-    const aFL = new Set((aem.footerMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
-    const fMissing = [...pFL].filter(l => !aFL.has(l));
-    const fExtra = [...aFL].filter(l => !pFL.has(l));
-    const fLabelHit = pFL.size > 0 ? (pFL.size - fMissing.length) / pFL.size : 1;
-    const fPass = pFL.size === aFL.size && fMissing.length === 0;
-    add('footerMenu', 'Footer menu (label + count)', fPass,
-      `${aFL.size}/${pFL.size} labels${fMissing.length ? ` · ${fMissing.length} missing` : ''}${fExtra.length ? ` · ${fExtra.length} extra` : ''}`,
-      fLabelHit,
-      { prodCount: pFL.size, aemCount: aFL.size, missing: fMissing.slice(0, 20), extra: fExtra.slice(0, 20) });
+    // header/footer menu: count equal + 100% label match (strict).
+    // Partial credit = matched labels / union of both sides, so EXTRA labels
+    // on AEM reduce the score too — partial must never be 1.0 while the check
+    // fails, or a failed check would contribute full weight (see score loop).
+    const scoreMenu = (prodMenus, aemMenus) => {
+      const pSet = new Set((prodMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
+      const aSet = new Set((aemMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
+      const missing = [...pSet].filter(l => !aSet.has(l));
+      const extra = [...aSet].filter(l => !pSet.has(l));
+      const matched = pSet.size - missing.length;
+      const union = pSet.size + extra.length;
+      const hit = union > 0 ? matched / union : 1;
+      const pass = pSet.size === aSet.size && missing.length === 0;
+      return {
+        pass, hit,
+        detail: `${aSet.size}/${pSet.size} labels${missing.length ? ` · ${missing.length} missing` : ''}${extra.length ? ` · ${extra.length} extra` : ''}`,
+        diff: { prodCount: pSet.size, aemCount: aSet.size, missing: missing.slice(0, 20), extra: extra.slice(0, 20) },
+      };
+    };
+    const hm = scoreMenu(prod.headerMenus, aem.headerMenus);
+    add('headerMenu', 'Header menu (label + count)', hm.pass, hm.detail, hm.hit, hm.diff);
+    const fm = scoreMenu(prod.footerMenus, aem.footerMenus);
+    add('footerMenu', 'Footer menu (label + count)', fm.pass, fm.detail, fm.hit, fm.diff);
 
     // components: each prod-present component type must be ≥80% in AEM.
+    // When prod has NONE of a type, AEM adding some is a template mismatch —
+    // ratio must be 0 (not 1), or a failing type would still earn full credit.
     const pC = prod.componentCounts || {};
     const aC = aem.componentCounts || {};
     const types = ['accordion', 'table', 'form', 'video'];
+    const emptyAcc = aem.emptyAccordions || 0;
     const perType = types.map(t => {
       const p = pC[t] || 0, a = aC[t] || 0;
-      const ratio = p > 0 ? Math.min(1, a / (p * 0.8)) : 1;
-      return { type: t, prod: p, aem: a, ratio, ok: p === 0 ? a === 0 : a >= Math.ceil(p * 0.8) };
+      let ratio = p > 0 ? Math.min(1, a / (p * 0.8)) : (a === 0 ? 1 : 0);
+      let ok = p === 0 ? a === 0 : a >= Math.ceil(p * 0.8);
+      // Accordions must also be FILLED — matching the count with empty shells
+      // is a migration defect (this gate existed in the old scoring; keep it).
+      if (t === 'accordion' && a > 0 && emptyAcc > 0) {
+        ok = false;
+        ratio *= (a - emptyAcc) / a;
+      }
+      return { type: t, prod: p, aem: a, ratio, ok };
     });
     const compPass = perType.every(t => t.ok);
     const compPartial = perType.reduce((s, t) => s + t.ratio, 0) / perType.length;
     const advisory = ['carousel', 'tabs'].map(t => ({ type: t, prod: pC[t] || 0, aem: aC[t] || 0 })).filter(t => t.prod || t.aem);
+    // Advisory-only heuristics, split per side so a component prod has but AEM
+    // dropped is visible (a merged union couldn't distinguish the two).
+    const pOther = new Set(prod.otherComponents || []);
+    const aOther = new Set(aem.otherComponents || []);
+    const otherComponents = {
+      prodOnly: [...pOther].filter(c => !aOther.has(c)),
+      aemOnly: [...aOther].filter(c => !pOther.has(c)),
+      both: [...pOther].filter(c => aOther.has(c)),
+    };
     add('components', 'Components (accordion/table/form/video)', compPass,
-      perType.map(t => `${t.type} ${t.aem}/${t.prod}${t.ok ? '' : '✗'}`).join(' · ') + (advisory.length ? ` · advisory: ${advisory.map(t => `${t.type} ${t.aem}/${t.prod}`).join(', ')}` : ''),
+      perType.map(t => `${t.type} ${t.aem}/${t.prod}${t.type === 'accordion' && emptyAcc ? ` (${emptyAcc} empty)` : ''}${t.ok ? '' : '✗'}`).join(' · ') + (advisory.length ? ` · advisory: ${advisory.map(t => `${t.type} ${t.aem}/${t.prod}`).join(', ')}` : ''),
       compPartial,
-      { perType, advisory, otherComponents: [...new Set([...(prod.otherComponents || []), ...(aem.otherComponents || [])])] });
+      { perType, advisory, emptyAccordions: emptyAcc, otherComponents });
   } else {
     // New metrics not available (old capture) — mark these 3 checks insufficient.
     const markIns = (id, label) => checks.push({ id, weight: W[id], label, passed: false, detail: 'insufficient data (page captured before criteria update)', partial: 0, diff: null, insufficient: true });
@@ -531,7 +556,12 @@ function scoreParity(prod, aem, newsMode = false) {
   const aemAlts = new Set(aemImgs.map(i => i.alt?.toLowerCase()).filter(Boolean));
   const altHit = prodAlts.size > 0 ? [...prodAlts].filter(a => aemAlts.has(a)).length / prodAlts.size : 1;
   const imgPass = imgCountOk && altHit > 0.5;
-  const imgPartial = (imgCountOk ? 1 : Math.min(1, aemImgs.length / (prodImgs.length * 0.8 || 1))) * 0.5 + altHit * 0.5;
+  // When prod has no images, the only question is whether AEM spuriously added
+  // some — altHit is meaningless (defaults to 1) and must not award credit, or
+  // the failed check would score 1.0 (full weight) in the weighted loop.
+  const imgPartial = prodImgs.length === 0
+    ? (aemImgs.length === 0 ? 1 : 0)
+    : (imgCountOk ? 1 : Math.min(1, aemImgs.length / Math.ceil(prodImgs.length * 0.8))) * 0.5 + altHit * 0.5;
   add('missingImage', 'Missing image (≥80% + alt)', imgPass,
     `${aemImgs.length}/${prodImgs.length} images · alt match ${Math.round(altHit * 100)}%`,
     imgPartial,
@@ -605,7 +635,13 @@ function scoreParity(prod, aem, newsMode = false) {
   if (!aem.features?.languageSwitch && prod.features?.languageSwitch) aemIssues.push({ severity: 'high', label: 'Missing language switcher' });
   const socialMissing = Object.entries(prod.social || {}).filter(([k, v]) => v && !aem.social?.[k]).map(([k]) => k);
   if (socialMissing.length) aemIssues.push({ severity: 'medium', label: 'Missing social icons', detail: socialMissing.join(', ') });
-  if (tDelta > THAI_RATIO_DELTA) aemIssues.push({ severity: 'high', label: 'Thai/English balance differs', detail: `prod ${Math.round(pThai * 100)}% vs AEM ${Math.round(aThai * 100)}%` });
+  // Thai/English imbalance is already a scored check (thaiBalance → gaps), so
+  // it must NOT also go into aemIssues — the dashboard concatenates gaps +
+  // aemIssues, which would show and count the same finding twice. Keep the
+  // dedicated thaiIssues field populated for results.json consumers.
+  const thaiIssues = tDelta > THAI_RATIO_DELTA
+    ? [{ severity: 'high', label: 'Thai/English balance differs', detail: `prod ${Math.round(pThai * 100)}% Thai vs AEM ${Math.round(aThai * 100)}% Thai` }]
+    : [];
 
   // Broken links (HTTP status from AEM link check).
   const brokenLinks = [];
@@ -687,7 +723,7 @@ function scoreParity(prod, aem, newsMode = false) {
     });
   }
 
-  return { parity, checks, gaps, aemIssues, brokenLinks, imageIssues, thaiIssues: [] };
+  return { parity, checks, gaps, aemIssues, brokenLinks, imageIssues, thaiIssues };
 }
 
 function normCompare(a, b) {
@@ -943,4 +979,8 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error('❌', e); process.exit(1); });
+// Run only when invoked directly (node src/compare.js ...), so scoreParity
+// stays importable for scoring tests without launching the pipeline.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(e => { console.error('❌', e); process.exit(1); });
+}

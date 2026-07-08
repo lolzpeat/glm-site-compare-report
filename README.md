@@ -67,18 +67,25 @@ site-compare-bbl/
 
 ## Parity Score — Main Pages
 
-คำนวณจาก weighted metrics (ปรับน้ำหนักได้ใน `config.js`):
+คำนวณจาก **11 checks ใน 3 กลุ่ม** (`config.js` → `WEIGHTS_MAIN` + `CRITERIA_GROUPS`):
 
-| Check | Weight | เกณฑ์ผ่าน |
-|---|---|---|
-| Headings match | 25% | Jaccard similarity > 60% |
-| Links match | 20% | > 50% ของ prod link-texts มีใน AEM |
-| Content length | 15% | AEM อยู่ใน ±30% ของ prod |
-| Meta tags | 15% | title + description + canonical + og + keywords ตรง |
-| Accordions | 15% | จำนวนใกล้เคียง + ไม่มี accordion ว่าง |
-| Header & Footer | 10% | มี nav/footer links |
+| กลุ่ม | Check | Weight | เกณฑ์ผ่าน |
+|---|---|---|---|
+| 🏛 Template (25%) | Header menu | 8% | label + จำนวนเมนูตรงกันทั้งหมด |
+| | Footer menu | 7% | label + จำนวนเมนูตรงกันทั้งหมด |
+| | Components | 10% | accordion/table/form/video แต่ละ type ≥80% + accordion ไม่ว่าง |
+| 📝 Content (50%) | Content length | 14% | AEM อยู่ใน ±30% ของ prod |
+| | Missing text blocks | 14% | text block ของ prod มีใน AEM ครบ |
+| | Missing keywords | 12% | คำสำคัญของ prod มีใน AEM ครบ |
+| | Missing image | 10% | จำนวนรูป ≥80% + alt match >50% |
+| 🔗 Structure/SEO (25%) | Headings | 10% | Jaccard similarity > 60% |
+| | Links match | 8% | > 50% ของ prod link-texts มีใน AEM |
+| | Meta tags | 5% | ตรงทั้ง 6 tags (partial credit ตามจำนวนที่ตรง) |
+| | Thai/English balance | 2% | สัดส่วนอักษรไทย delta ≤ 10% |
 
-ผ่านเมื่อ parity ≥ 85% (ปรับได้ใน `config.js` → `PASS_THRESHOLD`)
+ผ่านเมื่อ parity ≥ 85% (ปรับได้ใน `config.js` → `PASS_THRESHOLD`) — check ที่ไม่ผ่านได้
+partial credit ตามสัดส่วน; หน้าที่ capture ก่อนเกณฑ์ใหม่ (ไม่มี metrics ใหม่) 3 check แรกจะเป็น
+**insufficient** และไม่ถูกนับน้ำหนัก (ต้อง re-capture ด้วย `--force` เพื่อให้ครบ 11 checks)
 
 ## Parity Score — News Articles (เฉพาะ)
 

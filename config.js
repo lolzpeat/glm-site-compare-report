@@ -28,6 +28,18 @@ export const CONCURRENCY = 4;          // parallel URL-pair workers
 export const SCREENSHOT_FULLPAGE = true;
 export const SCREENSHOT_MAX_WIDTH = 800; // resize screenshots to this width (px) to save disk + speed up
 
+// BBL AEM's anti-bot detection returns a blank page without a realistic
+// User-Agent; every page sets these before navigating (see capturePage).
+export const CAPTURE_USER_AGENT =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36';
+export const CAPTURE_ACCEPT_LANGUAGE = 'th-TH,th;q=0.9,en;q=0.8';
+
+// AEM renders the global header/footer nav lazily, a few seconds after the
+// body reaches full height. Extra wait window + poll interval for the
+// header/footer-populated check in capturePage.
+export const HEADER_FOOTER_WAIT_EXTRA = 4000; // ms added on top of SETTLE_AFTER_LOAD
+export const HEADER_FOOTER_POLL = 250;        // ms between checks
+
 // If extracted body text is shorter than this (chars), try scroll-stimulating
 // lazy-loaded content (AEM client-side render can start near-empty).
 export const MIN_TEXT_LEN = 200;

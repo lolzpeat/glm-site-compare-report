@@ -627,13 +627,26 @@ function renderDiffDetails(check, esc) {
         ${(!diff.missing?.length && !diff.extra?.length) ? `<div class="diff-section"><div class="diff-title ok">labels ตรงทั้งหมด ✓ (${diff.prodCount}/${diff.prodCount})</div></div>` : ''}
       </div>`;
 
-    case 'components':
-      // diff = { perType:[{type,prod,aem,ratio,ok}], advisory:[{type,prod,aem}], otherComponents:[] }
+    case 'components': {
+      // diff = { perType:[{type,prod,aem,ratio,ok}], advisory:[{type,prod,aem}],
+      //          emptyAccordions, otherComponents:{prodOnly,aemOnly,both} | [] (legacy) }
+      const oc = diff.otherComponents || {};
+      const ocLegacy = Array.isArray(oc); // results captured before the per-side split
+      const ocChips = (list, cls) => (list || []).map(c => `<span class="chip ${cls}">${esc(c)}</span>`).join(' ');
+      const ocHtml = ocLegacy
+        ? (oc.length ? `<div class="diff-section"><div class="diff-title">Other components: ${ocChips(oc, '')}</div></div>` : '')
+        : ((oc.prodOnly?.length || oc.aemOnly?.length || oc.both?.length) ? `<div class="diff-section">
+            <div class="diff-title">Other components (advisory)</div>
+            ${oc.prodOnly?.length ? `<div>หายใน AEM: ${ocChips(oc.prodOnly, 'chip-missing')}</div>` : ''}
+            ${oc.aemOnly?.length ? `<div>AEM มีเพิ่ม: ${ocChips(oc.aemOnly, 'chip-extra')}</div>` : ''}
+            ${oc.both?.length ? `<div>มีทั้งคู่: ${ocChips(oc.both, '')}</div>` : ''}
+          </div>` : '');
       return `<div class="diff-body">
-        ${diff.perType?.length ? `<div class="diff-section"><table class="meta-diff"><thead><tr><th>Type</th><th>Prod</th><th>AEM</th><th>Status</th></tr></thead><tbody>${diff.perType.map(t => `<tr><td><code>${esc(t.type)}</code></td><td>${t.prod}</td><td class="${t.ok ? 'ok' : 'bad'}">${t.aem}</td><td class="${t.ok ? 'ok' : 'bad'}">${t.ok ? '✓' : '✗'}</td></tr>`).join('')}</tbody></table></div>` : ''}
+        ${diff.perType?.length ? `<div class="diff-section"><table class="meta-diff"><thead><tr><th>Type</th><th>Prod</th><th>AEM</th><th>Status</th></tr></thead><tbody>${diff.perType.map(t => `<tr><td><code>${esc(t.type)}</code></td><td>${t.prod}</td><td class="${t.ok ? 'ok' : 'bad'}">${t.aem}${t.type === 'accordion' && diff.emptyAccordions ? ` (${diff.emptyAccordions} ว่าง)` : ''}</td><td class="${t.ok ? 'ok' : 'bad'}">${t.ok ? '✓' : '✗'}</td></tr>`).join('')}</tbody></table></div>` : ''}
         ${diff.advisory?.length ? `<div class="diff-section"><div class="diff-title">Advisory: ${diff.advisory.map(t => `${esc(t.type)} ${t.aem}/${t.prod}`).join(' · ')}</div></div>` : ''}
-        ${diff.otherComponents?.length ? `<div class="diff-section"><div class="diff-title">Other components: ${diff.otherComponents.map(c => `<span class="chip">${esc(c)}</span>`).join(' ')}</div></div>` : ''}
+        ${ocHtml}
       </div>`;
+    }
 
     case 'missingImage':
       // diff = { prodCount, aemCount, altMatchPct, prodAlts, aemAlts }
