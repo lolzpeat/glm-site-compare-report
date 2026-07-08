@@ -16,12 +16,14 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { glob } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 import puppeteer from 'puppeteer-core';
 import {
   DIR, VIEWPORT, NAV_TIMEOUT, NAV_WAIT_UNTIL, SETTLE_AFTER_LOAD, LAZY_WAIT_TIMEOUT, LAYOUT_WAIT_TIMEOUT, CONCURRENCY,
   SCREENSHOT_FULLPAGE, SCREENSHOT_MAX_WIDTH, MIN_TEXT_LEN, SCROLL_STIMULATE_STEPS, SCROLL_STIMULATE_DELAY,
-  WEIGHTS, WEIGHTS_NEWS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
+  WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
   THAI_RATIO_DELTA, IMAGE_RATIO_TOLERANCE, MAX_LINK_CHECKS, LINK_CHECK_BATCH, LINK_CHECK_DELAY,
+  CAPTURE_USER_AGENT, CAPTURE_ACCEPT_LANGUAGE, HEADER_FOOTER_WAIT_EXTRA, HEADER_FOOTER_POLL,
 } from '../config.js';
 import sharp from 'sharp';
 import { EXTRACT_FN } from './extract.js';
@@ -133,6 +135,10 @@ async function capturePage(page, url) {
   const result = { url, ok: false, error: null, metrics: null, screenshot: null };
   if (!url) { result.error = 'no URL'; return result; }
   try {
+    // BBL AEM has anti-bot detection that returns a blank page without a
+    // realistic User-Agent. Set one on every page before navigating.
+    await page.setUserAgent(CAPTURE_USER_AGENT).catch(() => {});
+    await page.setExtraHTTPHeaders({ 'Accept-Language': CAPTURE_ACCEPT_LANGUAGE }).catch(() => {});
     await page.goto(url, { waitUntil: NAV_WAIT_UNTIL, timeout: NAV_TIMEOUT });
 
     // AEM is client-side rendered: the DOM populates quickly but layout
@@ -149,6 +155,31 @@ async function capturePage(page, url) {
       // Layout never settled — capture whatever we have (may be sparse/blank).
     }
     await new Promise(r => setTimeout(r, SETTLE_AFTER_LOAD));
+
+    // AEM loads the global <header>/<footer> nav lazily (client-rendered) and
+    // they don't appear until ~2-3s after the body, by which point the body has
+    // already reached full height so the layout wait above resolves early. With
+    // the default 800ms settle the header is still empty (0 links) at extract
+    // time. Wait a bit longer for the header/footer to populate, with a short
+    // bounded timeout so prod pages aren't penalised.
+    try {
+      // Must use the SAME selectors extract.js uses to capture header/footer —
+      // BBL markup is often <nav class="..."> / <div class="site-footer">, not
+      // literal <header>/<footer> tags, and a narrower selector here would
+      // resolve immediately and never actually wait for the extracted element.
+      await page.waitForFunction(
+        () => {
+          const h = document.querySelector('header, [class*="header" i], nav');
+          const f = document.querySelector('footer, [class*="footer" i]');
+          const hOk = h ? h.querySelectorAll('a[href]').length > 0 : true;
+          const fOk = f ? f.querySelectorAll('a[href]').length > 0 : true;
+          return hOk && fOk;
+        },
+        { timeout: SETTLE_AFTER_LOAD + HEADER_FOOTER_WAIT_EXTRA, polling: HEADER_FOOTER_POLL }
+      );
+    } catch {
+      // Header/footer never populated within the window — extract whatever we have.
+    }
 
     result.metrics = await page.evaluate(EXTRACT_FN);
     result.ok = true;
@@ -357,11 +388,15 @@ function scoreNews(prod, aem, W, add, checks) {
   return { parity, checks, gaps, aemIssues, brokenLinks, imageIssues: [], thaiIssues: [] };
 }
 
-function scoreParity(prod, aem, newsMode = false) {
-  const W = newsMode ? WEIGHTS_NEWS : WEIGHTS;
+// Returns true when a metrics object has the new extract fields (captured after
+// the extract.js change). Used to mark new checks as `insufficient` rather than
+// fail them on old captures (pilot: 612 of 632 pages predate the change).
+function hasNewMetrics(m) {
+  return !!(m && m.componentCounts && m.headerMenus && m.footerMenus);
+}
+
+export function scoreParity(prod, aem, newsMode = false) {
   const checks = [];
-  const add = (id, weight, label, passed, detail, diff) =>
-    checks.push({ id, weight, label, passed: !!passed, detail, diff: diff || null });
 
   // ─── Error-page guard ────────────────────────────────────────────────────
   // Detect 404/error/blocked pages on either side.
@@ -415,18 +450,145 @@ function scoreParity(prod, aem, newsMode = false) {
 
   // ─── NEWS MODE: skip generic checks, use focused news scoring ────────────
   if (newsMode) {
+    const W = WEIGHTS_NEWS;
+    const add = (id, weight, label, passed, detail, diff) =>
+      checks.push({ id, weight, label, passed: !!passed, detail, diff: diff || null });
     return scoreNews(prod, aem, W, add, checks);
   }
 
-  // Headings — Jaccard similarity over normalized heading text sets.
-  const prodHeadings = (prod.headings || []).map(h => typeof h === 'string' ? h : h.text);
-  const aemHeadings = (aem.headings || []).map(h => typeof h === 'string' ? h : h.text);
-  const pH = new Set(prodHeadings.map(h => h.toLowerCase()));
-  const aH = new Set(aemHeadings.map(h => h.toLowerCase()));
+  // ─── MAIN MODE: 11 checks via WEIGHTS_MAIN (3 groups) ─────────────────────
+  const W = WEIGHTS_MAIN;
+  const add = (id, label, passed, detail, partial, diff) =>
+    checks.push({ id, weight: W[id], label, passed: !!passed, detail, partial: partial ?? 0, diff: diff || null });
+
+  const newDataOk = hasNewMetrics(prod) && hasNewMetrics(aem);
+
+  // ── Template group ──
+  if (newDataOk) {
+    // header/footer menu: count equal + 100% label match (strict).
+    // Partial credit = matched labels / union of both sides, so EXTRA labels
+    // on AEM reduce the score too — partial must never be 1.0 while the check
+    // fails, or a failed check would contribute full weight (see score loop).
+    const scoreMenu = (prodMenus, aemMenus) => {
+      const pSet = new Set((prodMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
+      const aSet = new Set((aemMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
+      const missing = [...pSet].filter(l => !aSet.has(l));
+      const extra = [...aSet].filter(l => !pSet.has(l));
+      const matched = pSet.size - missing.length;
+      const union = pSet.size + extra.length;
+      const hit = union > 0 ? matched / union : 1;
+      const pass = pSet.size === aSet.size && missing.length === 0;
+      return {
+        pass, hit,
+        detail: `${aSet.size}/${pSet.size} labels${missing.length ? ` · ${missing.length} missing` : ''}${extra.length ? ` · ${extra.length} extra` : ''}`,
+        diff: { prodCount: pSet.size, aemCount: aSet.size, missing: missing.slice(0, 20), extra: extra.slice(0, 20) },
+      };
+    };
+    const hm = scoreMenu(prod.headerMenus, aem.headerMenus);
+    add('headerMenu', 'Header menu (label + count)', hm.pass, hm.detail, hm.hit, hm.diff);
+    const fm = scoreMenu(prod.footerMenus, aem.footerMenus);
+    add('footerMenu', 'Footer menu (label + count)', fm.pass, fm.detail, fm.hit, fm.diff);
+
+    // components: each prod-present component type must be ≥80% in AEM.
+    // When prod has NONE of a type, AEM adding some is a template mismatch —
+    // ratio must be 0 (not 1), or a failing type would still earn full credit.
+    const pC = prod.componentCounts || {};
+    const aC = aem.componentCounts || {};
+    const types = ['accordion', 'table', 'form', 'video'];
+    const emptyAcc = aem.emptyAccordions || 0;
+    const perType = types.map(t => {
+      const p = pC[t] || 0, a = aC[t] || 0;
+      let ratio = p > 0 ? Math.min(1, a / (p * 0.8)) : (a === 0 ? 1 : 0);
+      let ok = p === 0 ? a === 0 : a >= Math.ceil(p * 0.8);
+      // Accordions must also be FILLED — matching the count with empty shells
+      // is a migration defect (this gate existed in the old scoring; keep it).
+      if (t === 'accordion' && a > 0 && emptyAcc > 0) {
+        ok = false;
+        ratio *= (a - emptyAcc) / a;
+      }
+      return { type: t, prod: p, aem: a, ratio, ok };
+    });
+    const compPass = perType.every(t => t.ok);
+    const compPartial = perType.reduce((s, t) => s + t.ratio, 0) / perType.length;
+    const advisory = ['carousel', 'tabs'].map(t => ({ type: t, prod: pC[t] || 0, aem: aC[t] || 0 })).filter(t => t.prod || t.aem);
+    // Advisory-only heuristics, split per side so a component prod has but AEM
+    // dropped is visible (a merged union couldn't distinguish the two).
+    const pOther = new Set(prod.otherComponents || []);
+    const aOther = new Set(aem.otherComponents || []);
+    const otherComponents = {
+      prodOnly: [...pOther].filter(c => !aOther.has(c)),
+      aemOnly: [...aOther].filter(c => !pOther.has(c)),
+      both: [...pOther].filter(c => aOther.has(c)),
+    };
+    add('components', 'Components (accordion/table/form/video)', compPass,
+      perType.map(t => `${t.type} ${t.aem}/${t.prod}${t.type === 'accordion' && emptyAcc ? ` (${emptyAcc} empty)` : ''}${t.ok ? '' : '✗'}`).join(' · ') + (advisory.length ? ` · advisory: ${advisory.map(t => `${t.type} ${t.aem}/${t.prod}`).join(', ')}` : ''),
+      compPartial,
+      { perType, advisory, emptyAccordions: emptyAcc, otherComponents });
+  } else {
+    // New metrics not available (old capture) — mark these 3 checks insufficient.
+    const markIns = (id, label) => checks.push({ id, weight: W[id], label, passed: false, detail: 'insufficient data (page captured before criteria update)', partial: 0, diff: null, insufficient: true });
+    markIns('headerMenu', 'Header menu (label + count)');
+    markIns('footerMenu', 'Footer menu (label + count)');
+    markIns('components', 'Components (accordion/table/form/video)');
+  }
+
+  // ── Content group ──
+  // contentLength: text within ±TEXT_MATCH_TOLERANCE.
+  const ratio = prod.textLength > 0 ? aem.textLength / prod.textLength : 0;
+  const lenPass = Math.abs(1 - ratio) <= TEXT_MATCH_TOLERANCE;
+  add('contentLength', 'Content length (±' + Math.round(TEXT_MATCH_TOLERANCE * 100) + '%)', lenPass,
+    `${aem.textLength}/${prod.textLength} chars (${Math.round(ratio * 100)}%)`,
+    lenPass ? 1 : Math.max(0, ratio),
+    { ratio: Math.round(ratio * 100), prodSample: (prod.bodyTextSample || '').slice(0, 600), aemSample: (aem.bodyTextSample || '').slice(0, 600) });
+
+  // missingText: prod text blocks not present in AEM.
+  const aemBlockSet = new Set((aem.textBlocks || []).map(t => t.toLowerCase()));
+  const prodBlocks = (prod.textBlocks || []).map(t => t.trim()).filter(t => t.length >= 8 && !isDynamicBlock(t));
+  const prodBlocksSet = new Set(prodBlocks);
+  const missingTextBlocks = [...new Set(prodBlocks.filter(t => !aemBlockSet.has(t.toLowerCase())))].slice(0, 15);
+  const textHit = prodBlocksSet.size > 0 ? 1 - (missingTextBlocks.length / prodBlocksSet.size) : 1;
+  add('missingText', 'Missing text blocks', missingTextBlocks.length === 0,
+    `${missingTextBlocks.length} prod block(s) missing`,
+    textHit,
+    { missingTextBlocks, prodBlockCount: prodBlocksSet.size });
+
+  // missingKeywords: prod top keywords absent from AEM.
+  const prodWordMap = new Map((prod.topWords || []).map(w => [w.w, w.c]));
+  const aemWordMap = new Map((aem.topWords || []).map(w => [w.w, w.c]));
+  const prodKey = [...prodWordMap.keys()].slice(0, 30);
+  const missingKeywords = prodKey.filter(w => !aemWordMap.has(w)).slice(0, 20);
+  const kwHit = prodKey.length > 0 ? 1 - (missingKeywords.length / prodKey.length) : 1;
+  add('missingKeywords', 'Missing keywords', missingKeywords.length === 0,
+    `${missingKeywords.length}/${prodKey.length} prod keywords missing`,
+    kwHit,
+    { missingKeywords, sharedCount: prodKey.length - missingKeywords.length });
+
+  // missingImage: count ≥80% + alt match >50%.
+  const prodImgs = prod.images || [];
+  const aemImgs = aem.images || [];
+  const imgCountOk = prodImgs.length === 0 ? aemImgs.length === 0 : aemImgs.length >= Math.ceil(prodImgs.length * 0.8);
+  const prodAlts = new Set(prodImgs.map(i => i.alt?.toLowerCase()).filter(Boolean));
+  const aemAlts = new Set(aemImgs.map(i => i.alt?.toLowerCase()).filter(Boolean));
+  const altHit = prodAlts.size > 0 ? [...prodAlts].filter(a => aemAlts.has(a)).length / prodAlts.size : 1;
+  const imgPass = imgCountOk && altHit > 0.5;
+  // When prod has no images, the only question is whether AEM spuriously added
+  // some — altHit is meaningless (defaults to 1) and must not award credit, or
+  // the failed check would score 1.0 (full weight) in the weighted loop.
+  const imgPartial = prodImgs.length === 0
+    ? (aemImgs.length === 0 ? 1 : 0)
+    : (imgCountOk ? 1 : Math.min(1, aemImgs.length / Math.ceil(prodImgs.length * 0.8))) * 0.5 + altHit * 0.5;
+  add('missingImage', 'Missing image (≥80% + alt)', imgPass,
+    `${aemImgs.length}/${prodImgs.length} images · alt match ${Math.round(altHit * 100)}%`,
+    imgPartial,
+    { prodCount: prodImgs.length, aemCount: aemImgs.length, altMatchPct: Math.round(altHit * 100), prodAlts: [...prodAlts].slice(0, 20), aemAlts: [...aemAlts].slice(0, 20) });
+
+  // ── Structure / SEO group ──
+  // headings: Jaccard over normalized heading-text sets.
+  const pH = new Set((prod.headings || []).map(h => typeof h === 'string' ? h : h.text).map(s => s.toLowerCase()));
+  const aH = new Set((aem.headings || []).map(h => typeof h === 'string' ? h : h.text).map(s => s.toLowerCase()));
   const hInter = [...pH].filter(x => aH.has(x)).length;
   const hUnion = new Set([...pH, ...aH]).size || 1;
-  const headingScore = hInter / hUnion;
-  // Build full heading outline with match status for side-by-side display.
+  const jac = hInter / hUnion;
   const prodOutline = (prod.headings || []).map(h => {
     const text = typeof h === 'string' ? h : h.text;
     const level = typeof h === 'string' ? 0 : h.level;
@@ -437,139 +599,66 @@ function scoreParity(prod, aem, newsMode = false) {
     const level = typeof h === 'string' ? 0 : h.level;
     return { level, text, tag: typeof h === 'string' ? '' : h.tag, matched: pH.has(text.toLowerCase()) };
   });
-  add('headings', W.headings, 'Headings match', headingScore > 0.6,
-    `${aem.headingCount}/${prod.headingCount} headings (Jaccard ${(headingScore * 100 | 0)}%)`,
-    {
-      matchedCount: hInter,
-      prodOutline,
-      aemOutline,
-    });
+  add('headings', 'Headings (Jaccard)', jac > 0.6,
+    `${aem.headingCount}/${prod.headingCount} headings (Jaccard ${Math.round(jac * 100)}%)`,
+    jac,
+    { prodOutline, aemOutline });
 
-  // Links — fraction of prod link-texts present in AEM.
+  // links: fraction of prod link-texts found in AEM.
   const pLinks = new Set(prod.links.map(l => l.text.toLowerCase()).filter(Boolean));
   const aLinks = new Set(aem.links.map(l => l.text.toLowerCase()).filter(Boolean));
-  const linkHit = pLinks.size ? [...pLinks].filter(t => aLinks.has(t)).length / pLinks.size : 0;
-  // Side-by-side link lists with match status (deduplicated by text).
-  const prodLinksUnique = [];
-  const seenP = new Set();
-  for (const l of prod.links) {
-    const key = l.text.toLowerCase();
-    if (key && !seenP.has(key)) { seenP.add(key); prodLinksUnique.push({ text: l.text, href: l.href, matched: aLinks.has(key) }); }
-  }
-  const aemLinksUnique = [];
-  const seenA = new Set();
-  for (const l of aem.links) {
-    const key = l.text.toLowerCase();
-    if (key && !seenA.has(key)) { seenA.add(key); aemLinksUnique.push({ text: l.text, href: l.href, matched: pLinks.has(key) }); }
-  }
-  add('links', W.links, 'Links match', linkHit > 0.5,
-    `${aem.linkCount}/${prod.linkCount} links (${(linkHit * 100 | 0)}% of prod link-texts found)`,
-    {
-      matchedCount: [...pLinks].filter(t => aLinks.has(t)).length,
-      prodLinks: prodLinksUnique.slice(0, 50),
-      aemLinks: aemLinksUnique.slice(0, 50),
-    });
+  const linkHit = pLinks.size > 0 ? [...pLinks].filter(t => aLinks.has(t)).length / pLinks.size : 0;
+  add('links', 'Links match', linkHit > 0.5,
+    `${aem.linkCount}/${prod.linkCount} links (${Math.round(linkHit * 100)}% of prod link-texts found)`,
+    linkHit,
+    { matchedCount: [...pLinks].filter(t => aLinks.has(t)).length });
 
-  // Content — text length within tolerance, plus keyword comparison.
-  const ratio = prod.textLength > 0 ? aem.textLength / prod.textLength : 0;
-  const textPass = Math.abs(1 - ratio) <= TEXT_MATCH_TOLERANCE;
-  // Keyword diff: words in prod's top-words that are rare/absent in AEM.
-  const prodWordMap = new Map((prod.topWords || []).map(w => [w.w, w.c]));
-  const aemWordMap = new Map((aem.topWords || []).map(w => [w.w, w.c]));
-  const prodKey = [...prodWordMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30);
-  const aemKey = [...aemWordMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30);
-  const keywordsMissing = prodKey.filter(([w]) => !aemWordMap.has(w)).slice(0, 20);
-  const keywordsShared = prodKey.filter(([w]) => aemWordMap.has(w));
-  // Missing text blocks (dynamic content filtered out to avoid false positives).
-  const aemBlockSet = new Set((aem.textBlocks || []).map(t => t.toLowerCase()));
-  const missingTextBlocks = [...new Set(
-    (prod.textBlocks || [])
-      .map(t => t.trim())
-      .filter(t => t.length >= 8 && !isDynamicBlock(t) && !aemBlockSet.has(t.toLowerCase()))
-  )].slice(0, 15);
-  add('text', W.text, 'Content length', textPass,
-    `${aem.textLength}/${prod.textLength} chars (ratio ${(ratio * 100 | 0)}%)`,
-    {
-      prodSample: (prod.bodyTextSample || '').slice(0, 600),
-      aemSample: (aem.bodyTextSample || '').slice(0, 600),
-      prodKeywords: prodKey.map(([w, c]) => ({ w, c, aemCount: aemWordMap.get(w) || 0 })),
-      aemKeywords: aemKey.map(([w, c]) => ({ w, c, prodCount: prodWordMap.get(w) || 0 })),
-      keywordsMissingCount: keywordsMissing.length,
-      keywordsSharedCount: keywordsShared.length,
-      missingTextBlocks,
-      thaiRatio: { prod: prod.thaiRatio ?? 0, aem: aem.thaiRatio ?? 0, delta: Math.abs((prod.thaiRatio ?? 0) - (aem.thaiRatio ?? 0)) },
-    });
-
-  // Meta tags — title/description should match.
+  // meta: PARTIAL CREDIT (changed from prior binary that required 100% match).
   const metaKeys = ['title', 'description', 'canonical', 'ogTitle', 'ogImage', 'keywords'];
-  const metaChecks = metaKeys.map(k => ({ key: k, prod: prod.meta[k] || '', aem: aem.meta[k] || '', match: normCompare(prod.meta[k], aem.meta[k]) }));
+  const metaChecks = metaKeys.map(k => ({ key: k, prod: prod.meta?.[k] || '', aem: aem.meta?.[k] || '', match: normCompare(prod.meta?.[k], aem.meta?.[k]) }));
   const metaHits = metaChecks.filter(m => m.match).length;
-  const metaScore = metaKeys.length ? metaHits / metaKeys.length : 0;
+  const metaScore = metaHits / metaKeys.length;
   const metaMissing = metaChecks.filter(m => m.prod && !m.match).map(m => m.key);
-  add('meta', W.meta, 'Meta tags', metaScore === 1,
+  add('meta', 'Meta tags', metaScore === 1,
     `${metaHits}/${metaKeys.length} matched` + (metaMissing.length ? ` — missing: ${metaMissing.join(', ')}` : ''),
+    metaScore,
     { missing: metaMissing, details: metaChecks });
 
-  // Accordions — AEM should have same count and none empty.
-  const accCountMatch = aem.accordionCount >= prod.accordionCount * 0.8;
-  const accFilled = aem.accordionCount > 0 ? (aem.accordionCount - aem.emptyAccordions) / aem.accordionCount : 1;
-  const accPass = accCountMatch && aem.emptyAccordions === 0;
-  const emptyAccTitles = aem.accordions.filter(a => !a.isFilled).map(a => a.title || '(untitled)').slice(0, 10);
-  add('accordions', W.accordions, 'Accordions filled', accPass,
-    `prod ${prod.accordionCount} / aem ${aem.accordionCount} (${aem.emptyAccordions} empty)`,
-    { emptyAccordions: emptyAccTitles, prodCount: prod.accordionCount, aemCount: aem.accordionCount });
-
-  // Header/footer — AEM should have header & footer links like prod.
-  const headerOk = aem.headerLinkCount > 0 || prod.headerLinkCount === 0;
-  const footerOk = aem.footerLinkCount > 0 || prod.footerLinkCount === 0;
-  add('headerFooter', W.headerFooter, 'Header & Footer', headerOk && footerOk,
-    `header ${aem.headerLinkCount}/${prod.headerLinkCount} links, footer ${aem.footerLinkCount}/${prod.footerLinkCount} links`,
-    { header: { prod: prod.headerLinkCount, aem: aem.headerLinkCount }, footer: { prod: prod.footerLinkCount, aem: aem.footerLinkCount } });
-
-  // ─── News-specific: publish date check ────────────────────────────────────
-  if (newsMode && W.publishDate) {
-    const pDate = prod.meta?.publishDate || prod.publishDateFromContent || '';
-    const aDate = aem.meta?.publishDate || aem.publishDateFromContent || '';
-    const dateMatch = pDate && aDate && normCompare(pDate, aDate);
-    const datePass = !pDate || !aDate ? false : !!dateMatch;
-    add('publishDate', W.publishDate, 'Publish date', datePass,
-      `prod: "${pDate || '(none)'}" / aem: "${aDate || '(none)'}"`,
-      { prodDate: pDate, aemDate: aDate });
-  }
-
-  // Weighted score: sum(weight * 1) for passed, partial credit for ratio-based checks.
-  const partial = { headings: headingScore, links: linkHit, text: textPass ? 1 : Math.max(0, ratio), meta: metaScore };
-  let score = 0;
-  for (const c of checks) {
-    score += c.weight * (c.passed ? 1 : (partial[c.id] ?? 0));
-  }
-  const parity = Math.min(100, Math.round(score * 100));
-  const gaps = checks.filter(c => !c.passed).map(c => ({ label: c.label, detail: c.detail, weight: c.weight }));
-
-  // AEM-specific issues (counted but not in the weighted score).
-  const aemIssues = [];
-  if (aem.leakedContentPaths.length) aemIssues.push({ severity: 'high', label: 'Leaked /content/ paths', detail: `${aem.leakedContentPaths.length} found` });
-  if (!aem.features.login && prod.features.login) aemIssues.push({ severity: 'high', label: 'Missing login', detail: 'prod has login, AEM does not' });
-  if (!aem.features.languageSwitch && prod.features.languageSwitch) aemIssues.push({ severity: 'high', label: 'Missing language switcher' });
-  const socialMissing = Object.entries(prod.social).filter(([k, v]) => v && !aem.social[k]).map(([k]) => k);
-  if (socialMissing.length) aemIssues.push({ severity: 'medium', label: 'Missing social icons', detail: socialMissing.join(', ') });
-
-  // ─── Thai/Latin script ratio (language-regression signal) ────────────────
+  // thaiBalance: Thai/Latin ratio delta.
   const pThai = prod.thaiRatio ?? 0;
   const aThai = aem.thaiRatio ?? 0;
-  const thaiDelta = Math.abs(pThai - aThai);
-  const thaiIssues = [];
-  if (thaiDelta > THAI_RATIO_DELTA) {
-    const issue = {
-      severity: 'high',
-      label: 'Thai/English balance differs',
-      detail: `prod ${(pThai * 100).toFixed(0)}% Thai vs AEM ${(aThai * 100).toFixed(0)}% Thai`,
-    };
-    thaiIssues.push(issue);
-    aemIssues.push(issue);
-  }
+  const tDelta = Math.abs(pThai - aThai);
+  add('thaiBalance', 'Thai/English balance', tDelta <= THAI_RATIO_DELTA,
+    `delta ${Math.round(tDelta * 100)}% (≤${Math.round(THAI_RATIO_DELTA * 100)}%)`,
+    tDelta <= THAI_RATIO_DELTA ? 1 : 0,
+    { prod: pThai, aem: aThai, delta: tDelta });
 
-  // ─── Broken links (HTTP status from AEM link check) ──────────────────────
+  // ── Weighted score (partial credit; insufficient checks excluded) ──
+  let score = 0, possible = 0;
+  for (const c of checks) {
+    if (c.insufficient) continue;             // skip — weight not counted
+    score += c.weight * (c.passed ? 1 : c.partial);
+    possible += c.weight;
+  }
+  const parity = Math.min(100, Math.round((possible > 0 ? score / possible : 0) * 100));
+  const gaps = checks.filter(c => !c.passed && !c.insufficient).map(c => ({ label: c.label, detail: c.detail, weight: c.weight }));
+
+  // ── AEM-specific issues (flagged, not scored) ──
+  const aemIssues = [];
+  if (aem.leakedContentPaths?.length) aemIssues.push({ severity: 'high', label: 'Leaked /content/ paths', detail: `${aem.leakedContentPaths.length} found` });
+  if (!aem.features?.login && prod.features?.login) aemIssues.push({ severity: 'high', label: 'Missing login', detail: 'prod has login, AEM does not' });
+  if (!aem.features?.languageSwitch && prod.features?.languageSwitch) aemIssues.push({ severity: 'high', label: 'Missing language switcher' });
+  const socialMissing = Object.entries(prod.social || {}).filter(([k, v]) => v && !aem.social?.[k]).map(([k]) => k);
+  if (socialMissing.length) aemIssues.push({ severity: 'medium', label: 'Missing social icons', detail: socialMissing.join(', ') });
+  // Thai/English imbalance is already a scored check (thaiBalance → gaps), so
+  // it must NOT also go into aemIssues — the dashboard concatenates gaps +
+  // aemIssues, which would show and count the same finding twice. Keep the
+  // dedicated thaiIssues field populated for results.json consumers.
+  const thaiIssues = tDelta > THAI_RATIO_DELTA
+    ? [{ severity: 'high', label: 'Thai/English balance differs', detail: `prod ${Math.round(pThai * 100)}% Thai vs AEM ${Math.round(aThai * 100)}% Thai` }]
+    : [];
+
+  // Broken links (HTTP status from AEM link check).
   const brokenLinks = [];
   if (aem.linkStatuses) {
     for (const [url, status] of Object.entries(aem.linkStatuses)) {
@@ -577,13 +666,7 @@ function scoreParity(prod, aem, newsMode = false) {
       else if (status === 0) brokenLinks.push({ url: url.slice(0, 80), status: 'unreachable' });
     }
   }
-  if (brokenLinks.length) {
-    aemIssues.push({
-      severity: 'high',
-      label: 'Broken links on AEM',
-      detail: `${brokenLinks.length} links return error`,
-    });
-  }
+  if (brokenLinks.length) aemIssues.push({ severity: 'high', label: 'Broken links on AEM', detail: `${brokenLinks.length} links return error` });
 
   // ─── Image distortion (rendered ratio + newly-introduced distortion) ─────
   // AEM stores images with hash names (media_abc123...) so filename matching
@@ -591,8 +674,6 @@ function scoreParity(prod, aem, newsMode = false) {
   // ratios. Also flag newly-introduced distortion (natural ≠ rendered on AEM
   // where prod rendered correctly).
   const imageIssues = [];
-  const prodImgs = (prod.images || []);
-  const aemImgs = (aem.images || []);
   const imgRatio = (w, h) => h > 0 ? w / h : 0;
   const imgDiffers = (a, b) => a > 0 && b > 0 && Math.abs(a - b) / a > IMAGE_RATIO_TOLERANCE;
 
@@ -939,4 +1020,8 @@ async function main() {
   }
 }
 
-main().catch(e => { console.error('❌', e); process.exit(1); });
+// Run only when invoked directly (node src/compare.js ...), so scoreParity
+// stays importable for scoring tests without launching the pipeline.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(e => { console.error('❌', e); process.exit(1); });
+}

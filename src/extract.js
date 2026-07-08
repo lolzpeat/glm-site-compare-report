@@ -59,12 +59,40 @@ export const EXTRACT_FN = () => {
   }));
   const emptyAccordions = accordions.filter(a => !a.isFilled).length;
 
-  // --- Header / nav ---
+  // --- Component counts (for the new `components` parity check) ---
+  const componentCounts = {
+    accordion: accordions.length,
+    table:     document.querySelectorAll('table').length,
+    tableRows: document.querySelectorAll('table tr').length,
+    form:      document.querySelectorAll('form').length,
+    formInputs:document.querySelectorAll('input, select, textarea').length,
+    video:     document.querySelectorAll(
+                 'video, iframe[src*="youtube"], iframe[src*="youtu.be"], iframe[allow*="autoplay"]'
+               ).length,
+    carousel:  document.querySelectorAll('[class*="carousel" i], [class*="slider" i], [data-carousel]').length,
+    tabs:      document.querySelectorAll('[role="tablist"], [class*="tabs" i], [class*="cmp-tabs"]').length,
+  };
+
+  // --- Header / nav (labels for the new headerMenu check) ---
   const header = document.querySelector('header, [class*="header" i], nav');
+  const headerMenus = header
+    ? Array.from(new Set(Array.from(header.querySelectorAll('a[href]'))
+        .map(a => norm(a.textContent).slice(0, 80))
+        .filter(Boolean)))
+        .map(label => ({ label }))
+        .slice(0, 80)
+    : [];
   const headerLinkCount = header ? header.querySelectorAll('a[href]').length : 0;
 
-  // --- Footer ---
+  // --- Footer (labels for the new footerMenu check) ---
   const footer = document.querySelector('footer, [class*="footer" i]');
+  const footerMenus = footer
+    ? Array.from(new Set(Array.from(footer.querySelectorAll('a[href]'))
+        .map(a => norm(a.textContent).slice(0, 80))
+        .filter(Boolean)))
+        .map(label => ({ label }))
+        .slice(0, 80)
+    : [];
   const footerLinkCount = footer ? footer.querySelectorAll('a[href]').length : 0;
 
   // --- Social icons ---
@@ -100,6 +128,14 @@ export const EXTRACT_FN = () => {
   const html = document.documentElement.innerHTML;
   const leakedPaths = [...new Set((html.match(/\/content\/bangkokbank\/[^\s"'<>)\\]+/g) || []))].slice(0, 12);
 
+  // --- Heuristic "other components" (advisory only — not scored) ---
+  const otherComponents = [];
+  if (document.querySelector('[role="dialog"], [class*="modal" i]')) otherComponents.push('dialog/modal');
+  if (document.querySelector('canvas')) otherComponents.push('canvas');
+  if (document.querySelector('[role="alert"], [class*="notification" i], [class*="toast" i]')) otherComponents.push('notification');
+  if (document.querySelector('[class*="map" i], iframe[src*="google.com/maps"], iframe[src*="map"]')) otherComponents.push('map');
+  if (document.querySelector('audio')) otherComponents.push('audio');
+
   // --- Feature presence ---
   // Build a clean text snapshot: clone body and strip non-content elements
   // (script/style/iframe/noscript/template) so textContent reflects actual
@@ -128,6 +164,10 @@ export const EXTRACT_FN = () => {
     accordions: accordions.slice(0, 20),
     headerLinkCount,
     footerLinkCount,
+    componentCounts,
+    headerMenus,
+    footerMenus,
+    otherComponents,
     social,
     breadcrumb: { hasBreadcrumb: !!breadcrumbEl, items: breadcrumbItems },
     shareBtns,

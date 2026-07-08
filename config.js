@@ -46,6 +46,18 @@ export const CONCURRENCY = 4;          // parallel URL-pair workers
 export const SCREENSHOT_FULLPAGE = true;
 export const SCREENSHOT_MAX_WIDTH = 800; // resize screenshots to this width (px) to save disk + speed up
 
+// BBL AEM's anti-bot detection returns a blank page without a realistic
+// User-Agent; every page sets these before navigating (see capturePage).
+export const CAPTURE_USER_AGENT =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36';
+export const CAPTURE_ACCEPT_LANGUAGE = 'th-TH,th;q=0.9,en;q=0.8';
+
+// AEM renders the global header/footer nav lazily, a few seconds after the
+// body reaches full height. Extra wait window + poll interval for the
+// header/footer-populated check in capturePage.
+export const HEADER_FOOTER_WAIT_EXTRA = 4000; // ms added on top of SETTLE_AFTER_LOAD
+export const HEADER_FOOTER_POLL = 250;        // ms between checks
+
 // If extracted body text is shorter than this (chars), try scroll-stimulating
 // lazy-loaded content (AEM client-side render can start near-empty).
 export const MIN_TEXT_LEN = 200;
@@ -61,6 +73,36 @@ export const WEIGHTS = {
   accordions: 0.15,
   headerFooter: 0.10,
 };
+
+// Main-dashboard criteria (pilot): 11 checks in 3 groups, sums to 1.00.
+// Replaces WEIGHTS for main-mode scoring. Weights/thresholds here can be tuned
+// later without re-capturing pages (re-score from cached metrics is enough).
+export const WEIGHTS_MAIN = {
+  // Template parity (25%)
+  headerMenu:      0.08,  // header label + count match
+  footerMenu:      0.07,  // footer label + count match
+  components:      0.10,  // accordion/table/form/video parity
+
+  // Content parity (50%)
+  contentLength:   0.14,  // text length within ±30%
+  missingText:     0.14,  // prod text blocks present in AEM
+  missingKeywords: 0.12,  // prod keywords present in AEM
+  missingImage:    0.10,  // image count ≥80% + alt match >50%
+
+  // Structure / SEO (25%)
+  headings:        0.10,  // Jaccard > 0.6
+  links:           0.08,  // link-text hit > 50%
+  meta:            0.05,  // meta tags match (partial credit)
+  thaiBalance:     0.02,  // Thai/Latin ratio delta
+};
+
+// Group definitions — used by both compare (sub-score calc) and dashboard
+// (grouped rendering). `checks` lists the WEIGHTS_MAIN keys in display order.
+export const CRITERIA_GROUPS = [
+  { id: 'template',  label: 'Template',         weight: 0.25, checks: ['headerMenu', 'footerMenu', 'components'] },
+  { id: 'content',   label: 'Content',          weight: 0.50, checks: ['contentLength', 'missingText', 'missingKeywords', 'missingImage'] },
+  { id: 'structure', label: 'Structure / SEO',  weight: 0.25, checks: ['headings', 'links', 'meta', 'thaiBalance'] },
+];
 
 // News article weights — focused on 5 news-specific elements only.
 // Ignores generic checks (accordions, mega menu, etc.) that don't apply to articles.
