@@ -65,6 +65,25 @@ export const SAFE_CHUNK_PACING_MS = 0;   // per-page delay inside a chunk (0 = o
 // would just fill results.json with garbage. --force auto-runs bypass this.
 export const SAFE_BLOCK_ABORT_RATIO = 0.5;
 
+// ─── Meta inventory scrape (src/scrape-meta.js) ────────────────────────────
+// Scrapes title/description/ogTitle/ogImage/keywords from the PRODUCTION URLs
+// listed in the "BBL Thai Manual Pages" tab of the QA master sheet (private —
+// read via the service-account key, not the public CSV export). Same Akamai
+// WAF applies, so this mirrors the SAFE_* guards: small chunks + long pause so
+// each chunk lands in a fresh rate window. Meta lives in <head> HTML from the
+// first byte, so we don't need full render — request interception blocks
+// image/font/css/media to cut per-page request volume well under compare.js.
+export const MANUAL_SHEET_GID = 2064171466;   // tab "BBL Thai Manual Pages"
+export const META_SHEET_TAB_NAME = 'BBL Thai Manual Pages';
+export const META_CHUNK_SIZE = 50;            // pages per chunk (under the ~200 ban threshold)
+export const META_CHUNK_PAUSE_MS = 20 * 60 * 1000; // pause between chunks — lets the rate window clear
+export const META_CONCURRENCY = 1;            // 1 is the proven-safe value (same as news)
+export const META_PACING_MS = 2000;           // per-page delay (meta is light, so pace up)
+export const META_NAV_TIMEOUT = 20000;        // ms — shorter than NAV_TIMEOUT, no heavy render needed
+// Block detection + abort reuse SAFE_BLOCK_ABORT_RATIO. Request types to drop
+// (meta doesn't need any of them): images, fonts, stylesheets, media.
+export const META_BLOCKED_RESOURCE_TYPES = ['image', 'font', 'stylesheet', 'media'];
+
 export const SCREENSHOT_FULLPAGE = true;
 export const SCREENSHOT_MAX_WIDTH = 800; // resize screenshots to this width (px) to save disk + speed up
 

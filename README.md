@@ -63,6 +63,23 @@ npm run compare -- --limit=20 --concurrency=4
 npm run dashboard
 ```
 
+### Production Meta Inventory (scrape, ไม่ใช่ parity)
+
+scrape meta 5 ฟิลด์ (title / description / og:title / og:image / keywords) จาก
+**Production** URLs ใน tab "BBL Thai Manual Pages" ของ QA master sheet — เป็นการ
+scrape ล้วน ๆ ไม่มีการให้คะแนน parity ใช้ตรวจสอบ SEO meta coverage ของแต่ละหน้า
+
+```bash
+npm run scrape:meta               # scrape ทั้งหมด (chunked, 50 หน้า/ชุด + พัก 20 นาที)
+npm run scrape:meta -- --limit=20 # ทดลองแค่ 20 หน้าก่อน
+npm run dashboard:meta            # สร้าง dashboard + drill-down
+open output/meta-dashboard.html
+```
+
+อ่าน URL จาก sheet ส่วนตัวผ่าน service-account key (เหมือน `sync-sheet`) ไม่ใช่
+public CSV — ต้องมี `.secrets/sheet-sync-key.json`. มี rate-limit guard เหมือน
+`safe-run` (chunk + pause + block detection) เพราะ prod อยู่หลัง Akamai ตัวเดียวกัน
+
 ## โครงสร้างไฟล์
 
 ```
@@ -73,13 +90,17 @@ site-compare-bbl/
 │   ├── fetch-urls.js      # ดึง URL list จาก Google Sheet (--gid สำหรับ tab อื่น)
 │   ├── extract.js         # ดึง DOM metrics (headings, links, text, images, news containers)
 │   ├── compare.js         # pipeline หลัก (concurrent + parity scoring + resumable)
+│   ├── safe-run.js        # chunked recapture หลีก WAF (50 หน้า/ชุด + พัก 20 นาที)
+│   ├── scrape-meta.js     # scrape meta tags จาก prod (title/desc/og/keywords)
 │   ├── build-dashboard.js # สร้าง dashboard + drill-down pages (--prefix สำหรับ news)
+│   ├── build-meta-dashboard.js # สร้าง meta inventory dashboard + drill-down
 │   └── build-docs.js      # สร้างหน้า criteria.html (เอกสารเกณฑ์ตรวจจับ)
 ├── data/                  # (gitignored) URLs, results, screenshots
 │   ├── urls.csv           # main URL list
 │   ├── urls-news.csv      # news URL list
 │   ├── results.json       # main results (632 pages)
 │   ├── results-news.json  # news results
+│   ├── meta-manual.json   # meta inventory (BBL Thai Manual Pages tab)
 │   └── screenshots/{id}/  # prod.jpg + aem.jpg per page
 └── output/                # deploy ขึ้น Vercel
     ├── index.html         # redirect → dashboard.html
@@ -88,6 +109,8 @@ site-compare-bbl/
     ├── criteria.html      # เอกสารเกณฑ์ตรวจจับ
     ├── pages/             # main drill-down (1-632)
     ├── news-pages/        # news drill-down
+    ├── meta-dashboard.html# meta inventory dashboard
+    ├── meta-pages/        # meta drill-down
     └── screenshots/       # screenshots (self-contained)
 ```
 
@@ -150,6 +173,7 @@ News ใช้ criteria แยก (ปรับใน `config.js` → `WEIGHTS_N
 - **Side-by-side screenshots** — synced scroll, resize 800px JPEG
 - **Pagination + category filter** — 25/page, filter by category/sub-category/status
 - **News-specific criteria** — เทียบเฉพาะ container ของข่าว (ไม่รวม nav/footer)
+- **Meta inventory** — scrape SEO meta (title/desc/og/keywords) จาก prod เป็น dashboard แยก
 - **Vercel deploy** — push แล้ว auto-deploy ทันที
 
 ## CLI Flags
