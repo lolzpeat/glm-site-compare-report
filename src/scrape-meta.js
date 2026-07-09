@@ -318,6 +318,11 @@ async function main() {
       const chunk = chunks[i];
       console.log(`\n── chunk ${i + 1}/${chunks.length} · ids ${chunk[0]?.id}-${chunk[chunk.length - 1]?.id} ────────────────────`);
       const results = await runPool(browser, chunk, existing, preserveMap, force, pacingMs);
+      // Fold this chunk's results back into preserveMap BEFORE saving, so the
+      // next chunk's merge keeps them — otherwise each save only knows about the
+      // current chunk + the initially-loaded preserveMap, wiping all prior chunks
+      // of this run. (Mirrors compare.js's incremental-save semantics.)
+      for (const r of results.filter(Boolean)) preserveMap[r.id] = r;
       await saveResults(results, t0, preserveMap);
 
       // Ban detection (safe-run.js pattern): a mostly-blocked chunk means the IP
