@@ -43,6 +43,28 @@ export const SETTLE_AFTER_LOAD = 800; // ms to let async content render after DO
 export const LAZY_WAIT_TIMEOUT = 3500; // ms to wait for client-rendered text to appear (AEM)
 export const LAYOUT_WAIT_TIMEOUT = 18000; // ms to wait for AEM client-render layout to settle (scrollHeight > viewport)
 export const CONCURRENCY = 4;          // parallel URL-pair workers
+export const REQUEST_PACING_MS = 0;    // ms delay after each page in a worker (0 = off, default).
+                                        // prod's WAF burst-rate-limits even at --concurrency=1 (2026-07-09:
+                                        // 2 requests through, then every subsequent one got ERR_HTTP2_PROTOCOL_ERROR).
+                                        // Set via --pacing=N when retrying previously-blocked pages.
+// ─── Safe chunked run (src/safe-run.js) ────────────────────────────────────
+// Empirical ban threshold: the WAF (Akamai) starts blocking after ~120-200
+// heavy page-loads within a ~15-20 min sliding window (see AGENTS.md gotchas,
+// 2026-07-08/09 incidents — analysis in results-632.json.bak). The block is a
+// rate-window ban that lifts on its own after ~15 min, so splitting a full
+// recapture into small chunks with a long pause between them lets each chunk
+// land in a FRESH rate window instead of piling onto the previous one. This
+// is more reliable than --pacing alone, which only slows requests but never
+// clears the window.
+export const SAFE_CHUNK_SIZE = 50;       // pages per chunk (margin 4x under the ~200 ban threshold)
+export const SAFE_CHUNK_PAUSE_MS = 20 * 60 * 1000; // pause between chunks — lets the rate window clear
+export const SAFE_CHUNK_CONCURRENCY = 2; // workers per chunk (1-2 is safe; 4 is what gets IPs banned)
+export const SAFE_CHUNK_PACING_MS = 0;   // per-page delay inside a chunk (0 = off; pacing didn't clear bans in tests)
+// Abort the run if a chunk produces this fraction of BLOCKED results — a high
+// block rate means the IP is banned (not a per-page issue) and continuing
+// would just fill results.json with garbage. --force auto-runs bypass this.
+export const SAFE_BLOCK_ABORT_RATIO = 0.5;
+
 export const SCREENSHOT_FULLPAGE = true;
 export const SCREENSHOT_MAX_WIDTH = 800; // resize screenshots to this width (px) to save disk + speed up
 

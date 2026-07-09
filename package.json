@@ -13,6 +13,7 @@
     "dashboard:main": "node src/build-dashboard.js",
     "dashboard:news": "node src/build-dashboard.js --source=data/results-news.json --prefix=news",
     "docs": "node src/build-docs.js",
+    "safe-run": "node src/safe-run.js",
     "sync-sheet": "node src/sync-sheet.js",
     "all": "node src/fetch-urls.js && node src/compare.js && node src/build-dashboard.js && node src/build-docs.js"
   },

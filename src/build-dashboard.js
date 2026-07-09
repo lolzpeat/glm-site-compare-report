@@ -9,10 +9,23 @@
 
 import { readFile, writeFile, mkdir, copyFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { join, relative, basename } from 'node:path';
-import { DIR, CRITERIA_GROUPS } from '../config.js';
+import { join, relative, basename, isAbsolute } from 'node:path';
+import { ROOT, DIR, CRITERIA_GROUPS } from '../config.js';
 
 const PASS_THRESHOLD = 85;
+
+// Resolve a stored screenshot path to an absolute filesystem path.
+// results.json stores relative-to-ROOT paths (e.g. "data/screenshots/1/prod.jpg")
+// so the file is portable across machines/checkouts. Older captures stored
+// absolute paths, which we still accept (resolves only if it actually exists;
+// a stale absolute path from a moved project returns null and the page renders
+// without a screenshot instead of a broken image).
+function resolveShot(stored) {
+  if (!stored) return null;
+  if (isAbsolute(stored)) return existsSync(stored) ? stored : null;
+  const abs = join(ROOT, stored);
+  return existsSync(abs) ? abs : null;
+}
 
 async function main() {
   // Parse CLI args for source results file and output prefix.
@@ -39,8 +52,8 @@ async function main() {
   await mkdir(outShots, { recursive: true });
   for (const p of pages) {
     for (const side of ['prod', 'aem']) {
-      const abs = p[side]?.screenshot;
-      if (abs && existsSync(abs)) {
+      const abs = resolveShot(p[side]?.screenshot);
+      if (abs) {
         const idDir = join(outShots, p.id);
         await mkdir(idDir, { recursive: true });
         await copyFile(abs, join(idDir, basename(abs))).catch(() => {});
@@ -356,12 +369,14 @@ function renderPage(p, total, opts = {}) {
   const aem = p.aem?.metrics;
   const hasMetrics = prod && aem;
 
-  // Screenshot paths relative to output/pages/{id}.html → ../screenshots/{id}/prod.jpg
-  // Screenshots are copied into output/ so the whole folder is self-contained
-  // and deployable to static hosts (Vercel, Netlify, GitHub Pages).
-  const toRelShot = (absPath) => {
-    if (!absPath) return null;
-    const rel = relative(DIR.screenshots, absPath); // e.g. "1/prod.jpg"
+  // Screenshot src relative to output/pages/{id}.html → ../screenshots/{id}/prod.jpg.
+  // Screenshots are copied into output/screenshots/{id}/ (see main()), so the
+  // src is just the basename under that dir. resolveShot handles both the
+  // current relative-to-ROOT paths and any legacy absolute paths.
+  const toRelShot = (stored) => {
+    const abs = resolveShot(stored);
+    if (!abs) return null;
+    const rel = relative(DIR.screenshots, abs); // e.g. "1/prod.jpg"
     return `../${shotsDirName}/${rel}`;
   };
   const prodShot = toRelShot(p.prod?.screenshot);

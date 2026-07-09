@@ -17,9 +17,10 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { glob } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
+import { relative } from 'node:path';
 import puppeteer from 'puppeteer-core';
 import {
-  DIR, VIEWPORT, NAV_TIMEOUT, NAV_WAIT_UNTIL, SETTLE_AFTER_LOAD, LAZY_WAIT_TIMEOUT, LAYOUT_WAIT_TIMEOUT, CONCURRENCY,
+  ROOT, DIR, VIEWPORT, NAV_TIMEOUT, NAV_WAIT_UNTIL, SETTLE_AFTER_LOAD, LAZY_WAIT_TIMEOUT, LAYOUT_WAIT_TIMEOUT, CONCURRENCY, REQUEST_PACING_MS,
   SCREENSHOT_FULLPAGE, SCREENSHOT_MAX_WIDTH, MIN_TEXT_LEN, SCROLL_STIMULATE_STEPS, SCROLL_STIMULATE_DELAY,
   WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
   THAI_RATIO_DELTA, IMAGE_RATIO_TOLERANCE, MAX_LINK_CHECKS, LINK_CHECK_BATCH, LINK_CHECK_DELAY,
@@ -59,6 +60,14 @@ const OUTPUT_PATH = process.argv.find(a => a.startsWith('--output='))?.split('='
 // Resume source — defaults to same as output, override with --source=
 const RESULTS_PATH = process.argv.find(a => a.startsWith('--source='))?.split('=')[1] || OUTPUT_PATH;
 const SS_DIR = DIR.screenshots;
+
+// Convert an absolute screenshot path to project-relative (e.g.
+// "data/screenshots/1/prod.jpg") before storing it in results.json. Relative
+// paths make the results file portable — the project can move/rename/clone
+// without every screenshot reference breaking (an absolute-prefix mismatch
+// once silently made every dashboard screenshot a broken image). build-dashboard
+// resolves relative paths back to absolute via ROOT.
+const relShot = (absPath) => absPath ? relative(ROOT, absPath) : absPath;
 
 // Split a block of text into sentence-like chunks for missing-text comparison.
 function splitSentences(text) {
@@ -797,9 +806,16 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
   };
   const t0 = Date.now();
 
+  // A fresh, isolated context per pair (instead of pages on the shared browser)
+  // means no cookies/session persist across pairs. Akamai's WAF appears to flag
+  // the shared session as a bot after the first request or two and then block
+  // everything from that session regardless of request pacing (see AGENTS.md
+  // gotcha, 2026-07-09) — an isolated context makes each pair look like a fresh
+  // visitor again.
+  const context = await browser.createBrowserContext();
   const [prodPage, aemPage] = await Promise.all([
-    browser.newPage().then(async p => { await p.setViewport(VIEWPORT); return p; }),
-    browser.newPage().then(async p => { await p.setViewport(VIEWPORT); return p; }),
+    context.newPage().then(async p => { await p.setViewport(VIEWPORT); return p; }),
+    context.newPage().then(async p => { await p.setViewport(VIEWPORT); return p; }),
   ]);
 
   try {
@@ -818,7 +834,7 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
       if (buf) {
         const f = `${pageDir}/prod.jpg`;
         await sharp(buf).resize({ width: SCREENSHOT_MAX_WIDTH, withoutEnlargement: true }).toFile(f);
-        prodRes.screenshot = f;
+        prodRes.screenshot = relShot(f);  // store relative so results.json is portable
       }
     }
     if (aemRes.ok) {
@@ -826,7 +842,7 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
       if (buf) {
         const f = `${pageDir}/aem.jpg`;
         await sharp(buf).resize({ width: SCREENSHOT_MAX_WIDTH, withoutEnlargement: true }).toFile(f);
-        aemRes.screenshot = f;
+        aemRes.screenshot = relShot(f);  // store relative so results.json is portable
       }
     }
 
@@ -844,13 +860,31 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
       result.thaiIssues = sc.thaiIssues;
       result.errorType = sc.errorType || null;
     } else {
+      // A dropped connection (ERR_HTTP2_PROTOCOL_ERROR) is the confirmed signature
+      // of the Akamai WAF ban (see AGENTS.md gotchas, 2026-07-08 + 2026-07-09
+      // incidents) — Chrome never gets a response to classify as an Access-Denied
+      // page, so `scoreParity`'s isBlocked() never runs. Without this, a banned IP
+      // silently scores as a genuine 0%-parity failure instead of "retry later".
+      const isConnDrop = (e) => /ERR_HTTP2_PROTOCOL_ERROR/.test(e || '');
+      const blocked = isConnDrop(prodRes.error) || isConnDrop(aemRes.error);
+      const detail = `prod:${prodRes.error || 'ok'} aem:${aemRes.error || 'ok'}`;
       result.parity = 0;
       result.gaps = [];
-      result.aemIssues = [{ severity: 'critical', label: 'Page load failed', detail: `prod:${prodRes.error || 'ok'} aem:${aemRes.error || 'ok'}` }];
+      result.errorType = blocked ? 'blocked' : null;
+      // Reuse the 'error' check id (same one scoreParity's Access-Denied-page path
+      // uses) so sync-sheet.js's existing CHECK_LABELS_TH mapping applies here too.
+      result.checks = blocked
+        ? [{ id: 'error', weight: 1, label: 'Connection dropped by WAF/rate-limit — retry later', passed: false, detail, diff: null }]
+        : undefined;
+      result.aemIssues = [{
+        severity: 'critical',
+        label: blocked ? 'Connection dropped (WAF/rate-limit ban)' : 'Page load failed',
+        detail,
+      }];
     }
   } finally {
-    await prodPage.close().catch(() => {});
-    await aemPage.close().catch(() => {});
+    // Closing the context disposes both pages and drops its cookies/session.
+    await context.close().catch(() => {});
   }
 
   result.durationMs = Date.now() - t0;
@@ -865,7 +899,7 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
 // a partial run (--limit/--ids) nor an INTERRUPTED full run can drop pages it
 // didn't reach. `existing` (resumeMap) is still used by processPair to decide
 // whether to skip re-capture of in-scope pages.
-async function runPool(browser, pairs, concurrency, existing, force, newsMode, preserveMap) {
+async function runPool(browser, pairs, concurrency, existing, force, newsMode, preserveMap, pacingMs = REQUEST_PACING_MS) {
   const results = new Array(pairs.length);
   let cursor = 0;
   let done = 0;
@@ -884,6 +918,9 @@ async function runPool(browser, pairs, concurrency, existing, force, newsMode, p
       }
       // Incremental save every 10 pages so a crash doesn't lose everything.
       if (done % 10 === 0) await saveResults(results.filter(Boolean), start, preserveMap);
+      // Extra pacing on top of per-page load time — stays under prod's WAF burst-rate
+      // limit when retrying previously-blocked pages (see AGENTS.md gotcha, 2026-07-09).
+      if (pacingMs > 0 && cursor < pairs.length) await new Promise(r => setTimeout(r, pacingMs));
     }
   }
 
@@ -941,6 +978,7 @@ async function main() {
   const idsArg = process.argv.find(a => a.startsWith('--ids='))?.split('=')[1];
   const retryFailed = process.argv.includes('--retry-failed');
   const concurrency = parseInt(process.argv.find(a => a.startsWith('--concurrency='))?.split('=')[1] || String(CONCURRENCY), 10);
+  const pacingMs = parseInt(process.argv.find(a => a.startsWith('--pacing='))?.split('=')[1] || String(REQUEST_PACING_MS), 10);
   const force = process.argv.includes('--force');
   const newsMode = process.argv.includes('--news');
 
@@ -989,7 +1027,7 @@ async function main() {
     scopeDesc = `--limit=${limit}`;
   }
 
-  console.log(`🚀 Comparing ${subset.length} page pair(s) · concurrency ${concurrency}${force ? ' · --force' : ''} · scope: ${scopeDesc}`);
+  console.log(`🚀 Comparing ${subset.length} page pair(s) · concurrency ${concurrency}${pacingMs > 0 ? ` · pacing ${pacingMs}ms` : ''}${force ? ' · --force' : ''} · scope: ${scopeDesc}`);
 
   // EVERY previously-known page is the fallback on save (mergePreserved gives
   // this run's processed results priority). This covers both cases:
@@ -1017,7 +1055,7 @@ async function main() {
 
   try {
     const t0 = Date.now();
-    const { results, total, preservedCount } = await runPool(browser, subset, concurrency, existing, force, newsMode, preserveMap);
+    const { results, total, preservedCount } = await runPool(browser, subset, concurrency, existing, force, newsMode, preserveMap, pacingMs);
     const dur = ((Date.now() - t0) / 1000).toFixed(1);
     const avg = results.filter(r => r.parity != null).reduce((s, r) => s + r.parity, 0) / (results.length || 1);
     const passed = results.filter(r => r.parity >= 85).length;

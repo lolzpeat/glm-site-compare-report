@@ -13,3 +13,7 @@ data/
 # OS / editor
 .DS_Store
 *.log
+
+# Local tool state (ZCode memory/sessions, Claude state, etc.)
+.omc/
+.claude/

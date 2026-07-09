@@ -20,6 +20,32 @@ open output/dashboard.html     # ดูผล
 npm run fetch && npm run compare && npm run dashboard
 ```
 
+### ปลอดภัยจาก WAF Block — Chunked Run (แนะนำตอน recapture ทั้งหมด)
+
+prod มี Akamai WAF ที่ **แบน IP หลังโหลด ~120-200 หน้าใน ~15-20 นาที** ถ้ารัน `--force` รวดเดียวจะโดนแบนกลางคัน
+แล้ว results.json เต็มไปด้วย BLOCKED วิธีที่ดีที่สุดคือแบ่งเป็นชุดเล็ก ๆ พักระหว่างชุดให้หน้าต่างเวลาของ WAF หมดไป:
+
+```bash
+npm run safe-run                 # แบ่ง 50 หน้า/ชุด · พัก 20 นาที · concurrency 2 · หยุดถ้าชุดไหนโดน block มาก
+npm run safe-run -- --dry-run    # ดูแผนก่อน ไม่รันจริง
+npm run safe-run -- --news       # news pipeline
+```
+
+script จะรัน `compare.js` ทีละชุด (`--ids=1-50`, `51-100`, ...) แต่ละชุดเป็น process แยก (browser ใหม่)
+หลังแต่ละชุดวิเคราะห์ results.json — ถ้าชุดไหนโดน BLOCKED ≥50% จะ **หยุดรอให้คุณตัดสินใจ** (IP น่าจะโดนแบน
+ต่อไปก็แค่เติมขยะ) หยุดกลางคัน (Ctrl-C) ได้ตลอด เพราะแต่ละชุด preserve หน้าอื่นไว้ครบ — re-run จะ resume ต่อ
+
+ตัวเลือก:
+
+```bash
+npm run safe-run -- --chunk=30 --pause=15   # ชุดเล็กลง + พักสั้นลง (ปลอดภัยขึ้น ช้าลง)
+npm run safe-run -- --start-id=300          # เริ่มที่ id 300 (ข้ามชุดต้น ๆ ที่ทำแล้ว)
+npm run safe-run -- --force                 # re-capture ทุกหน้า (แม่ที่มี checks อยู่แล้ว)
+```
+
+> ปรับค่า default ได้ใน `config.js` (`SAFE_CHUNK_SIZE`, `SAFE_CHUNK_PAUSE_MS`, `SAFE_BLOCK_ABORT_RATIO`)
+> **อย่าสรุปว่า IP หายจากการทดสอบน้อยหน้า** — เคยมี 5 หน้าผ่านแต่ตอนรันจริง 87 หน้าก็ยังโดนแบน
+
 ### News & Media Articles (แยก pipeline)
 
 ```bash
@@ -136,6 +162,8 @@ Options:
   --ids=3,7,19-25        เจาะจงหน้าตาม id (คอมมา + range) — เช่น re-capture เฉพาะหน้าที่พัง
   --retry-failed         capture เฉพาะหน้าที่เคย fail มาก่อน (ไม่มี checks ใน results.json ปัจจุบัน)
   --concurrency=N        จำนวน workers ขนานกัน (default: 4)
+  --pacing=N             ms delay หลังแต่ละหน้าต่อ worker (default: 0 = ปิด) — ใช้ตอน retry หน้าที่โดน
+                         WAF block เพื่อไม่ให้โดน burst-rate-limit ซ้ำ (ดู AGENTS.md gotcha)
   --force                บังคับ re-capture ทุกหน้า (ignore resume)
   --news                 ใช้ news-specific scoring criteria
   --urls=PATH            ไฟล์ URL list input (default: data/urls.csv)
