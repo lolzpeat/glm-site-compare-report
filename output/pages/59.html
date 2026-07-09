@@ -148,7 +148,7 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 </header>
 
 <section class="score-row">
-  <div class="score parity-bad"><span class="big">15</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="score parity-bad"><span class="big">36</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
   <div class="urls">
     <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds/Foreign-Investment-Funds/B-FUTURE" target="_blank">https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds/Foreign-Investment-Funds/B-FUTURE</a></div>
     <div><b class="tag tgt">AEM</b> <a href="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/foreign-investment-funds/b-future" target="_blank">https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/foreign-investment-funds/b-future</a></div>
@@ -160,17 +160,17 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 <div class="sxs sync-scroll">
   <figure>
     <figcaption class="pcap">PRODUCTION (ต้นฉบับ)</figcaption>
-    <div class="shot-pane"><img src="../screenshots/../../../../../../../ZCodeProject/bbl-compare/data/screenshots/59/prod.jpg" loading="lazy" alt="production"></div>
+    <div class="shot-pane"><img src="../screenshots/59/prod.jpg" loading="lazy" alt="production"></div>
   </figure>
   <figure>
     <figcaption class="acap">AEM (ต้องแก้ให้เหมือนซ้าย)</figcaption>
-    <div class="shot-pane"><img src="../screenshots/../../../../../../../ZCodeProject/bbl-compare/data/screenshots/59/aem.jpg" loading="lazy" alt="aem"></div>
+    <div class="shot-pane"><img src="../screenshots/59/aem.jpg" loading="lazy" alt="aem"></div>
   </figure>
 </div></section>
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Headings match</b> 8/42 headings (Jaccard 18%)</li><li class="gap critical"><span class="sev">critical</span> <b>Links match</b> 18/211 links (7% of prod link-texts found)</li><li class="gap critical"><span class="sev">critical</span> <b>Content length</b> 1785/24314 chars (ratio 7%)</li><li class="gap critical"><span class="sev">critical</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap critical"><span class="sev">critical</span> <b>Accordions filled</b> prod 8 / aem 11 (11 empty)</li><li class="gap high"><span class="sev">high</span> <b>Header &amp; Footer</b> header 0/148 links, footer 0/32 links</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing login</b> prod has login, AEM does not</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 13 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 5 image issue(s)</li></ul></section>
+<ul class="gap-list"><li class="gap high"><span class="sev">high</span> <b>Content length (±30%)</b> 1785/24314 chars (7%)</li><li class="gap high"><span class="sev">high</span> <b>Missing text blocks</b> 15 prod block(s) missing</li><li class="gap high"><span class="sev">high</span> <b>Missing keywords</b> 20/30 prod keywords missing</li><li class="gap high"><span class="sev">high</span> <b>Missing image (≥80% + alt)</b> 4/10 images · alt match 0%</li><li class="gap high"><span class="sev">high</span> <b>Headings (Jaccard)</b> 8/42 headings (Jaccard 19%)</li><li class="gap medium"><span class="sev">medium</span> <b>Links match</b> 18/211 links (8% of prod link-texts found)</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing login</b> prod has login, AEM does not</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 13 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 5 image issue(s)</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
@@ -180,16 +180,123 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
 <div class="groups"><div class="group-block">
-        <div class="group-head structure">
-          <span>Structure / SEO</span>
-          <span class="group-pct">0/60 · 0%</span>
+        <div class="group-head template">
+          <span>Template</span>
+          <span class="group-pct">0/0 · 0%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Header menu (label + count)<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">insufficient data (page captured before criteria update)</span>
+        
+      </summary>
+      
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Footer menu (label + count)<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">insufficient data (page captured before criteria update)</span>
+        
+      </summary>
+      
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Components (accordion/table/form/video)<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">insufficient data (page captured before criteria update)</span>
+        
+      </summary>
+      
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head content">
+          <span>Content</span>
+          <span class="group-pct">20/50 · 40%</span>
         </div>
         <div class="checks-list">
     <details class="check-block failed">
       <summary class="check-row">
         <span class="check-status bad">✗</span>
-        <span class="check-label">Headings match</span>
-        <span class="check-detail">8/42 headings (Jaccard 18%)</span>
+        <span class="check-label">Content length (±30%)</span>
+        <span class="check-detail">1785/24314 chars (7%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">เทียบเนื้อหา (text sample · ratio 7%)</div>
+          <div class="outline-grid">
+            <div class="outline-col">
+              <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
+              <div class="text-sample">กิจการธนาคารต่างประเทศ นักลงทุนสัมพันธ์ เกี่ยวกับธนาคารกรุงเทพ 華人事務 日本語 EN ค้นหา ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม พันธบัตรและหุ้นกู้ เปิดบัญชีซื้อขายหลักทรัพย์ ผลิตภัณฑ์บัตร บัตรเครดิต บัตรธนาคารกรุงเทพ เอ็ม วีซ่า ตรวจสอบสถานะการสมัครบัตรเครดิต บัตรเดบิตบีเฟิสต์ บัตรทราเวลธนาคารกรุงเทพ บัตรเติมเงินธนาคารกรุงเทพ ผลิตภัณฑ์เพื่อครอบครัว แบงก์แอสชัวรันส์ สินเชื่อส่วนบุคคล สินเชื่อเพื่อข้าราชการบำนาญ ทิปทางการเงิน บ้านและที่อยู่อาศัย สินเชื่อบ้านบัวหลวง สินเชื่ออเนกประสงค์ที่ใช้ที่อยู่อาศัยเป็นหลักประกัน ทรัพย์สินพร้อมขาย ทรัพย์หลักประกันทางธุรกิจ พร้อ</div>
+            </div>
+            <div class="outline-col">
+              <div class="outline-head tgt">AEM (migrate)</div>
+              <div class="text-sample">คลิกเพื่อลงทุน จุดเด่นกองทุนจุดเด่นกองทุนรายละเอียดกองทุนข้อมูลสำคัญกองทุนเครื่องมือช่วยเหลือ จุดเด่นกองทุน scrollable โอกาสการลงทุนลงทุนในตราสารทุนของบริษัทที่ได้รับประโยชน์จาก Trend ใหม่ในอนาคตกระจายการลงทุนไปยังต่างประเทศ เพื่อเพิ่มโอกาสในการแสวงหาผลตอบแทนกลยุทธ์การลงทุนมุ่งหวังให้ผลประกอบการเคลื่อนไหวสูงกว่าดัชนีชี้วัด (Active Management) รายละเอียดกองทุน ข้อมูลสำคัญกองทุนดาวน์โหลดไฟล์ข้อมูลต่างๆ ของกองทุนเปิดบัวหลวงหุ้นเพื่อคนรุ่นใหม่ (B-FUTURE) หนังสือชี้ชวนส่วนสรุปข้อมูลสำคัญ หนังสือชี้ชวนส่วนข้อมูลกองทุนรวม รายงานรอบระยะเวลา 6 เดือน รายงานประจำปี ตารางแสดงวันทำการซื้อขายหน่วยลงทุน ประก</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing text blocks</span>
+        <span class="check-detail">15 prod block(s) missing</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (15/141)</div>
+          <div class="chip-list"><span class="chip chip-missing">กิจการธนาคารต่างประเทศ</span><span class="chip chip-missing">นักลงทุนสัมพันธ์</span><span class="chip chip-missing">เกี่ยวกับธนาคารกรุงเทพ</span><span class="chip chip-missing">ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม </span><span class="chip chip-missing">หน้าแรกลูกค้าบุคคล</span><span class="chip chip-missing">การออมและการลงทุน</span><span class="chip chip-missing">ผลิตภัณฑ์เพื่อการออม</span><span class="chip chip-missing">กองทุนรวม</span><span class="chip chip-missing">พันธบัตรและหุ้นกู้</span><span class="chip chip-missing">เปิดบัญชีซื้อขายหลักทรัพย์</span><span class="chip chip-missing">ผลิตภัณฑ์บัตร</span><span class="chip chip-missing">บัตรเครดิต</span><span class="chip chip-missing">บัตรธนาคารกรุงเทพ เอ็ม วีซ่า</span><span class="chip chip-missing">ตรวจสอบสถานะการสมัครบัตรเครดิต</span><span class="chip chip-missing">บัตรเดบิตบีเฟิสต์</span></div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing keywords</span>
+        <span class="check-detail">20/30 prod keywords missing</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">10 shared <b class="ok">✓</b> · 20 missing <b class="bad">✗</b></div>
+          <div class="chip-list"><span class="chip chip-missing">หรือ</span><span class="chip chip-missing">ใช้</span><span class="chip chip-missing">จำกัด</span><span class="chip chip-missing">ได้แก่</span><span class="chip chip-missing">และ</span><span class="chip chip-missing">เช่น</span><span class="chip chip-missing">มหาชน</span><span class="chip chip-missing">ไอแบงก์กิ้ง</span><span class="chip chip-missing">ธนาคารกรุงเทพ</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">กองทุนรวม</span><span class="chip chip-missing">ดิจิทัลแบงก์กิ้ง</span><span class="chip chip-missing">โมบายแบงก์กิ้ง</span><span class="chip chip-missing">ไอแคช</span><span class="chip chip-missing">address</span><span class="chip chip-missing">ทั้งนี้</span><span class="chip chip-missing">กิจการธนาคารต่างประเทศ</span><span class="chip chip-missing">เกี่ยวกับธนาคารกรุงเทพ</span><span class="chip chip-missing">บริการ</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span></div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing image (≥80% + alt)</span>
+        <span class="check-detail">4/10 images · alt match 0%</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">prod 10 / aem 4 images · alt match 0%</div>
+        </div>
+        <div class="diff-section"><div class="outline-grid">
+          <div class="outline-col"><div class="outline-head src">PROD alts (6)</div><div class="kw-body"><span class="kw kw-shared">en</span><span class="kw kw-shared">logo</span><span class="kw kw-shared">fund price</span><span class="kw kw-shared">ไอคอนทางการเงิน</span><span class="kw kw-shared">ไอคอน livechat</span><span class="kw kw-shared">call us</span></div></div>
+          <div class="outline-col"><div class="outline-head tgt">AEM alts (0)</div><div class="kw-body"></div></div>
+        </div></div>
+      </div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head structure">
+          <span>Structure / SEO</span>
+          <span class="group-pct">7/25 · 28%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Headings (Jaccard)</span>
+        <span class="check-detail">8/42 headings (Jaccard 19%)</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body">
@@ -416,7 +523,7 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
       <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">Links match</span>
-        <span class="check-detail">18/211 links (7% of prod link-texts found)</span>
+        <span class="check-detail">18/211 links (8% of prod link-texts found)</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body"><div class="diff-section">
@@ -467,71 +574,17 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
         <td class="muted">—</td>
         <td class="bad">✗ ต่างกัน</td>
       </tr></tbody></table></div>
-    </details></div>
-      </div><div class="group-block">
-        <div class="group-head other"><span>Other checks</span><span class="group-pct">0/3 passed</span></div>
-        <div class="checks-list">
-    <details class="check-block failed">
-      <summary class="check-row">
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Content length</span>
-        <span class="check-detail">1785/24314 chars (ratio 7%)</span>
-        <span class="expand-hint">▾</span>
-      </summary>
-      <div class="diff-body">
-      <div class="diff-section">
-        <div class="diff-title">เทียบเนื้อหา (text sample)</div>
-        <div class="outline-grid">
-          <div class="outline-col">
-            <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
-            <div class="text-sample">กิจการธนาคารต่างประเทศ นักลงทุนสัมพันธ์ เกี่ยวกับธนาคารกรุงเทพ 華人事務 日本語 EN ค้นหา ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม พันธบัตรและหุ้นกู้ เปิดบัญชีซื้อขายหลักทรัพย์ ผลิตภัณฑ์บัตร บัตรเครดิต บัตรธนาคารกรุงเทพ เอ็ม วีซ่า ตรวจสอบสถานะการสมัครบัตรเครดิต บัตรเดบิตบีเฟิสต์ บัตรทราเวลธนาคารกรุงเทพ บัตรเติมเงินธนาคารกรุงเทพ ผลิตภัณฑ์เพื่อครอบครัว แบงก์แอสชัวรันส์ สินเชื่อส่วนบุคคล สินเชื่อเพื่อข้าราชการบำนาญ ทิปทางการเงิน บ้านและที่อยู่อาศัย สินเชื่อบ้านบัวหลวง สินเชื่ออเนกประสงค์ที่ใช้ที่อยู่อาศัยเป็นหลักประกัน ทรัพย์สินพร้อมขาย ทรัพย์หลักประกันทางธุรกิจ พร้อ</div>
-          </div>
-          <div class="outline-col">
-            <div class="outline-head tgt">AEM (migrate)</div>
-            <div class="text-sample">คลิกเพื่อลงทุน จุดเด่นกองทุนจุดเด่นกองทุนรายละเอียดกองทุนข้อมูลสำคัญกองทุนเครื่องมือช่วยเหลือ จุดเด่นกองทุน scrollable โอกาสการลงทุนลงทุนในตราสารทุนของบริษัทที่ได้รับประโยชน์จาก Trend ใหม่ในอนาคตกระจายการลงทุนไปยังต่างประเทศ เพื่อเพิ่มโอกาสในการแสวงหาผลตอบแทนกลยุทธ์การลงทุนมุ่งหวังให้ผลประกอบการเคลื่อนไหวสูงกว่าดัชนีชี้วัด (Active Management) รายละเอียดกองทุน ข้อมูลสำคัญกองทุนดาวน์โหลดไฟล์ข้อมูลต่างๆ ของกองทุนเปิดบัวหลวงหุ้นเพื่อคนรุ่นใหม่ (B-FUTURE) หนังสือชี้ชวนส่วนสรุปข้อมูลสำคัญ หนังสือชี้ชวนส่วนข้อมูลกองทุนรวม รายงานรอบระยะเวลา 6 เดือน รายงานประจำปี ตารางแสดงวันทำการซื้อขายหน่วยลงทุน ประก</div>
-          </div>
-        </div>
-      </div>
-      <div class="diff-section">
-        <div class="diff-title">คำสำคัญ (top keywords) — <b class="ok">6 ✓ ตรง</b> / <b class="bad">20 ✗ ขาดใน AEM</b></div>
-        <div class="outline-grid">
-          <div class="outline-col">
-            <div class="outline-head src">PRODUCTION keywords</div>
-            <div class="kw-body"><span class="kw kw-missing" title="AEM:0">หรือ <em>32</em></span><span class="kw kw-shared" title="AEM:2">บัวหลวง <em>18</em></span><span class="kw kw-missing" title="AEM:0">ใช้ <em>17</em></span><span class="kw kw-missing" title="AEM:0">จำกัด <em>12</em></span><span class="kw kw-missing" title="AEM:0">ได้แก่ <em>9</em></span><span class="kw kw-missing" title="AEM:0">และ <em>8</em></span><span class="kw kw-missing" title="AEM:0">เช่น <em>8</em></span><span class="kw kw-missing" title="AEM:0">มหาชน <em>7</em></span><span class="kw kw-missing" title="AEM:0">ไอแบงก์กิ้ง <em>6</em></span><span class="kw kw-missing" title="AEM:0">ธนาคารกรุงเทพ <em>6</em></span><span class="kw kw-shared" title="AEM:1">future <em>5</em></span><span class="kw kw-missing" title="AEM:0">ลูกค้าบุคคล <em>4</em></span><span class="kw kw-missing" title="AEM:0">กองทุนรวม <em>4</em></span><span class="kw kw-missing" title="AEM:0">ดิจิทัลแบงก์กิ้ง <em>4</em></span><span class="kw kw-missing" title="AEM:0">โมบายแบงก์กิ้ง <em>4</em></span><span class="kw kw-missing" title="AEM:0">ไอแคช <em>4</em></span><span class="kw kw-shared" title="AEM:2">บลจ <em>4</em></span><span class="kw kw-missing" title="AEM:0">address <em>4</em></span><span class="kw kw-missing" title="AEM:0">ทั้งนี้ <em>4</em></span><span class="kw kw-missing" title="AEM:0">กิจการธนาคารต่างประเทศ <em>3</em></span><span class="kw kw-missing" title="AEM:0">เกี่ยวกับธนาคารกรุงเทพ <em>3</em></span><span class="kw kw-missing" title="AEM:0">บริการ <em>3</em></span><span class="kw kw-missing" title="AEM:0">ลูกค้าธุรกิจ <em>3</em></span><span class="kw kw-missing" title="AEM:0">ไอซัพพลาย <em>3</em></span><span class="kw kw-missing" title="AEM:0">bualuang <em>3</em></span><span class="kw kw-missing" title="AEM:0">ไอฟันด์ <em>3</em></span><span class="kw kw-shared" title="AEM:1">trend <em>3</em></span><span class="kw kw-missing" title="AEM:0">ใหม่ในอนาคต <em>3</em></span><span class="kw kw-shared" title="AEM:2">โทร <em>3</em></span><span class="kw kw-shared" title="AEM:3">bangkokbank <em>3</em></span></div>
-          </div>
-          <div class="outline-col">
-            <div class="outline-head tgt">AEM keywords</div>
-            <div class="kw-body"><span class="kw kw-shared" title="Prod:3">bangkokbank <em>3</em></span><span class="kw kw-shared" title="Prod:3">โทร <em>2</em></span><span class="kw kw-missing" title="Prod:0">www <em>2</em></span><span class="kw kw-shared" title="Prod:4">บลจ <em>2</em></span><span class="kw kw-shared" title="Prod:18">บัวหลวง <em>2</em></span><span class="kw kw-missing" title="Prod:0">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณในทุกธุรกรรมทางการเงิน <em>2</em></span><span class="kw kw-missing" title="Prod:0">fund <em>2</em></span><span class="kw kw-missing" title="Prod:0">content <em>2</em></span><span class="kw kw-missing" title="Prod:0">personal <em>2</em></span><span class="kw kw-missing" title="Prod:0">save <em>2</em></span><span class="kw kw-missing" title="Prod:0">and <em>2</em></span><span class="kw kw-missing" title="Prod:0">invest <em>2</em></span><span class="kw kw-missing" title="Prod:0">คลิกเพื่อลงทุน <em>1</em></span><span class="kw kw-missing" title="Prod:0">จุดเด่นกองทุนจุดเด่นกองทุนรายละเอียดกองทุนข้อมูลสำคัญกองทุนเครื่องมือช่วยเหลือ <em>1</em></span><span class="kw kw-missing" title="Prod:0">จุดเด่นกองทุน <em>1</em></span><span class="kw kw-missing" title="Prod:0">scrollable <em>1</em></span><span class="kw kw-missing" title="Prod:0">โอกาสการลงทุนลงทุนในตราสารทุนของบริษัทที่ได้รับประโยชน์จาก <em>1</em></span><span class="kw kw-shared" title="Prod:3">trend <em>1</em></span><span class="kw kw-missing" title="Prod:0">ใหม่ในอนาคตกระจายการลงทุนไปยังต่างประเทศ <em>1</em></span><span class="kw kw-missing" title="Prod:0">เพื่อเพิ่มโอกาสในการแสวงหาผลตอบแทนกลยุทธ์การลงทุนมุ่งหวังให้ผลประกอบการเคลื่อนไหวสูงกว่าดัชนีชี้วัด <em>1</em></span><span class="kw kw-missing" title="Prod:0">active <em>1</em></span><span class="kw kw-missing" title="Prod:0">management <em>1</em></span><span class="kw kw-missing" title="Prod:0">รายละเอียดกองทุน <em>1</em></span><span class="kw kw-missing" title="Prod:0">ข้อมูลสำคัญกองทุนดาวน์โหลดไฟล์ข้อมูลต่างๆ <em>1</em></span><span class="kw kw-missing" title="Prod:0">ของกองทุนเปิดบัวหลวงหุ้นเพื่อคนรุ่นใหม่ <em>1</em></span><span class="kw kw-shared" title="Prod:5">future <em>1</em></span><span class="kw kw-missing" title="Prod:0">หนังสือชี้ชวนส่วนสรุปข้อมูลสำคัญ <em>1</em></span><span class="kw kw-missing" title="Prod:0">หนังสือชี้ชวนส่วนข้อมูลกองทุนรวม <em>1</em></span><span class="kw kw-missing" title="Prod:0">รายงานรอบระยะเวลา <em>1</em></span><span class="kw kw-missing" title="Prod:0">เดือน <em>1</em></span></div>
-          </div>
-        </div>
-        <div class="outline-legend">
-          <span class="kw kw-shared" style="margin-right:12px">เขียว = มีในทั้งคู่</span>
-          <span class="kw kw-missing">แดง = มีฝั่งเดียว</span>
-        </div>
-      </div>
-    </div>
     </details>
-    <details class="check-block failed">
+    <details class="check-block passed">
       <summary class="check-row">
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Accordions filled</span>
-        <span class="check-detail">prod 8 / aem 11 (11 empty)</span>
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Thai/English balance</span>
+        <span class="check-detail">delta 9% (≤10%)</span>
         <span class="expand-hint">▾</span>
       </summary>
-      <div class="diff-body">
-      <div class="diff-section">
-        <div class="diff-title bad">Accordion ว่างเปล่าใน AEM (10/11)</div>
-        <div class="chip-list"><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span></div>
-      </div><div class="diff-section"><div class="diff-title">จำนวนต่างกัน: Production 8 / AEM 11</div></div></div>
-    </details>
-    <details class="check-block failed">
-      <summary class="check-row">
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Header &amp; Footer</span>
-        <span class="check-detail">header 0/148 links, footer 0/32 links</span>
-        <span class="expand-hint">▾</span>
-      </summary>
-      <div class="diff-body"><table class="meta-diff"><thead><tr><th>ส่วน</th><th>Production</th><th>AEM</th><th>Status</th></tr></thead><tbody><tr><td>Header links</td><td>148</td><td class="bad">0</td><td class="bad">✗ หาย</td></tr><tr><td>Footer links</td><td>32</td><td class="bad">0</td><td class="bad">✗ หาย</td></tr></tbody></table></div>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">prod 97% Thai vs aem 88% Thai · delta 9%</div>
+      </div></div>
     </details></div>
       </div></div></section>
 

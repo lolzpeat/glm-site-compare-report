@@ -148,7 +148,7 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 </header>
 
 <section class="score-row">
-  <div class="score parity-bad"><span class="big">16</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="score parity-bad"><span class="big">35</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
   <div class="urls">
     <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/About-Us/Bangkok-Bank-Scholarships" target="_blank">https://www.bangkokbank.com/th-TH/About-Us/Bangkok-Bank-Scholarships</a></div>
     <div><b class="tag tgt">AEM</b> <a href="https://prod-aem.bangkokbank.com/th/about-us/bangkok-bank-scholarships" target="_blank">https://prod-aem.bangkokbank.com/th/about-us/bangkok-bank-scholarships</a></div>
@@ -160,17 +160,17 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 <div class="sxs sync-scroll">
   <figure>
     <figcaption class="pcap">PRODUCTION (ต้นฉบับ)</figcaption>
-    <div class="shot-pane"><img src="../screenshots/../../../../../../../ZCodeProject/bbl-compare/data/screenshots/576/prod.jpg" loading="lazy" alt="production"></div>
+    <div class="shot-pane"><div class="noimg">no screenshot</div></div>
   </figure>
   <figure>
     <figcaption class="acap">AEM (ต้องแก้ให้เหมือนซ้าย)</figcaption>
-    <div class="shot-pane"><img src="../screenshots/../../../../../../../ZCodeProject/bbl-compare/data/screenshots/576/aem.jpg" loading="lazy" alt="aem"></div>
+    <div class="shot-pane"><div class="noimg">no screenshot</div></div>
   </figure>
 </div></section>
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Headings match</b> 16/49 headings (Jaccard 27%)</li><li class="gap critical"><span class="sev">critical</span> <b>Links match</b> 13/206 links (2% of prod link-texts found)</li><li class="gap critical"><span class="sev">critical</span> <b>Content length</b> 2750/34176 chars (ratio 8%)</li><li class="gap critical"><span class="sev">critical</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap critical"><span class="sev">critical</span> <b>Accordions filled</b> prod 8 / aem 11 (10 empty)</li><li class="gap high"><span class="sev">high</span> <b>Header &amp; Footer</b> header 0/148 links, footer 0/32 links</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 1 found</li><li class="gap high"><span class="sev">high</span> <b>Missing login</b> prod has login, AEM does not</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 4 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 2 image issue(s)</li></ul></section>
+<ul class="gap-list"><li class="gap high"><span class="sev">high</span> <b>Content length (±30%)</b> 2750/34176 chars (8%)</li><li class="gap high"><span class="sev">high</span> <b>Missing text blocks</b> 15 prod block(s) missing</li><li class="gap high"><span class="sev">high</span> <b>Missing keywords</b> 20/30 prod keywords missing</li><li class="gap high"><span class="sev">high</span> <b>Missing image (≥80% + alt)</b> 1/8 images · alt match 0%</li><li class="gap high"><span class="sev">high</span> <b>Headings (Jaccard)</b> 16/49 headings (Jaccard 28%)</li><li class="gap medium"><span class="sev">medium</span> <b>Links match</b> 13/206 links (2% of prod link-texts found)</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 1 found</li><li class="gap high"><span class="sev">high</span> <b>Missing login</b> prod has login, AEM does not</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 4 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 2 image issue(s)</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
@@ -180,16 +180,123 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
 <div class="groups"><div class="group-block">
-        <div class="group-head structure">
-          <span>Structure / SEO</span>
-          <span class="group-pct">0/60 · 0%</span>
+        <div class="group-head template">
+          <span>Template</span>
+          <span class="group-pct">0/0 · 0%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Header menu (label + count)<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">insufficient data (page captured before criteria update)</span>
+        
+      </summary>
+      
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Footer menu (label + count)<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">insufficient data (page captured before criteria update)</span>
+        
+      </summary>
+      
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Components (accordion/table/form/video)<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">insufficient data (page captured before criteria update)</span>
+        
+      </summary>
+      
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head content">
+          <span>Content</span>
+          <span class="group-pct">18/50 · 37%</span>
         </div>
         <div class="checks-list">
     <details class="check-block failed">
       <summary class="check-row">
         <span class="check-status bad">✗</span>
-        <span class="check-label">Headings match</span>
-        <span class="check-detail">16/49 headings (Jaccard 27%)</span>
+        <span class="check-label">Content length (±30%)</span>
+        <span class="check-detail">2750/34176 chars (8%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">เทียบเนื้อหา (text sample · ratio 8%)</div>
+          <div class="outline-grid">
+            <div class="outline-col">
+              <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
+              <div class="text-sample">กิจการธนาคารต่างประเทศ นักลงทุนสัมพันธ์ เกี่ยวกับธนาคารกรุงเทพ 華人事務 日本語 EN ค้นหา ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม พันธบัตรและหุ้นกู้ เปิดบัญชีซื้อขายหลักทรัพย์ ผลิตภัณฑ์บัตร บัตรเครดิต บัตรธนาคารกรุงเทพ เอ็ม วีซ่า ตรวจสอบสถานะการสมัครบัตรเครดิต บัตรเดบิตบีเฟิสต์ บัตรทราเวลธนาคารกรุงเทพ บัตรเติมเงินธนาคารกรุงเทพ ผลิตภัณฑ์เพื่อครอบครัว แบงก์แอสชัวรันส์ สินเชื่อส่วนบุคคล สินเชื่อเพื่อข้าราชการบำนาญ ทิปทางการเงิน บ้านและที่อยู่อาศัย สินเชื่อบ้านบัวหลวง สินเชื่ออเนกประสงค์ที่ใช้ที่อยู่อาศัยเป็นหลักประกัน ทรัพย์สินพร้อมขาย ทรัพย์หลักประกันทางธุรกิจ พร้อ</div>
+            </div>
+            <div class="outline-col">
+              <div class="outline-head tgt">AEM (migrate)</div>
+              <div class="text-sample">ทุนการศึกษา ระดับปริญญาโท ธนาคารกรุงเทพทุนการศึกษา ระดับปริญญาโท ธนาคารกรุงเทพสมัครรับทุนการศึกษา ปี 2569แบ่งปันประสบการณ์สมัครงานเครื่องมือช่วยเหลือ ทุนการศึกษา ระดับปริญญาโท ธนาคารกรุงเทพธนาคารกรุงเทพ จำกัด (มหาชน) มุ่งหมายที่จะเป็นธนาคารที่ให้บริการด้านการเงินที่มีคุณภาพเพื่อตอบสนองความต้องการของลูกค้า มีความพร้อมด้วยบุคลากรที่มีคุณภาพ มีเทคโนโลยีและระบบงานที่ทันสมัย คงไว้ซึ่งความเป็นสากล ตลอดจนเป็นธนาคารชั้นนำแห่งภูมิภาคเอเชียด้วยความมุ่งหมายของธนาคารที่เล็งเห็นว่าบุคลากรที่มีคุณภาพเป็นทรัพยากรที่สำคัญขององค์กร จึงให้โอกาส ส่งเสริม และพัฒนาพนักงานโดยให้ทุนการศึกษาเพื่อไปศึกษาต่อในระดับปริญ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing text blocks</span>
+        <span class="check-detail">15 prod block(s) missing</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (15/154)</div>
+          <div class="chip-list"><span class="chip chip-missing">กิจการธนาคารต่างประเทศ</span><span class="chip chip-missing">นักลงทุนสัมพันธ์</span><span class="chip chip-missing">เกี่ยวกับธนาคารกรุงเทพ</span><span class="chip chip-missing">ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม </span><span class="chip chip-missing">หน้าแรกลูกค้าบุคคล</span><span class="chip chip-missing">การออมและการลงทุน</span><span class="chip chip-missing">ผลิตภัณฑ์เพื่อการออม</span><span class="chip chip-missing">กองทุนรวม</span><span class="chip chip-missing">พันธบัตรและหุ้นกู้</span><span class="chip chip-missing">เปิดบัญชีซื้อขายหลักทรัพย์</span><span class="chip chip-missing">ผลิตภัณฑ์บัตร</span><span class="chip chip-missing">บัตรเครดิต</span><span class="chip chip-missing">บัตรธนาคารกรุงเทพ เอ็ม วีซ่า</span><span class="chip chip-missing">ตรวจสอบสถานะการสมัครบัตรเครดิต</span><span class="chip chip-missing">บัตรเดบิตบีเฟิสต์</span></div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing keywords</span>
+        <span class="check-detail">20/30 prod keywords missing</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">10 shared <b class="ok">✓</b> · 20 missing <b class="bad">✗</b></div>
+          <div class="chip-list"><span class="chip chip-missing">university</span><span class="chip chip-missing">หรือ</span><span class="chip chip-missing">ใช้</span><span class="chip chip-missing">บัวหลวง</span><span class="chip chip-missing">ธนาคารกรุงเทพ</span><span class="chip chip-missing">the</span><span class="chip chip-missing">master</span><span class="chip chip-missing">ได้แก่</span><span class="chip chip-missing">business</span><span class="chip chip-missing">และ</span><span class="chip chip-missing">เช่น</span><span class="chip chip-missing">california</span><span class="chip chip-missing">technology</span><span class="chip chip-missing">finance</span><span class="chip chip-missing">สาขา</span><span class="chip chip-missing">science</span><span class="chip chip-missing">ไอแบงก์กิ้ง</span><span class="chip chip-missing">analytics</span><span class="chip chip-missing">time</span><span class="chip chip-missing">program</span></div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing image (≥80% + alt)</span>
+        <span class="check-detail">1/8 images · alt match 0%</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">prod 8 / aem 1 images · alt match 0%</div>
+        </div>
+        <div class="diff-section"><div class="outline-grid">
+          <div class="outline-col"><div class="outline-head src">PROD alts (4)</div><div class="kw-body"><span class="kw kw-shared">en</span><span class="kw kw-shared">logo</span><span class="kw kw-shared">ไอคอนแผนที่</span><span class="kw kw-shared">call us</span></div></div>
+          <div class="outline-col"><div class="outline-head tgt">AEM alts (0)</div><div class="kw-body"></div></div>
+        </div></div>
+      </div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head structure">
+          <span>Structure / SEO</span>
+          <span class="group-pct">7/25 · 30%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Headings (Jaccard)</span>
+        <span class="check-detail">16/49 headings (Jaccard 28%)</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body">
@@ -527,71 +634,17 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
         <td class="muted">—</td>
         <td class="bad">✗ ต่างกัน</td>
       </tr></tbody></table></div>
-    </details></div>
-      </div><div class="group-block">
-        <div class="group-head other"><span>Other checks</span><span class="group-pct">0/3 passed</span></div>
-        <div class="checks-list">
-    <details class="check-block failed">
-      <summary class="check-row">
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Content length</span>
-        <span class="check-detail">2750/34176 chars (ratio 8%)</span>
-        <span class="expand-hint">▾</span>
-      </summary>
-      <div class="diff-body">
-      <div class="diff-section">
-        <div class="diff-title">เทียบเนื้อหา (text sample)</div>
-        <div class="outline-grid">
-          <div class="outline-col">
-            <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
-            <div class="text-sample">กิจการธนาคารต่างประเทศ นักลงทุนสัมพันธ์ เกี่ยวกับธนาคารกรุงเทพ 華人事務 日本語 EN ค้นหา ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม พันธบัตรและหุ้นกู้ เปิดบัญชีซื้อขายหลักทรัพย์ ผลิตภัณฑ์บัตร บัตรเครดิต บัตรธนาคารกรุงเทพ เอ็ม วีซ่า ตรวจสอบสถานะการสมัครบัตรเครดิต บัตรเดบิตบีเฟิสต์ บัตรทราเวลธนาคารกรุงเทพ บัตรเติมเงินธนาคารกรุงเทพ ผลิตภัณฑ์เพื่อครอบครัว แบงก์แอสชัวรันส์ สินเชื่อส่วนบุคคล สินเชื่อเพื่อข้าราชการบำนาญ ทิปทางการเงิน บ้านและที่อยู่อาศัย สินเชื่อบ้านบัวหลวง สินเชื่ออเนกประสงค์ที่ใช้ที่อยู่อาศัยเป็นหลักประกัน ทรัพย์สินพร้อมขาย ทรัพย์หลักประกันทางธุรกิจ พร้อ</div>
-          </div>
-          <div class="outline-col">
-            <div class="outline-head tgt">AEM (migrate)</div>
-            <div class="text-sample">ทุนการศึกษา ระดับปริญญาโท ธนาคารกรุงเทพทุนการศึกษา ระดับปริญญาโท ธนาคารกรุงเทพสมัครรับทุนการศึกษา ปี 2569แบ่งปันประสบการณ์สมัครงานเครื่องมือช่วยเหลือ ทุนการศึกษา ระดับปริญญาโท ธนาคารกรุงเทพธนาคารกรุงเทพ จำกัด (มหาชน) มุ่งหมายที่จะเป็นธนาคารที่ให้บริการด้านการเงินที่มีคุณภาพเพื่อตอบสนองความต้องการของลูกค้า มีความพร้อมด้วยบุคลากรที่มีคุณภาพ มีเทคโนโลยีและระบบงานที่ทันสมัย คงไว้ซึ่งความเป็นสากล ตลอดจนเป็นธนาคารชั้นนำแห่งภูมิภาคเอเชียด้วยความมุ่งหมายของธนาคารที่เล็งเห็นว่าบุคลากรที่มีคุณภาพเป็นทรัพยากรที่สำคัญขององค์กร จึงให้โอกาส ส่งเสริม และพัฒนาพนักงานโดยให้ทุนการศึกษาเพื่อไปศึกษาต่อในระดับปริญ</div>
-          </div>
-        </div>
-      </div>
-      <div class="diff-section">
-        <div class="diff-title">คำสำคัญ (top keywords) — <b class="ok">5 ✓ ตรง</b> / <b class="bad">20 ✗ ขาดใน AEM</b></div>
-        <div class="outline-grid">
-          <div class="outline-col">
-            <div class="outline-head src">PRODUCTION keywords</div>
-            <div class="kw-body"><span class="kw kw-missing" title="AEM:0">university <em>44</em></span><span class="kw kw-missing" title="AEM:0">หรือ <em>29</em></span><span class="kw kw-missing" title="AEM:0">ใช้ <em>17</em></span><span class="kw kw-missing" title="AEM:0">บัวหลวง <em>14</em></span><span class="kw kw-missing" title="AEM:0">ธนาคารกรุงเทพ <em>14</em></span><span class="kw kw-missing" title="AEM:0">the <em>14</em></span><span class="kw kw-missing" title="AEM:0">master <em>11</em></span><span class="kw kw-shared" title="AEM:1">จำกัด <em>10</em></span><span class="kw kw-missing" title="AEM:0">ได้แก่ <em>10</em></span><span class="kw kw-missing" title="AEM:0">business <em>10</em></span><span class="kw kw-missing" title="AEM:0">และ <em>9</em></span><span class="kw kw-missing" title="AEM:0">เช่น <em>9</em></span><span class="kw kw-shared" title="AEM:2">ปี <em>8</em></span><span class="kw kw-missing" title="AEM:0">california <em>8</em></span><span class="kw kw-missing" title="AEM:0">technology <em>7</em></span><span class="kw kw-missing" title="AEM:0">finance <em>7</em></span><span class="kw kw-missing" title="AEM:0">สาขา <em>7</em></span><span class="kw kw-missing" title="AEM:0">science <em>7</em></span><span class="kw kw-missing" title="AEM:0">ไอแบงก์กิ้ง <em>6</em></span><span class="kw kw-shared" title="AEM:1">มหาชน <em>6</em></span><span class="kw kw-missing" title="AEM:0">analytics <em>6</em></span><span class="kw kw-missing" title="AEM:0">time <em>6</em></span><span class="kw kw-missing" title="AEM:0">program <em>6</em></span><span class="kw kw-missing" title="AEM:0">test <em>6</em></span><span class="kw kw-shared" title="AEM:2">ทุนการศึกษา <em>5</em></span><span class="kw kw-missing" title="AEM:0">for <em>5</em></span><span class="kw kw-shared" title="AEM:5">ทุน <em>5</em></span><span class="kw kw-missing" title="AEM:0">data <em>5</em></span><span class="kw kw-missing" title="AEM:0">mba <em>5</em></span><span class="kw kw-missing" title="AEM:0">computer <em>5</em></span></div>
-          </div>
-          <div class="outline-col">
-            <div class="outline-head tgt">AEM keywords</div>
-            <div class="kw-body"><span class="kw kw-shared" title="Prod:5">ทุน <em>5</em></span><span class="kw kw-missing" title="Prod:0">ระดับปริญญาโท <em>3</em></span><span class="kw kw-missing" title="Prod:0">จำนวน <em>3</em></span><span class="kw kw-shared" title="Prod:5">ทุนการศึกษา <em>2</em></span><span class="kw kw-shared" title="Prod:8">ปี <em>2</em></span><span class="kw kw-missing" title="Prod:0">และในประเทศ <em>2</em></span><span class="kw kw-missing" title="Prod:0">ภาคภาษาอังกฤษ <em>2</em></span><span class="kw kw-missing" title="Prod:0">ประจำปี <em>2</em></span><span class="kw kw-missing" title="Prod:0">รวมจำนวน <em>2</em></span><span class="kw kw-missing" title="Prod:0">digital <em>2</em></span><span class="kw kw-missing" title="Prod:0">ทั้งพนักงาน <em>2</em></span><span class="kw kw-missing" title="Prod:0">บุคคลภายนอก <em>2</em></span><span class="kw kw-missing" title="Prod:0">เพื่อความเติบโตและก้าวหน้าในอาชีพดูรายละเอียดโอกาสท้าทายที่ธนาคารกรุงเทพทำความรู้จักกับสายงานหลากหลายที่ธนาคารกรุงเทพ <em>2</em></span><span class="kw kw-missing" title="Prod:0">เปิดโอกาสท้าทายให้ได้เรียนรู้และประสบการณ์การดูแลพนักงานธนาคารกรุงเทพ <em>2</em></span><span class="kw kw-missing" title="Prod:0">ดูแลพนักงานตลอดชีวิตการทำงาน <em>2</em></span><span class="kw kw-missing" title="Prod:0">เพื่อมอบความอบอุ่นใจ <em>2</em></span><span class="kw kw-missing" title="Prod:0">และมั่นคงทั้งด้านสุขภาพและความเป็นอยู่การพัฒนาบุคลากรธนาคารมีรูปแบบการพัฒนาบุคลากรทั้งด้านการปฏิบัติงาน <em>2</em></span><span class="kw kw-missing" title="Prod:0">การพัฒนาตนเอง <em>2</em></span><span class="kw kw-missing" title="Prod:0">สอบถามข้อมูลเพิ่มเติมโทร <em>2</em></span><span class="kw kw-missing" title="Prod:0">bbl <em>2</em></span><span class="kw kw-missing" title="Prod:0">content <em>2</em></span><span class="kw kw-missing" title="Prod:0">bangkokbank <em>2</em></span><span class="kw kw-missing" title="Prod:0">ธนาคารกรุงเทพทุนการศึกษา <em>1</em></span><span class="kw kw-missing" title="Prod:0">ธนาคารกรุงเทพสมัครรับทุนการศึกษา <em>1</em></span><span class="kw kw-missing" title="Prod:0">แบ่งปันประสบการณ์สมัครงานเครื่องมือช่วยเหลือ <em>1</em></span><span class="kw kw-missing" title="Prod:0">ธนาคารกรุงเทพธนาคารกรุงเทพ <em>1</em></span><span class="kw kw-shared" title="Prod:10">จำกัด <em>1</em></span><span class="kw kw-shared" title="Prod:6">มหาชน <em>1</em></span><span class="kw kw-missing" title="Prod:0">มุ่งหมายที่จะเป็นธนาคารที่ให้บริการด้านการเงินที่มีคุณภาพเพื่อตอบสนองความต้องการของลูกค้า <em>1</em></span><span class="kw kw-missing" title="Prod:0">มีความพร้อมด้วยบุคลากรที่มีคุณภาพ <em>1</em></span></div>
-          </div>
-        </div>
-        <div class="outline-legend">
-          <span class="kw kw-shared" style="margin-right:12px">เขียว = มีในทั้งคู่</span>
-          <span class="kw kw-missing">แดง = มีฝั่งเดียว</span>
-        </div>
-      </div>
-    </div>
     </details>
-    <details class="check-block failed">
+    <details class="check-block passed">
       <summary class="check-row">
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Accordions filled</span>
-        <span class="check-detail">prod 8 / aem 11 (10 empty)</span>
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Thai/English balance</span>
+        <span class="check-detail">delta 2% (≤10%)</span>
         <span class="expand-hint">▾</span>
       </summary>
-      <div class="diff-body">
-      <div class="diff-section">
-        <div class="diff-title bad">Accordion ว่างเปล่าใน AEM (10/11)</div>
-        <div class="chip-list"><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span><span class="chip chip-empty">(untitled)</span></div>
-      </div><div class="diff-section"><div class="diff-title">จำนวนต่างกัน: Production 8 / AEM 11</div></div></div>
-    </details>
-    <details class="check-block failed">
-      <summary class="check-row">
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Header &amp; Footer</span>
-        <span class="check-detail">header 0/148 links, footer 0/32 links</span>
-        <span class="expand-hint">▾</span>
-      </summary>
-      <div class="diff-body"><table class="meta-diff"><thead><tr><th>ส่วน</th><th>Production</th><th>AEM</th><th>Status</th></tr></thead><tbody><tr><td>Header links</td><td>148</td><td class="bad">0</td><td class="bad">✗ หาย</td></tr><tr><td>Footer links</td><td>32</td><td class="bad">0</td><td class="bad">✗ หาย</td></tr></tbody></table></div>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">prod 89% Thai vs aem 92% Thai · delta 2%</div>
+      </div></div>
     </details></div>
       </div></div></section>
 

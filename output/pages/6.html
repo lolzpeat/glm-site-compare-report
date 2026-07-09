@@ -170,12 +170,12 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Production page is BLOCKED (Access Denied / WAF)</b> Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</li></ul></section>
+<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Production page is 404</b> Production title: &quot;404 NOT FOUND&quot;</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
-<tbody><tr><td>Headings</td><td>1</td><td>1</td><td class="ok">✓</td></tr><tr><td>Links</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Text length</td><td>253</td><td>257</td><td class="ok">✓</td></tr><tr><td>Images</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Accordions</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Empty accordions</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Footer links</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Page height (px)</td><td>900</td><td>900</td><td class="ok">✓</td></tr></tbody></table></section>
+<tbody><tr><td>Headings</td><td>1</td><td>9</td><td class="bad">✗</td></tr><tr><td>Links</td><td>6</td><td>45</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>389</td><td>2294</td><td class="bad">✗</td></tr><tr><td>Images</td><td>2</td><td>1</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Empty accordions</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>1</td><td>0</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>3</td><td>32</td><td class="bad">✗</td></tr><tr><td>Page height (px)</td><td>900</td><td>2228</td><td class="bad">✗</td></tr></tbody></table></section>
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
@@ -185,8 +185,8 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
     <details class="check-block failed">
       <summary class="check-row">
         <span class="check-status bad">✗</span>
-        <span class="check-label">Production page is BLOCKED (Access Denied / WAF)</span>
-        <span class="check-detail">Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</span>
+        <span class="check-label">Production page is 404</span>
+        <span class="check-detail">Production title: &quot;404 NOT FOUND&quot;</span>
         
       </summary>
       
