@@ -95,3 +95,44 @@ test('contentLength still uses main when a side is legitimately empty', () => {
   assert.equal(c.diff.scope, 'main');
   assert.equal(c.diff.ratio, 0);
 });
+
+test('missingText compares sentences against AEM rendered text, ignoring markup shape', () => {
+  // The regression this replaces: prod puts each row in its own <p>/<li> while
+  // AEM uses <table><td>, so byte-identical text scored as ~85% missing.
+  const text = 'วันหยุดประจำปีธนาคาร ปี 2569 ตามระเบียบของธนาคารแห่งประเทศไทย วันพฤหัสบดี 1 มกราคม วันขึ้นปีใหม่ วันศุกร์ 2 มกราคม วันหยุดทำการเพิ่มเป็นกรณีพิเศษ';
+  const prod = metrics({ mainTextFull: text, textBlocks: text.split(' ') });
+  const aem = metrics({ mainTextFull: text, textBlocks: [] });   // same text, no matching blocks
+  const c = byId(contentChecks(prod, aem), 'missingText');
+  assert.equal(c.diff.scope, 'main-sentences');
+  assert.equal(c.passed, true, 'identical rendered text must not report missing sentences');
+  assert.equal(c.partial, 1);
+});
+
+test('missingText still detects genuinely absent sentences', () => {
+  const kept = 'ธนาคารกรุงเทพให้บริการสินเชื่อเพื่อที่อยู่อาศัยแก่ลูกค้าบุคคลทุกกลุ่มรายได้อย่างทั่วถึง';
+  const dropped = 'เงื่อนไขการชำระคืนเงินกู้และอัตราดอกเบี้ยพิเศษสำหรับลูกค้าที่สมัครผ่านช่องทางออนไลน์เท่านั้น';
+  const prod = metrics({ mainTextFull: `${kept} ${dropped}` });
+  const aem = metrics({ mainTextFull: kept });
+  const c = byId(contentChecks(prod, aem), 'missingText');
+  assert.equal(c.passed, false);
+  assert.ok(c.diff.missingCount >= 1, 'the dropped sentence must be reported');
+  assert.ok(c.partial < 1);
+});
+
+test('missingText falls back to block comparison on legacy captures', () => {
+  const prod = metrics({ textBlocks: ['บริการบัญชีเงินเดือนสำหรับองค์กร', 'สิทธิประโยชน์พิเศษสำหรับพนักงาน'] });
+  const aem = metrics({ textBlocks: ['บริการบัญชีเงินเดือนสำหรับองค์กร'] });
+  const c = byId(contentChecks(prod, aem), 'missingText');
+  assert.equal(c.diff.scope, 'full-page-blocks');
+  assert.equal(c.diff.missingCount, 1);
+});
+
+test('missingText treats a moved Thai space as present, but counts it as a spacing diff', () => {
+  const prodText = 'พระบาทสมเด็จพระบรมชนกาธิเบศร มหาภูมิพลอดุลยเดชมหาราช บรมนาถบพิตร วันชาติ และวันพ่อแห่งชาติ';
+  const aemText  = 'พระบาทสมเด็จพระบรมชนกาธิเบศร มหาภูมิพลอดุลยเดช มหาราชบรมนาถบพิตร วันชาติ และวันพ่อแห่งชาติ';
+  const c = byId(contentChecks(metrics({ mainTextFull: prodText }), metrics({ mainTextFull: aemText })), 'missingText');
+  assert.equal(c.passed, true, 'space placement is not missing content');
+  assert.equal(c.diff.missingCount, 0);
+  assert.ok(c.diff.spacingOnly >= 1, 'but the spacing difference must still be reported');
+  assert.match(c.detail, /ignoring spacing/);
+});

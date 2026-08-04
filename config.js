@@ -227,6 +227,13 @@ export const WEIGHTS_NEWS = {
 // Text-length is considered "matching" if AEM is within this fraction of prod.
 export const TEXT_MATCH_TOLERANCE = 0.30;
 
+// missingText segmentation (src/scoring/checks-content.js `segmentsOf`).
+// Prod sentences are matched as substrings of AEM's rendered main text, so
+// markup shape (<p>/<li> vs <table><td>) no longer affects the result.
+// Larger = more distinctive units but one edited word fails a longer span.
+export const SEGMENT_MIN_CHARS = 60;
+export const SEGMENT_TAIL_MIN_CHARS = 12;
+
 // Parity score at/above which a page is flagged PASS in the dashboard.
 export const PASS_THRESHOLD = 85;
 

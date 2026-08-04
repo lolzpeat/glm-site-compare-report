@@ -242,6 +242,10 @@ export const EXTRACT_FN = () => {
     mainTextLength: mainInfo.text.length,
     mainTextRawLength: mainInfo.rawLength,
     mainTextSource: mainInfo.source,
+    // Full rendered main text (capped). missingText segments this at SCORE
+    // time rather than storing pre-cut segments, so the segmentation rule can
+    // be retuned without another capture run.
+    mainTextFull: mainInfo.text.slice(0, 40000),
     mainTextSample: mainInfo.text.slice(0, 800),
     mainTextBlocks: mainInfo.blocks,
     pageHeight: document.documentElement.scrollHeight,

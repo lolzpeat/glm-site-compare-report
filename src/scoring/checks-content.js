@@ -1,6 +1,27 @@
 // Missing-content group: contentLength, missingText, missingKeywords.
-import { TEXT_MATCH_TOLERANCE } from '../../config.js';
+import { TEXT_MATCH_TOLERANCE, SEGMENT_MIN_CHARS, SEGMENT_TAIL_MIN_CHARS } from '../../config.js';
 import { makeCheck, isDynamicBlock } from './util.js';
+
+// Cut rendered text into sentence-sized units for missingText.
+//
+// Thai rarely uses sentence-ending punctuation — spaces separate clauses
+// instead — so splitting on `.`/`?`/`!` alone yields one giant unit for a Thai
+// page. Split on punctuation first, then accumulate space-separated tokens
+// until each unit reaches SEGMENT_MIN_CHARS. Units long enough to be
+// distinctive, short enough that one changed word doesn't fail a whole page.
+export function segmentsOf(text) {
+  const out = [];
+  for (const part of String(text ?? '').split(/(?<=[.!?。])\s+/)) {
+    let buf = '';
+    for (const tok of part.split(' ')) {
+      if (!tok) continue;
+      buf = buf ? `${buf} ${tok}` : tok;
+      if (buf.length >= SEGMENT_MIN_CHARS) { out.push(buf); buf = ''; }
+    }
+    if (buf.length >= SEGMENT_TAIL_MIN_CHARS) out.push(buf);   // trailing clause
+  }
+  return out;
+}
 
 export function contentChecks(prod, aem) {
   const checks = [];
@@ -38,20 +59,61 @@ export function contentChecks(prod, aem) {
       aemSample: sample(aem).slice(0, 600),
     }));
 
-  // missingText: prod text blocks not present in AEM.
-  const aemBlockSet = new Set((aem.textBlocks || []).map(t => String(t).toLowerCase()));
-  const prodBlocks = (prod.textBlocks || []).map(t => String(t).trim()).filter(t => t.length >= 8 && !isDynamicBlock(t));
-  const prodBlocksSet = new Set(prodBlocks);
-  // Score from the FULL missing count; the 15-block cap is display-only.
-  // (Pre-v2 sliced before computing textHit, so any page missing 50 of 100
-  // blocks scored identically to one missing 15 — every scored page in the
-  // dataset exceeded the cap, so the partial credit was uniformly inflated.)
-  const missingAll = [...new Set(prodBlocks.filter(t => !aemBlockSet.has(t.toLowerCase())))];
-  const missingTextBlocks = missingAll.slice(0, 15);
-  const textHit = prodBlocksSet.size > 0 ? 1 - (missingAll.length / prodBlocksSet.size) : 1;
-  checks.push(makeCheck('missingText', 'Missing text blocks', missingAll.length === 0,
-    `${missingAll.length}/${prodBlocksSet.size} prod block(s) missing`, textHit,
-    { missingTextBlocks, missingCount: missingAll.length, prodBlockCount: prodBlocksSet.size }));
+  // missingText — sentence-level over the RENDERED MAIN TEXT when available.
+  //
+  // The DOM-block comparison it replaces was structurally wrong here: prod puts
+  // each holiday row in its own <p>/<li> while AEM uses <table><td>, so pages
+  // whose text was byte-identical still reported ~85% of blocks "missing".
+  // It also compared whole-page blocks, so mega-menu labels counted as lost
+  // content. Segmenting the visible main text and asking only "does this
+  // sentence appear anywhere in AEM's visible text" is immune to both: markup
+  // shape stops mattering and chrome is already excluded.
+  // Score from the FULL missing count in either mode; the 15-item cap is
+  // display-only. (Pre-v2 sliced before computing the hit rate, so a page
+  // missing 50 of 100 units scored identically to one missing 15.)
+  const useSegments = typeof prod.mainTextFull === 'string' && typeof aem.mainTextFull === 'string'
+    && prod.mainTextFull.length > 0;
+
+  const units = useSegments
+    ? segmentsOf(prod.mainTextFull).filter(t => !isDynamicBlock(t))
+    : (prod.textBlocks || []).map(t => String(t).trim()).filter(t => t.length >= 8 && !isDynamicBlock(t));
+  const unitSet = new Set(units);
+
+  // Thai puts no spaces between words — a space is a phrase separator whose
+  // placement can shift in migration without changing a single character of
+  // meaning (observed: "…อดุลยเดชมหาราช บรมนาถบพิตร" vs "…อดุลยเดช มหาราชบรมนาถบพิตร").
+  // Presence is therefore tested space-insensitively; segments that only match
+  // once spacing is ignored are counted separately as a formatting signal, so
+  // the difference is reported rather than silently erased.
+  const despace = (s) => s.toLowerCase().replace(/\s+/g, '');
+  const haystack = useSegments ? aem.mainTextFull.toLowerCase() : null;
+  const haystackNoSpace = useSegments ? despace(aem.mainTextFull) : null;
+  const aemBlockSet = useSegments ? null : new Set((aem.textBlocks || []).map(t => String(t).toLowerCase()));
+
+  let spacingOnly = 0;
+  const isPresent = (t) => {
+    if (!useSegments) return aemBlockSet.has(t.toLowerCase());
+    if (haystack.includes(t.toLowerCase())) return true;
+    if (haystackNoSpace.includes(despace(t))) { spacingOnly++; return true; }
+    return false;
+  };
+
+  const missingAll = [...unitSet].filter(t => !isPresent(t));
+  const textHit = unitSet.size > 0 ? 1 - (missingAll.length / unitSet.size) : 1;
+  checks.push(makeCheck('missingText',
+    useSegments ? 'Missing text (sentences)' : 'Missing text blocks',
+    missingAll.length === 0,
+    `${missingAll.length}/${unitSet.size} prod ${useSegments ? 'sentence' : 'block'}(s) missing` +
+      (useSegments ? ' · main content only' : ' · incl. header/footer (legacy capture)') +
+      (spacingOnly ? ` · ${spacingOnly} matched only after ignoring spacing` : ''),
+    textHit,
+    {
+      missingTextBlocks: missingAll.slice(0, 15),
+      missingCount: missingAll.length,
+      prodBlockCount: unitSet.size,
+      spacingOnly,
+      scope: useSegments ? 'main-sentences' : 'full-page-blocks',
+    }));
 
   // missingKeywords: prod top keywords absent from AEM.
   const prodWordMap = new Map((prod.topWords || []).map(w => [w.w, w.c]));
