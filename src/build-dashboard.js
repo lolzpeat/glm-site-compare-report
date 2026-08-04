@@ -40,8 +40,7 @@ async function main() {
   const dashName = prefix ? `${prefix}-dashboard.html` : 'dashboard.html';
   const pagesDirName = prefix ? `${prefix}-pages` : 'pages';
   const shotsDirName = prefix ? `${prefix}-screenshots` : 'screenshots';
-  const PREFIX_LABELS = { news: 'News & Media', priority: 'Priority Manual Pages' };
-  const titleSuffix = prefix ? ` · ${(PREFIX_LABELS[prefix] || prefix.toUpperCase())}` : '';
+  const titleSuffix = prefix ? ` · ${prefix.toUpperCase()}` : '';
   const PAGES_DIR = join(DIR.output, pagesDirName);
   const OUT = DIR.output;
 
@@ -156,7 +155,6 @@ function renderDashboard({ total, avg, passed, warned, failed, lowContent, bucke
 <style>${DASHBOARD_CSS}</style></head><body>
 <nav class="topnav">
   <a href="dashboard.html" class="${!prefix ? 'active' : ''}">📊 Dashboard หลัก</a>
-  <a href="priority-dashboard.html" class="${prefix === 'priority' ? 'active' : ''}">⭐ Priority Manual Pages</a>
   <a href="news-dashboard.html" class="${prefix === 'news' ? 'active' : ''}">📰 News & Media</a>
   <a href="criteria.html">📋 เกณฑ์ตรวจจับ</a>
 </nav>
@@ -503,7 +501,6 @@ function renderPage(p, total, opts = {}) {
 <style>${PAGE_CSS}</style></head><body>
 <nav class="topnav">
   <a href="../dashboard.html">📊 Dashboard หลัก</a>
-  <a href="../priority-dashboard.html">⭐ Priority Manual Pages</a>
   <a href="../news-dashboard.html">📰 News & Media</a>
   <a href="../criteria.html">📋 เกณฑ์ตรวจจับ</a>
 </nav>
@@ -663,7 +660,10 @@ function renderDiffDetails(check, esc) {
       const spark = (bins, color) => {
         if (!bins?.length) return '';
         const w = 280, h = 44, max = Math.max(...bins, 1e-9);
-        const pts = bins.map((v, i) => `${(i / (bins.length - 1) * w).toFixed(1)},${(h - v / max * h).toFixed(1)}`).join(' ');
+        const pts = bins.map((v, i) => {
+          const px = bins.length > 1 ? (i / (bins.length - 1) * w) : w / 2;
+          return `${px.toFixed(1)},${(h - v / max * h).toFixed(1)}`;
+        }).join(' ');
         return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5"/></svg>`;
       };
       return `<div class="diff-body"><div class="diff-section">
