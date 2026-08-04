@@ -157,7 +157,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 </header>
 
 <section class="score-row">
-  <div class="score parity-mid"><span class="big">74</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="score parity-good"><span class="big">88</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
   <div class="urls">
     <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/About-Us" target="_blank">https://www.bangkokbank.com/th-TH/About-Us</a></div>
     <div><b class="tag tgt">AEM</b> <a href="https://main--site-prod--bangkok-bank.aem.live/th/about-us" target="_blank">https://main--site-prod--bangkok-bank.aem.live/th/about-us</a></div>
@@ -179,7 +179,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap high"><span class="sev">high</span> <b>Content length (±30%)</b> 7763/72581 chars (11%) · incl. header/footer (legacy capture)</li><li class="gap critical"><span class="sev">critical</span> <b>Missing text blocks</b> 29/147 prod block(s) missing</li><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0%</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 38/60 headings (Jaccard 60%)</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 7 missing · 7 extra · footer 31/31 labels · 1 missing · 1 extra · accordion 0/6✗ · table 0/0 · form 0/0 · video 0/0 · advisory: carousel 4/2</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 6 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 2 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 20/30 prod keywords missing</li></ul></section>
+<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Missing text blocks</b> 29/147 prod block(s) missing</li><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0%</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 38/60 headings (Jaccard 60%)</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 7 missing · 7 extra · footer 31/31 labels · 1 missing · 1 extra · accordion 0/6✗ · table 0/0 · form 0/0 · video 0/0 · advisory: carousel 4/2</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 6 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 2 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 20/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
@@ -191,27 +191,27 @@ table.mini td { padding:2px 8px; font-size:12px; }
 <div class="groups"><div class="group-block">
         <div class="group-head missing-content">
           <span>Missing content</span>
-          <span class="group-pct">15/30 · 50%</span>
+          <span class="group-pct">27/30 · 89%</span>
         </div>
         <div class="checks-list">
-    <details class="check-block failed">
+    <details class="check-block passed">
       <summary class="check-row">
-        <span class="check-status bad">✗</span>
+        <span class="check-status ok">✓</span>
         <span class="check-label">Content length (±30%)</span>
-        <span class="check-detail">7763/72581 chars (11%) · incl. header/footer (legacy capture)</span>
+        <span class="check-detail">4130/4141 chars (100%) · main content only</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body">
         <div class="diff-section">
-          <div class="diff-title">เทียบเนื้อหา (text sample · ratio 11%)</div>
+          <div class="diff-title">เทียบเนื้อหา (text sample · ratio 100%)</div>
           <div class="outline-grid">
             <div class="outline-col">
               <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
-              <div class="text-sample">กิจการธนาคารต่างประเทศ นักลงทุนสัมพันธ์ เกี่ยวกับธนาคารกรุงเทพ 華人事務 日本語 EN ค้นหา ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม พันธบัตรและหุ้นกู้ เปิดบัญชีซื้อขายหลักทรัพย์ ผลิตภัณฑ์บัตร บัตรเครดิต บัตรธนาคารกรุงเทพ เอ็ม วีซ่า ตรวจสอบสถานะการสมัครบัตรเครดิต บัตรเดบิตบีเฟิสต์ บัตรทราเวลธนาคารกรุงเทพ บัตรเติมเงินธนาคารกรุงเทพ ผลิตภัณฑ์เพื่อครอบครัว แบงก์แอสชัวรันส์ สินเชื่อส่วนบุคคล สินเชื่อเพื่อข้าราชการบำนาญ ทิปทางการเงิน บ้านและที่อยู่อาศัย สินเชื่อบ้านบัวหลวง สินเชื่ออเนกประสงค์ที่ใช้ที่อยู่อาศัยเป็นหลักประกัน ทรัพย์สินพร้อมขาย ทรัพย์หลักประกันทางธุรกิจ พร้อ</div>
+              <div class="text-sample">เกี่ยวกับธนาคารกรุงเทพ มอบความมั่นใจและให้การสนับสนุน พร้อมเคียงข้างคุณทุกการตัดสินใจ เพื่อให้ทันต่อสถานการณ์โลก เกี่ยวกับธนาคาร ธนาคารกรุงเทพพร้อมสร้างความมั่นใจและสนับสนุนลูกค้าในการปรับตัวให้เท่าทันกับการเปลี่ยนแปลงของสถานการณ์โลก ธนาคารมุ่งมั่นที่จะยืนเคียงข้างเพื่อตอบสนองความต้องการทางการเงินของภาคธุรกิจและประชาชนไทยมาโดยตลอด ข้อมูลธนาคาร ธนาคารกรุงเทพเป็นหนึ่งในธนาคารชั้นนำในภูมิภาคเอเชียตะวันออกเฉียงใต้ และเป็นผู้นำตลาดด้านสินเชื่อธุรกิจ รวมทั้งมีฐานลูกค้ากว้างขวางในตลาดลูกค้าบุคคล ดูรายละเอียด คณะกรรมการธนาคาร ข้อมูลประวัติคณะกรรมการธนาคารกรุงเทพ ดูรายละเอียด การกำกับดูแลกิจการ ธนาคารม</div>
             </div>
             <div class="outline-col">
               <div class="outline-head tgt">AEM (migrate)</div>
-              <div class="text-sample">กิจการธนาคารต่างประเทศนักลงทุนสัมพันธ์เกี่ยวกับธนาคารกรุงเทพ華人事務日本語 EN TH ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม พันธบัตรและหุ้นกู้ เปิดบัญชีซื้อขายหลักทรัพย์ ผลิตภัณฑ์บัตร บัตรเครดิต บัตรธนาคารกรุงเทพ เอ็ม วีซ่า ตรวจสอบสถานะการสมัครบัตรเครดิต บัตรเดบิตบีเฟิสต์ บัตรทราเวลธนาคารกรุงเทพ บัตรเติมเงินธนาคารกรุงเทพ ผลิตภัณฑ์เพื่อครอบครัว แบงก์แอสชัวรันส์ สินเชื่อส่วนบุคคล สินเชื่อเพื่อข้าราชการบำนาญ ทิปทางการเงิน บ้านและที่อยู่อาศัย สินเชื่อบ้านบัวหลวง สินเชื่ออเนกประสงค์ที่ใช้ที่อยู่อาศัยเป็นหลักประกัน ทรัพย์สินพร้อมขาย ทรัพย์หลักประกันทา</div>
+              <div class="text-sample">เกี่ยวกับธนาคารกรุงเทพ มอบความมั่นใจและให้การสนับสนุน พร้อมเคียงข้างคุณทุกการตัดสินใจ เพื่อให้ทันต่อสถานการณ์โลก เกี่ยวกับธนาคาร ธนาคารกรุงเทพพร้อมสร้างความมั่นใจและสนับสนุนลูกค้าในการปรับตัวให้เท่าทันกับการเปลี่ยนแปลงของสถานการณ์โลก ธนาคารมุ่งมั่นที่จะยืนเคียงข้างเพื่อตอบสนองความต้องการทางการเงินของภาคธุรกิจและประชาชนไทยมาโดยตลอด ข้อมูลธนาคาร ธนาคารกรุงเทพเป็นหนึ่งในธนาคารชั้นนำในภูมิภาคเอเชียตะวันออกเฉียงใต้ และเป็นผู้นำตลาดด้านสินเชื่อธุรกิจ รวมทั้งมีฐานลูกค้ากว้างขวางในตลาดลูกค้าบุคคล ดูรายละเอียด คณะกรรมการธนาคาร ข้อมูลประวัติคณะกรรมการธนาคารกรุงเทพ ดูรายละเอียด การกำกับดูแลกิจการ ธนาคารม</div>
             </div>
           </div>
         </div>
