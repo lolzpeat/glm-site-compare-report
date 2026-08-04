@@ -179,7 +179,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0%</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 34/54 headings (Jaccard 58%)</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 7 missing · 7 extra · footer 31/31 labels · 1 missing · 1 extra · accordion 0/6✗ · table 0/0 · form 0/0 · video 0/0 · advisory: carousel 4/2, tabs 7/1</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 5 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 2 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 17/30 prod keywords missing</li></ul></section>
+<ul class="gap-list"><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0% · main content only</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 34/54 headings (Jaccard 58%)</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0 · advisory: tabs 6/0</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 5 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 2 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 17/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
@@ -236,11 +236,11 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <summary class="check-row">
         <span class="check-status ok">✓</span>
         <span class="check-label">Missing image (count ≥80%)</span>
-        <span class="check-detail">30/4 images</span>
+        <span class="check-detail">15/5 images · main content only</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body"><div class="diff-section">
-        <div class="diff-title">AEM 30 / Production 4 รูป</div>
+        <div class="diff-title">AEM 15 / Production 5 รูป</div>
         
       </div></div>
     </details>
@@ -248,21 +248,21 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <summary class="check-row">
         <span class="check-status ok">✓</span>
         <span class="check-label">Broken image (fails to load on AEM)</span>
-        <span class="check-detail">0/24 AEM image(s) fail to load</span>
+        <span class="check-detail">0/15 AEM image(s) fail to load · main content only</span>
         <span class="expand-hint">▾</span>
       </summary>
-      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (24 รูป)</div></div></div>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (15 รูป)</div></div></div>
     </details>
     <details class="check-block failed">
       <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">Image alt text (&gt;50% match)</span>
-        <span class="check-detail">alt match 0%</span>
+        <span class="check-detail">alt match 0% · main content only</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body"><div class="diff-section">
-        <div class="diff-title">alt ตรงกัน 0% (จาก 2 alt บน prod)</div>
-        <div class="chip-list"><span class="chip chip-missing">en</span><span class="chip chip-missing">logo</span></div>
+        <div class="diff-title">alt ตรงกัน 0% (จาก 3 alt บน prod)</div>
+        <div class="chip-list"><span class="chip chip-missing">ไอคอน livechat</span><span class="chip chip-missing">ไอคอนแผนที่</span><span class="chip chip-missing">ไอคอนทางการเงิน</span></div>
       </div></div>
     </details></div>
       </div><div class="group-block">
@@ -326,7 +326,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
       </div><div class="group-block">
         <div class="group-head structure">
           <span>Structure &amp; template</span>
-          <span class="group-pct">8/10 · 80%</span>
+          <span class="group-pct">8/10 · 82%</span>
         </div>
         <div class="checks-list">
     <details class="check-block failed">
@@ -756,19 +756,19 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">Template (header/footer/components)</span>
-        <span class="check-detail">header 80/80 labels · 7 missing · 7 extra · footer 31/31 labels · 1 missing · 1 extra · accordion 0/6✗ · table 0/0 · form 0/0 · video 0/0 · advisory: carousel 4/2, tabs 7/1</span>
+        <span class="check-detail">header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0 · advisory: tabs 6/0</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body"><div class="diff-section">
         <div class="diff-title">Header: 80/80 labels</div>
-        <div class="chip-list"><span class="chip chip-missing">ค้นหา</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">ทรัพย์หลักประกันทางธุรกิจ พร้อมขาย</span><span class="chip chip-missing">work café</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">ออกหนังสือรับรองฐานะทางการเงินอิเล็กทรอนิกส์</span><span class="chip chip-missing">ประกันชีวิตคุ้มครองเครดิต เครดิตเฟิสต์</span></div>
-        <div class="chip-list"><span class="chip">th (extra)</span><span class="chip">ทรัพย์หลักประกันทางธุรกิจพร้อมขาย (extra)</span><span class="chip">manage my (extra)</span><span class="chip">วานิชธนกิจ (extra)</span><span class="chip">ธุรกิจตลาดทุน (extra)</span><span class="chip">บริการที่ปรึกษาทางการเงิน (extra)</span><span class="chip">สินเชื่อธุรกิจโครงการ (extra)</span></div>
+        <div class="chip-list"><span class="chip chip-missing">ค้นหา</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">Work Café</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">ออกหนังสือรับรองฐานะทางการเงินอิเล็กทรอนิกส์</span><span class="chip chip-missing">ประกันชีวิตคุ้มครองเครดิต เครดิตเฟิสต์</span></div>
+        <div class="chip-list"><span class="chip">TH (extra)</span><span class="chip">Manage My (extra)</span><span class="chip">วานิชธนกิจ (extra)</span><span class="chip">ธุรกิจตลาดทุน (extra)</span><span class="chip">บริการที่ปรึกษาทางการเงิน (extra)</span><span class="chip">สินเชื่อธุรกิจโครงการ (extra)</span></div>
       </div><div class="diff-section">
         <div class="diff-title">Footer: 31/31 labels</div>
-        <div class="chip-list"><span class="chip chip-missing">การออม/การลงทุน</span></div>
-        <div class="chip-list"><span class="chip">การออม / การลงทุน (extra)</span></div>
+        
+        
       </div><div class="diff-section"><div class="diff-title">Components</div>
-           <table class="mini"><tr><td>accordion</td><td>0/6</td><td class="bad">✗</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div></div>
+           <table class="mini"><tr><td>accordion</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div></div>
     </details></div>
       </div></div></section>
 

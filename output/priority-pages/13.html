@@ -179,12 +179,12 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0%</li><li class="gap high"><span class="sev">high</span> <b>Visual layout (column profile)</b> profile match 74%</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 27/40 headings (Jaccard 60%)</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 7 missing · 7 extra · footer 31/31 labels · 1 missing · 1 extra · accordion 0/6✗ · table 0/0 · form 0/0 · video 0/0 · advisory: carousel 4/2</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 6 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 3 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 19/30 prod keywords missing</li></ul></section>
+<ul class="gap-list"><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0% · main content only</li><li class="gap high"><span class="sev">high</span> <b>Visual layout (column profile)</b> profile match 74%</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 27/40 headings (Jaccard 60%)</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 6 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 2 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 19/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
-<tbody><tr><td>Headings</td><td>40</td><td>27</td><td class="bad">✗</td></tr><tr><td>Links</td><td>202</td><td>180</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>22276</td><td>5298</td><td class="bad">✗</td></tr><tr><td>Images</td><td>5</td><td>29</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>6</td><td>0</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>2</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>148</td><td>131</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>32</td><td>32</td><td class="ok">✓</td></tr><tr><td>Page height (px)</td><td>2809</td><td>2778</td><td class="bad">✗</td></tr></tbody></table></section>
+<tbody><tr><td>Headings</td><td>40</td><td>27</td><td class="bad">✗</td></tr><tr><td>Links</td><td>202</td><td>180</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>22276</td><td>5298</td><td class="bad">✗</td></tr><tr><td>Images</td><td>4</td><td>29</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>6</td><td>0</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>2</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>148</td><td>131</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>32</td><td>32</td><td class="ok">✓</td></tr><tr><td>Page height (px)</td><td>2809</td><td>2778</td><td class="bad">✗</td></tr></tbody></table></section>
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
@@ -236,11 +236,11 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <summary class="check-row">
         <span class="check-status ok">✓</span>
         <span class="check-label">Missing image (count ≥80%)</span>
-        <span class="check-detail">29/5 images</span>
+        <span class="check-detail">9/4 images · main content only</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body"><div class="diff-section">
-        <div class="diff-title">AEM 29 / Production 5 รูป</div>
+        <div class="diff-title">AEM 9 / Production 4 รูป</div>
         
       </div></div>
     </details>
@@ -248,21 +248,21 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <summary class="check-row">
         <span class="check-status ok">✓</span>
         <span class="check-label">Broken image (fails to load on AEM)</span>
-        <span class="check-detail">0/22 AEM image(s) fail to load</span>
+        <span class="check-detail">0/9 AEM image(s) fail to load · main content only</span>
         <span class="expand-hint">▾</span>
       </summary>
-      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (22 รูป)</div></div></div>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (9 รูป)</div></div></div>
     </details>
     <details class="check-block failed">
       <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">Image alt text (&gt;50% match)</span>
-        <span class="check-detail">alt match 0%</span>
+        <span class="check-detail">alt match 0% · main content only</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body"><div class="diff-section">
         <div class="diff-title">alt ตรงกัน 0% (จาก 3 alt บน prod)</div>
-        <div class="chip-list"><span class="chip chip-missing">en</span><span class="chip chip-missing">logo</span><span class="chip chip-missing">ไอคอน livechat</span></div>
+        <div class="chip-list"><span class="chip chip-missing">ไอคอน livechat</span><span class="chip chip-missing">ไอคอนแผนที่</span><span class="chip chip-missing">ไอคอนทางการเงิน</span></div>
       </div></div>
     </details></div>
       </div><div class="group-block">
@@ -326,7 +326,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
       </div><div class="group-block">
         <div class="group-head structure">
           <span>Structure &amp; template</span>
-          <span class="group-pct">8/10 · 81%</span>
+          <span class="group-pct">8/10 · 83%</span>
         </div>
         <div class="checks-list">
     <details class="check-block failed">
@@ -672,19 +672,19 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">Template (header/footer/components)</span>
-        <span class="check-detail">header 80/80 labels · 7 missing · 7 extra · footer 31/31 labels · 1 missing · 1 extra · accordion 0/6✗ · table 0/0 · form 0/0 · video 0/0 · advisory: carousel 4/2</span>
+        <span class="check-detail">header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body"><div class="diff-section">
         <div class="diff-title">Header: 80/80 labels</div>
-        <div class="chip-list"><span class="chip chip-missing">ค้นหา</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">ทรัพย์หลักประกันทางธุรกิจ พร้อมขาย</span><span class="chip chip-missing">work café</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">ออกหนังสือรับรองฐานะทางการเงินอิเล็กทรอนิกส์</span><span class="chip chip-missing">ประกันชีวิตคุ้มครองเครดิต เครดิตเฟิสต์</span></div>
-        <div class="chip-list"><span class="chip">th (extra)</span><span class="chip">ทรัพย์หลักประกันทางธุรกิจพร้อมขาย (extra)</span><span class="chip">manage my (extra)</span><span class="chip">วานิชธนกิจ (extra)</span><span class="chip">ธุรกิจตลาดทุน (extra)</span><span class="chip">บริการที่ปรึกษาทางการเงิน (extra)</span><span class="chip">สินเชื่อธุรกิจโครงการ (extra)</span></div>
+        <div class="chip-list"><span class="chip chip-missing">ค้นหา</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">Work Café</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">ออกหนังสือรับรองฐานะทางการเงินอิเล็กทรอนิกส์</span><span class="chip chip-missing">ประกันชีวิตคุ้มครองเครดิต เครดิตเฟิสต์</span></div>
+        <div class="chip-list"><span class="chip">TH (extra)</span><span class="chip">Manage My (extra)</span><span class="chip">วานิชธนกิจ (extra)</span><span class="chip">ธุรกิจตลาดทุน (extra)</span><span class="chip">บริการที่ปรึกษาทางการเงิน (extra)</span><span class="chip">สินเชื่อธุรกิจโครงการ (extra)</span></div>
       </div><div class="diff-section">
         <div class="diff-title">Footer: 31/31 labels</div>
-        <div class="chip-list"><span class="chip chip-missing">การออม/การลงทุน</span></div>
-        <div class="chip-list"><span class="chip">การออม / การลงทุน (extra)</span></div>
+        
+        
       </div><div class="diff-section"><div class="diff-title">Components</div>
-           <table class="mini"><tr><td>accordion</td><td>0/6</td><td class="bad">✗</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div></div>
+           <table class="mini"><tr><td>accordion</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div></div>
     </details></div>
       </div></div></section>
 
@@ -692,7 +692,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 <section class="panel"><h2>Broken Links on AEM (1)</h2>
 <table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">404</td><td class="lhref-cell">https://main--site-prod--bangkok-bank.aem.live/en/mutual-fund</td></tr></tbody></table></section>
 
-<section class="panel"><h2>Image Distortion / Ratio Issues (3)</h2>
+<section class="panel"><h2>Image Distortion / Ratio Issues (2)</h2>
 <ul class="img-issue-list"><li class="img-issue">
       <div class="img-issue-head">
         <span class="sev sev-ratio">ratio</span>
@@ -708,23 +708,12 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <div class="img-issue-head">
         <span class="sev sev-ratio">ratio</span>
         <b>media_1c11dc9e7c785f8e06b11a88af497e855ddcc73fc.jpg</b>
-        <span class="muted">rendered ratio prod 2.60 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 125×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-livechat.svg?h=48&amp;iar=0&amp;" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1c11dc9e7c785f8e06b11a88af497e855ddcc73fc.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1a84588830cc4dc64f08cd17ddcc073753d00fc6c.jpg</b>
         <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
       </div>
       
       <div class="img-preview-grid">
         <div class="img-preview-cell"><div class="img-preview-label">PROD 24×24</div><img src="https://www.bangkokbank.com/images/econscent/Arrow-right.svg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1a84588830cc4dc64f08cd17ddcc073753d00fc6c.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1c11dc9e7c785f8e06b11a88af497e855ddcc73fc.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
       </div>
     </li></ul></section>
 
