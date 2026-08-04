@@ -109,3 +109,35 @@ test('meta records ogImage path match as verified when the paths do line up', ()
   const og = byId(structureChecks(prod, aem), 'meta').diff.details.find(d => d.key === 'ogImage');
   assert.equal(og.pathVerified, true);
 });
+
+test('template menu labels ignore space placement but report original text', () => {
+  const prod = metrics({ headerMenus: [{ label: 'ทรัพย์หลักประกันทางธุรกิจ พร้อมขาย' }, { label: 'ค้นหา' }],
+    footerMenus: [{ label: 'การออม/การลงทุน' }] });
+  const aem = metrics({ headerMenus: [{ label: 'ทรัพย์หลักประกันทางธุรกิจพร้อมขาย' }, { label: 'ค้นหา' }],
+    footerMenus: [{ label: 'การออม / การลงทุน' }] });
+  const c = byId(structureChecks(prod, aem), 'template');
+  assert.deepEqual(c.diff.header.missing, [], 'moved space is not a missing menu item');
+  assert.deepEqual(c.diff.footer.missing, []);
+  assert.deepEqual(c.diff.footer.extra, []);
+});
+
+test('template reports a genuinely dropped menu item with its original label', () => {
+  const prod = metrics({ headerMenus: [{ label: 'work café' }, { label: 'ค้นหา' }], footerMenus: [] });
+  const aem = metrics({ headerMenus: [{ label: 'ค้นหา' }], footerMenus: [] });
+  const c = byId(structureChecks(prod, aem), 'template');
+  assert.deepEqual(c.diff.header.missing, ['work café'], 'label reported verbatim, not space-stripped');
+});
+
+test('template counts content-scoped components when both sides carry them', () => {
+  const base = metrics().componentCounts;
+  // Whole-page counts would fail (prod 6 hidden cookie accordions vs AEM 0);
+  // the content-scoped counts agree, so the check must pass.
+  const prod = metrics({ componentCounts: { ...base, accordion: 6 }, mainComponentCounts: { ...base, accordion: 0 },
+    headerMenus: [], footerMenus: [] });
+  const aem = metrics({ componentCounts: { ...base, accordion: 0 }, mainComponentCounts: { ...base, accordion: 0 },
+    headerMenus: [], footerMenus: [] });
+  const c = byId(structureChecks(prod, aem), 'template');
+  assert.equal(c.diff.components.scope, 'main');
+  assert.equal(c.diff.components.perType.find(t => t.type === 'accordion').ok, true);
+  assert.equal(c.passed, true);
+});

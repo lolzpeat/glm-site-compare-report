@@ -189,12 +189,45 @@ export const EXTRACT_FN = () => {
     const explicit = document.querySelector('main, [role="main"], #main-content, #mainContent, .main-content');
     const root = explicit || document.body;
     const blocks = [];
+    // Every element the walk accepts — inside root, rendered, not chrome. The
+    // walk already applies exactly the scoping rule the image and component
+    // counts need, so they reuse its verdict instead of re-deriving it.
+    const inScope = new Set();
     const text = norm(walkVisible(root, (el) => {
+      inScope.add(el);
       if (/^(H1|H2|H3|H4|P|LI)$/.test(el.tagName)) {
         const t = norm(el.textContent);
         if (t.length > 3) blocks.push(t);
       }
     }));
+    // Content-scoped images and components, on the same visible-and-not-chrome
+    // basis as the text above. Whole-page counts are dominated by chrome: prod
+    // carries 34 of 44 images in the header/footer and 6 hidden cookie-banner
+    // "accordions", so alt-text parity was comparing mega-menu icons and the
+    // accordion count compared a cookie banner against nothing.
+    const mainImages = Array.from(document.querySelectorAll('img'))
+      .filter(el => inScope.has(el))
+      .map((img) => {
+        const r = img.getBoundingClientRect();
+        return {
+          alt: norm(img.alt),
+          src: (img.currentSrc || img.src || '').slice(0, 120),
+          naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight,
+          renderedWidth: Math.round(r.width), renderedHeight: Math.round(r.height),
+        };
+      });
+    const countIn = (sel) => Array.from(document.querySelectorAll(sel)).filter(el => inScope.has(el)).length;
+    const mainComponentCounts = {
+      accordion: countIn('[class*="accordion" i], [data-accordion], details, [class*="cmp-accordion"]'),
+      table: countIn('table'),
+      tableRows: countIn('table tr'),
+      form: countIn('form'),
+      formInputs: countIn('input, select, textarea'),
+      video: countIn('video, iframe[src*="youtube"], iframe[src*="youtu.be"], iframe[allow*="autoplay"]'),
+      carousel: countIn('[class*="carousel" i], [class*="slider" i], [data-carousel]'),
+      tabs: countIn('[role="tablist"], [class*="tabs" i], [class*="cmp-tabs"]'),
+    };
+
     // Unfiltered length of the same root, for diagnosis only: if a capture
     // lands before layout settles, every subtree reports zero rects and `text`
     // collapses to 0 while `raw` stays large. Scoring compares the two so a
@@ -206,6 +239,8 @@ export const EXTRACT_FN = () => {
       text,
       rawLength: norm(rawClone.textContent).length,
       blocks: blocks.slice(0, 200),
+      images: mainImages.slice(0, 30),
+      componentCounts: mainComponentCounts,
     };
   })();
 
@@ -246,6 +281,8 @@ export const EXTRACT_FN = () => {
     // time rather than storing pre-cut segments, so the segmentation rule can
     // be retuned without another capture run.
     mainTextFull: mainInfo.text.slice(0, 40000),
+    mainImages: mainInfo.images,
+    mainComponentCounts: mainInfo.componentCounts,
     mainTextSample: mainInfo.text.slice(0, 800),
     mainTextBlocks: mainInfo.blocks,
     pageHeight: document.documentElement.scrollHeight,

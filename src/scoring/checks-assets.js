@@ -9,8 +9,14 @@ const brokenExcluded = (src = '') => /^data:/i.test(src) || /\.svg([?#]|$)/i.tes
 
 export function assetChecks(prod, aem) {
   const checks = [];
-  const prodImgs = prod.images || [];
-  const aemImgs = aem.images || [];
+  // Content-scoped images when both sides carry them. Whole-page image lists
+  // are dominated by chrome (prod: 34 of 44 images sit in header/footer), so
+  // alt parity was comparing mega-menu icons between two sites that label
+  // their chrome differently — 0% on every page, telling us nothing.
+  const scoped = Array.isArray(prod.mainImages) && Array.isArray(aem.mainImages);
+  const prodImgs = scoped ? prod.mainImages : (prod.images || []);
+  const aemImgs = scoped ? aem.mainImages : (aem.images || []);
+  const scopeNote = scoped ? ' · main content only' : ' · whole page (legacy capture)';
 
   // missingImage: count ≥80% of prod. When prod has none, AEM adding images
   // is a template mismatch — partial must be 0, not 1 (pre-v2 invariant kept).
@@ -18,15 +24,15 @@ export function assetChecks(prod, aem) {
   const countPass = prodImgs.length === 0 ? aemImgs.length === 0 : aemImgs.length >= target;
   const countPartial = prodImgs.length === 0 ? (aemImgs.length === 0 ? 1 : 0) : Math.min(1, aemImgs.length / target);
   checks.push(makeCheck('missingImage', 'Missing image (count ≥80%)', countPass,
-    `${aemImgs.length}/${prodImgs.length} images`, countPartial,
-    { prodCount: prodImgs.length, aemCount: aemImgs.length }));
+    `${aemImgs.length}/${prodImgs.length} images${scopeNote}`, countPartial,
+    { prodCount: prodImgs.length, aemCount: aemImgs.length, scope: scoped ? 'main' : 'full-page' }));
 
   // brokenImage: AEM-side only — an image AEM added and failed to load is a
   // defect regardless of what prod had. Insufficient when AEM has no images.
   const candidates = aemImgs.filter(i => !brokenExcluded(i.src));
   const broken = candidates.filter(i => i.renderedWidth > 0 && i.naturalWidth === 0 && i.naturalHeight === 0);
   const bCheck = makeCheck('brokenImage', 'Broken image (fails to load on AEM)', broken.length === 0,
-    `${broken.length}/${candidates.length} AEM image(s) fail to load`,
+    `${broken.length}/${candidates.length} AEM image(s) fail to load${scopeNote}`,
     candidates.length > 0 ? 1 - broken.length / candidates.length : 1,
     { broken: broken.slice(0, 20).map(i => ({ src: i.src, alt: i.alt })), candidateCount: candidates.length });
   if (aemImgs.length === 0) { bCheck.insufficient = true; bCheck.passed = false; bCheck.partial = 0; bCheck.detail = 'AEM has no images — nothing to check'; }
@@ -37,8 +43,9 @@ export function assetChecks(prod, aem) {
   const aemAlts = new Set(aemImgs.map(i => (i.alt || '').toLowerCase()).filter(Boolean));
   const altHit = prodAlts.size > 0 ? [...prodAlts].filter(a => aemAlts.has(a)).length / prodAlts.size : 0;
   const aCheck = makeCheck('imageAlt', 'Image alt text (>50% match)', altHit > 0.5,
-    `alt match ${Math.round(altHit * 100)}%`, altHit,
-    { altMatchPct: Math.round(altHit * 100), missingAlts: [...prodAlts].filter(a => !aemAlts.has(a)).slice(0, 20), prodAltCount: prodAlts.size });
+    `alt match ${Math.round(altHit * 100)}%${scopeNote}`, altHit,
+    { altMatchPct: Math.round(altHit * 100), missingAlts: [...prodAlts].filter(a => !aemAlts.has(a)).slice(0, 20),
+      prodAltCount: prodAlts.size, scope: scoped ? 'main' : 'full-page' });
   if (prodAlts.size === 0) { aCheck.insufficient = true; aCheck.passed = false; aCheck.partial = 0; aCheck.detail = 'prod has no image alt texts'; }
   checks.push(aCheck);
 

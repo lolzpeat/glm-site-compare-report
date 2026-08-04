@@ -11,11 +11,23 @@ const hasNewMetrics = (m) => !!(m && m.componentCounts && m.headerMenus && m.foo
 
 // count equal + 100% label match; partial = matched / union so EXTRA labels
 // on AEM reduce the score too (partial must never be 1.0 while failing).
+// Labels are keyed without spaces: the two sites differ only in space
+// placement on some entries ("การออม/การลงทุน" vs "การออม / การลงทุน",
+// "…ธุรกิจ พร้อมขาย" vs "…ธุรกิจพร้อมขาย"), which is not a missing menu item.
+// Thai has no inter-word spaces, so removing them cannot merge distinct labels.
+const labelKey = (s) => (s || '').toLowerCase().replace(/\s+/g, '');
 function scoreMenu(prodMenus, aemMenus) {
-  const pSet = new Set((prodMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
-  const aSet = new Set((aemMenus || []).map(m => (m.label || '').toLowerCase()).filter(Boolean));
-  const missing = [...pSet].filter(l => !aSet.has(l));
-  const extra = [...aSet].filter(l => !pSet.has(l));
+  const keyToLabel = new Map();
+  const keys = (menus) => new Set((menus || []).map(m => {
+    const k = labelKey(m.label);
+    if (k && !keyToLabel.has(k)) keyToLabel.set(k, m.label);
+    return k;
+  }).filter(Boolean));
+  const pSet = keys(prodMenus);
+  const aSet = keys(aemMenus);
+  // Report the original label text, not the space-stripped key.
+  const missing = [...pSet].filter(l => !aSet.has(l)).map(k => keyToLabel.get(k) || k);
+  const extra = [...aSet].filter(l => !pSet.has(l)).map(k => keyToLabel.get(k) || k);
   const matched = pSet.size - missing.length;
   const union = pSet.size + extra.length;
   const hit = union > 0 ? matched / union : 1;
@@ -30,8 +42,13 @@ function scoreMenu(prodMenus, aemMenus) {
 // each prod-present component type must be ≥80% in AEM; prod-absent types
 // must stay absent (ratio 0 otherwise); accordions must also be FILLED.
 function scoreComponents(prod, aem) {
-  const pC = prod.componentCounts || {};
-  const aC = aem.componentCounts || {};
+  // Content-scoped counts when both sides have them. Whole-page counts
+  // included chrome and unrendered nodes: prod's "6 accordions" were the
+  // hidden cookie banner (accordionItem open-cookie), compared against AEM's
+  // zero — a guaranteed fail on every page that described nothing real.
+  const scoped = !!(prod.mainComponentCounts && aem.mainComponentCounts);
+  const pC = scoped ? prod.mainComponentCounts : (prod.componentCounts || {});
+  const aC = scoped ? aem.mainComponentCounts : (aem.componentCounts || {});
   const types = ['accordion', 'table', 'form', 'video'];
   const emptyAcc = aem.emptyAccordions || 0;
   const perType = types.map(t => {
@@ -64,8 +81,8 @@ function scoreComponents(prod, aem) {
   return {
     pass: perType.every(t => t.ok),
     hit: perType.reduce((s, t) => s + t.ratio, 0) / perType.length,
-    detail: detailParts.join(' · ') + advisoryPart,
-    diff: { perType, advisory, emptyAccordions: emptyAcc, otherComponents },
+    detail: detailParts.join(' · ') + advisoryPart + (scoped ? '' : ' · whole page (legacy capture)'),
+    diff: { perType, advisory, emptyAccordions: emptyAcc, otherComponents, scope: scoped ? 'main' : 'full-page' },
   };
 }
 
