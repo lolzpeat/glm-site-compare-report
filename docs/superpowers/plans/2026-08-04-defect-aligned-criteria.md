@@ -24,7 +24,7 @@
 - `insufficient` checks are excluded from the weight denominator, never scored 0.
 - Logging: emoji-prefixed `console.log` (🚀 ✅ 📥 ❌ 📸). Code/comments English; dashboard/sheet copy Thai.
 - Commit after every task; conventional commit format (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`); **do not push** (user pushes manually).
-- Tests run with `npm test` → `node --test test`. Every pure module gets tests; I/O scripts get manual verification commands with expected output.
+- Tests run with `npm test` → `node --test 'test/*.test.js'`. Every pure module gets tests; I/O scripts get manual verification commands with expected output.
 
 ## File Map
 
