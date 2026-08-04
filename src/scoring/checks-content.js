@@ -19,11 +19,16 @@ export function contentChecks(prod, aem) {
   const aemBlockSet = new Set((aem.textBlocks || []).map(t => String(t).toLowerCase()));
   const prodBlocks = (prod.textBlocks || []).map(t => String(t).trim()).filter(t => t.length >= 8 && !isDynamicBlock(t));
   const prodBlocksSet = new Set(prodBlocks);
-  const missingTextBlocks = [...new Set(prodBlocks.filter(t => !aemBlockSet.has(t.toLowerCase())))].slice(0, 15);
-  const textHit = prodBlocksSet.size > 0 ? 1 - (missingTextBlocks.length / prodBlocksSet.size) : 1;
-  checks.push(makeCheck('missingText', 'Missing text blocks', missingTextBlocks.length === 0,
-    `${missingTextBlocks.length} prod block(s) missing`, textHit,
-    { missingTextBlocks, prodBlockCount: prodBlocksSet.size }));
+  // Score from the FULL missing count; the 15-block cap is display-only.
+  // (Pre-v2 sliced before computing textHit, so any page missing 50 of 100
+  // blocks scored identically to one missing 15 — every scored page in the
+  // dataset exceeded the cap, so the partial credit was uniformly inflated.)
+  const missingAll = [...new Set(prodBlocks.filter(t => !aemBlockSet.has(t.toLowerCase())))];
+  const missingTextBlocks = missingAll.slice(0, 15);
+  const textHit = prodBlocksSet.size > 0 ? 1 - (missingAll.length / prodBlocksSet.size) : 1;
+  checks.push(makeCheck('missingText', 'Missing text blocks', missingAll.length === 0,
+    `${missingAll.length}/${prodBlocksSet.size} prod block(s) missing`, textHit,
+    { missingTextBlocks, missingCount: missingAll.length, prodBlockCount: prodBlocksSet.size }));
 
   // missingKeywords: prod top keywords absent from AEM.
   const prodWordMap = new Map((prod.topWords || []).map(w => [w.w, w.c]));

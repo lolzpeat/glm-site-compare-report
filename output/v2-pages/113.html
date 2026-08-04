@@ -157,7 +157,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 </header>
 
 <section class="score-row">
-  <div class="score parity-mid"><span class="big">62</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="score parity-bad"><span class="big">49</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
   <div class="urls">
     <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds/Retirement-Mutual-Funds/B-SIPRMF" target="_blank">https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Mutual-Funds/Retirement-Mutual-Funds/B-SIPRMF</a></div>
     <div><b class="tag tgt">AEM</b> <a href="https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/retirement-mutual-funds/b-siprmf" target="_blank">https://prod-aem.bangkokbank.com/th/personal/save-and-invest/mutual-funds/retirement-mutual-funds/b-siprmf</a></div>
@@ -179,7 +179,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap high"><span class="sev">high</span> <b>Content length (±30%)</b> 4743/25453 chars (19%)</li><li class="gap critical"><span class="sev">critical</span> <b>Missing text blocks</b> 15 prod block(s) missing</li><li class="gap high"><span class="sev">high</span> <b>Broken image (fails to load on AEM)</b> 14/18 AEM image(s) fail to load</li><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 17%</li><li class="gap high"><span class="sev">high</span> <b>Content order (sequence)</b> 21/24 shared block(s) in prod order (88%)</li><li class="gap medium"><span class="sev">medium</span> <b>Download links alive</b> 1/1 AEM download link(s) dead</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 32/42 headings (Jaccard 17%)</li><li class="gap medium"><span class="sev">medium</span> <b>Links match</b> 121/210 links (16% of prod link-texts found)</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 4 found</li><li class="gap high"><span class="sev">high</span> <b>Missing login</b> prod has login, AEM does not</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap medium"><span class="sev">medium</span> <b>Thai/English balance differs</b> prod 97% Thai vs AEM 36% Thai</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 2 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 11 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 20/30 prod keywords missing</li></ul></section>
+<ul class="gap-list"><li class="gap high"><span class="sev">high</span> <b>Content length (±30%)</b> 4743/25453 chars (19%)</li><li class="gap critical"><span class="sev">critical</span> <b>Missing text blocks</b> 120/144 prod block(s) missing</li><li class="gap high"><span class="sev">high</span> <b>Broken image (fails to load on AEM)</b> 14/18 AEM image(s) fail to load</li><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 17%</li><li class="gap high"><span class="sev">high</span> <b>Content order (sequence)</b> 21/24 shared block(s) in prod order (88%)</li><li class="gap medium"><span class="sev">medium</span> <b>Download links alive</b> 1/1 AEM download link(s) dead</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 32/42 headings (Jaccard 17%)</li><li class="gap medium"><span class="sev">medium</span> <b>Links match</b> 121/210 links (16% of prod link-texts found)</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 3/6 matched — missing: ogImage, keywords</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 4 found</li><li class="gap high"><span class="sev">high</span> <b>Missing login</b> prod has login, AEM does not</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap medium"><span class="sev">medium</span> <b>Thai/English balance differs</b> prod 97% Thai vs AEM 36% Thai</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 2 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 11 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 20/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
@@ -191,7 +191,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 <div class="groups"><div class="group-block">
         <div class="group-head missing-content">
           <span>Missing content</span>
-          <span class="group-pct">18/30 · 59%</span>
+          <span class="group-pct">5/30 · 18%</span>
         </div>
         <div class="checks-list">
     <details class="check-block failed">
@@ -221,13 +221,14 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">Missing text blocks</span>
-        <span class="check-detail">15 prod block(s) missing</span>
+        <span class="check-detail">120/144 prod block(s) missing</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body">
         <div class="diff-section">
-          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (15/144)</div>
+          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (120/144)</div>
           <div class="chip-list"><span class="chip chip-missing">กิจการธนาคารต่างประเทศ</span><span class="chip chip-missing">นักลงทุนสัมพันธ์</span><span class="chip chip-missing">เกี่ยวกับธนาคารกรุงเทพ</span><span class="chip chip-missing">ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม </span><span class="chip chip-missing">หน้าแรกลูกค้าบุคคล</span><span class="chip chip-missing">การออมและการลงทุน</span><span class="chip chip-missing">ผลิตภัณฑ์เพื่อการออม</span><span class="chip chip-missing">กองทุนรวม</span><span class="chip chip-missing">พันธบัตรและหุ้นกู้</span><span class="chip chip-missing">เปิดบัญชีซื้อขายหลักทรัพย์</span><span class="chip chip-missing">ผลิตภัณฑ์บัตร</span><span class="chip chip-missing">บัตรเครดิต</span><span class="chip chip-missing">บัตรธนาคารกรุงเทพ เอ็ม วีซ่า</span><span class="chip chip-missing">ตรวจสอบสถานะการสมัครบัตรเครดิต</span><span class="chip chip-missing">บัตรเดบิตบีเฟิสต์</span></div>
+          <div class="diff-title">แสดง 15 รายการแรกจากทั้งหมด 120</div>
         </div>
       </div>
     </details></div>

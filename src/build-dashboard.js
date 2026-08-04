@@ -618,8 +618,9 @@ function renderDiffDetails(check, esc) {
       }
       return `<div class="diff-body">
         <div class="diff-section">
-          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (${diff.missingTextBlocks.length}/${diff.prodBlockCount || 0})</div>
+          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (${diff.missingCount ?? diff.missingTextBlocks.length}/${diff.prodBlockCount || 0})</div>
           <div class="chip-list">${diff.missingTextBlocks.map(t => `<span class="chip chip-missing">${esc(String(t).slice(0, 80))}</span>`).join('')}</div>
+          ${(diff.missingCount ?? 0) > diff.missingTextBlocks.length ? `<div class="diff-title">แสดง ${diff.missingTextBlocks.length} รายการแรกจากทั้งหมด ${diff.missingCount}</div>` : ''}
         </div>
       </div>`;
 

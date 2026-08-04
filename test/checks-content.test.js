@@ -34,6 +34,19 @@ test('missingText reports prod blocks absent from AEM, dynamic blocks filtered',
   assert.ok(Math.abs(c.partial - 0.5) < 1e-9);
 });
 
+test('missingText scores the FULL missing count, not the 15-block display cap', () => {
+  // 40 prod blocks, 30 missing from AEM. The diff list is capped at 15 for the
+  // UI, but the score must reflect all 30 (pre-v2 scored 1 - 15/40 = 0.625).
+  const prodBlocks = Array.from({ length: 40 }, (_, i) => `บล็อกเนื้อหาลำดับที่ ${'ก'.repeat(i + 1)}`);
+  const prod = metrics({ textBlocks: prodBlocks });
+  const aem = metrics({ textBlocks: prodBlocks.slice(0, 10) });
+  const c = byId(contentChecks(prod, aem), 'missingText');
+  assert.equal(c.diff.missingCount, 30, 'full count reported for scoring');
+  assert.equal(c.diff.missingTextBlocks.length, 15, 'display list still capped at 15');
+  assert.ok(Math.abs(c.partial - 0.25) < 1e-9, `expected 1-30/40=0.25, got ${c.partial}`);
+  assert.match(c.detail, /30\/40/);
+});
+
 test('missingKeywords scores hit rate over prod top-30', () => {
   const prod = metrics({ topWords: [{ w: 'สินเชื่อ', c: 9 }, { w: 'ดอกเบี้ย', c: 5 }] });
   const aem = metrics({ topWords: [{ w: 'สินเชื่อ', c: 7 }] });
