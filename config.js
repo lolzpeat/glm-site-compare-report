@@ -227,6 +227,16 @@ export const WEIGHTS_NEWS = {
 // Text-length is considered "matching" if AEM is within this fraction of prod.
 export const TEXT_MATCH_TOLERANCE = 0.30;
 
+// ─── Meta-tag check (src/scoring/checks-structure.js) ──────────────────────
+// `canonical` is deliberately absent: production emits none at all while AEM
+// always does, so the pair carried no comparable signal — only a guaranteed
+// mismatch. ogImage is compared by asset PATH, not URL: the two sites serve
+// the same asset from different hosts and CMS roots.
+export const META_KEYS = ['title', 'description', 'ogTitle', 'ogImage', 'keywords'];
+// CMS asset roots stripped before comparing an ogImage path.
+// prod (Sitecore): /-/media/<path>   ·   AEM: /content/dam/<path>
+export const ASSET_ROOT_PREFIXES = [/^\/-\/media\//i, /^\/content\/dam\//i];
+
 // missingText segmentation (src/scoring/checks-content.js `segmentsOf`).
 // Prod sentences are matched as substrings of AEM's rendered main text, so
 // markup shape (<p>/<li> vs <table><td>) no longer affects the result.

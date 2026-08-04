@@ -2,7 +2,8 @@
 // pre-v2 checks. `template` merges the pre-v2 headerMenu/footerMenu/components
 // checks into one 2% check — their logic is unchanged and their per-part diffs
 // survive under diff.{header,footer,components} for the drill-down view.
-import { makeCheck, normCompare } from './util.js';
+import { META_KEYS } from '../../config.js';
+import { makeCheck, normCompare, assetPath, matchAssetPath } from './util.js';
 
 // True when a metrics object has the newer extract fields; older captures
 // (300 of the 358 scored pages) mark `template` insufficient instead of failing.
@@ -96,14 +97,24 @@ export function structureChecks(prod, aem) {
     `${aem.linkCount}/${prod.linkCount} links (${Math.round(linkHit * 100)}% of prod link-texts found)`,
     linkHit, { matchedCount: [...pLinks].filter(t => aLinks.has(t)).length }));
 
-  // meta: partial credit per matched key.
-  const metaKeys = ['title', 'description', 'canonical', 'ogTitle', 'ogImage', 'keywords'];
-  const metaChecks = metaKeys.map(k => ({ key: k, prod: prod.meta?.[k] || '', aem: aem.meta?.[k] || '', match: normCompare(prod.meta?.[k], aem.meta?.[k]) }));
+  // meta: partial credit per matched key (META_KEYS — `canonical` excluded,
+  // see config). ogImage is matched on asset path rather than URL: both sites
+  // serve the same file from different hosts and CMS roots, so a URL compare
+  // reported every page as mismatched while the asset was in fact migrated.
+  const metaChecks = META_KEYS.map(k => ({
+    key: k,
+    prod: prod.meta?.[k] || '',
+    aem: aem.meta?.[k] || '',
+    match: k === 'ogImage'
+      ? matchAssetPath(prod.meta?.ogImage, aem.meta?.ogImage)
+      : normCompare(prod.meta?.[k], aem.meta?.[k]),
+    ...(k === 'ogImage' ? { prodPath: assetPath(prod.meta?.ogImage), aemPath: assetPath(aem.meta?.ogImage) } : {}),
+  }));
   const metaHits = metaChecks.filter(m => m.match).length;
   const metaMissing = metaChecks.filter(m => m.prod && !m.match).map(m => m.key);
-  checks.push(makeCheck('meta', 'Meta tags', metaHits === metaKeys.length,
-    `${metaHits}/${metaKeys.length} matched` + (metaMissing.length ? ` — missing: ${metaMissing.join(', ')}` : ''),
-    metaHits / metaKeys.length, { missing: metaMissing, details: metaChecks }));
+  checks.push(makeCheck('meta', 'Meta tags', metaHits === META_KEYS.length,
+    `${metaHits}/${META_KEYS.length} matched` + (metaMissing.length ? ` — missing: ${metaMissing.join(', ')}` : ''),
+    metaHits / META_KEYS.length, { missing: metaMissing, details: metaChecks }));
 
   // template: header + footer + components merged.
   const tCheck = (() => {

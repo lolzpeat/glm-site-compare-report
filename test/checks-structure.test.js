@@ -13,15 +13,38 @@ test('headings: Jaccard over normalised text sets', () => {
   assert.ok(Math.abs(c.partial - 0.5) < 1e-9);
 });
 
-test('meta gives partial credit per matched key', () => {
-  const prod = metrics({ meta: { title: 'A', description: 'B', canonical: '', ogTitle: '', ogImage: '', keywords: '' } });
-  const aem = metrics({ meta: { title: 'A', description: 'X', canonical: '', ogTitle: '', ogImage: '', keywords: '' } });
+test('meta gives partial credit per matched key, canonical excluded', () => {
+  // canonical is no longer compared: prod emits none while AEM always does,
+  // so the pair was a guaranteed mismatch carrying no signal.
+  const prod = metrics({ meta: { title: 'A', description: 'B', ogTitle: '', ogImage: '', keywords: '', canonical: '' } });
+  const aem = metrics({ meta: { title: 'A', description: 'X', ogTitle: '', ogImage: '', keywords: '', canonical: 'https://aem.example/th/x' } });
   const c = byId(structureChecks(prod, aem), 'meta');
   assert.equal(c.passed, false);
-  assert.ok(Math.abs(c.partial - 5 / 6) < 1e-9);   // 5 of 6 keys match ('' === '')
+  assert.ok(Math.abs(c.partial - 4 / 5) < 1e-9, `expected 4/5, got ${c.partial}`);
   assert.deepEqual(c.diff.missing, ['description']);
+  assert.equal(c.diff.details.some(d => d.key === 'canonical'), false);
 });
 
+test('meta matches ogImage by asset path across differing hosts and CMS roots', () => {
+  const prod = metrics({ meta: { title: 'A', description: 'B', ogTitle: 'C', keywords: 'D',
+    ogImage: 'https://www.bangkokbank.com/-/media/feature/page-content/logos/bbl_th-share-1200x630.png' } });
+  const aem = metrics({ meta: { title: 'A', description: 'B', ogTitle: 'C', keywords: 'D',
+    ogImage: 'https://main--site-prod--bangkok-bank.aem.live/content/dam/feature/page-content/logos/bbl-th-share-1200x630.png' } });
+  const c = byId(structureChecks(prod, aem), 'meta');
+  assert.equal(c.passed, true, 'same asset, different host/root/underscore must match');
+  const og = c.diff.details.find(d => d.key === 'ogImage');
+  assert.equal(og.prodPath, '/feature/page-content/logos/bbl-th-share-1200x630.png');
+  assert.equal(og.prodPath, og.aemPath);
+});
+
+test('meta still fails ogImage when AEM dropped the image entirely', () => {
+  const prod = metrics({ meta: { title: 'A', description: 'B', ogTitle: 'C', keywords: 'D',
+    ogImage: 'https://www.bangkokbank.com/-/media/feature/x.png' } });
+  const aem = metrics({ meta: { title: 'A', description: 'B', ogTitle: 'C', keywords: 'D', ogImage: '' } });
+  const c = byId(structureChecks(prod, aem), 'meta');
+  assert.equal(c.passed, false);
+  assert.deepEqual(c.diff.missing, ['ogImage']);
+});
 test('template merges header/footer/components; insufficient on old captures', () => {
   const menus = [{ label: 'หน้าแรก' }, { label: 'ผลิตภัณฑ์' }];
   const prod = metrics({ headerMenus: menus, footerMenus: menus });

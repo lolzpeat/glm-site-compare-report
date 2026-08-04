@@ -1,7 +1,7 @@
 // Shared pure helpers for the scoring modules. isDynamicBlock/filenameOf/
 // normCompare are ported from compare.js (whose copies are removed at
 // promotion) so the check modules can be tested without loading puppeteer.
-import { DOWNLOAD_EXTENSIONS } from '../../config.js';
+import { DOWNLOAD_EXTENSIONS, ASSET_ROOT_PREFIXES } from '../../config.js';
 import { W } from './weights.js';
 
 const THAI_MONTHS =
@@ -32,6 +32,27 @@ export function filenameOf(url) {
 export function normCompare(a, b) {
   const n = (s) => (s || '').toLowerCase().replace(/[^a-z0-9\u0E00-\u0E7F]/gi, '').slice(0, 200);
   return n(a) === n(b);
+}
+
+// Asset path of a CMS URL, with the host and CMS-specific root removed, for
+// comparing the same asset across the two sites:
+//   prod  https://www.bangkokbank.com/-/media/feature/.../2.jpg
+//   AEM   https://main--…aem.live/content/dam/feature/.../2.jpg
+//   both  → /feature/page-content/bbl-corporate/banners/1200x630/aec-connect/2.jpg
+// AEM also rewrites `_` to `-` in asset names (bbl_th-share → bbl-th-share),
+// so underscores are normalised too. Returns '' when there is no usable URL.
+export function assetPath(url) {
+  let path;
+  try { path = new URL(url).pathname; } catch { return ''; }
+  for (const re of ASSET_ROOT_PREFIXES) path = path.replace(re, '/');
+  return path.toLowerCase().replace(/_/g, '-');
+}
+
+// Asset paths agree. Neither side having one counts as a match (nothing was
+// dropped), but prod having one while AEM does not does NOT — that asymmetry
+// is exactly the "missing asset" defect this check exists to catch.
+export function matchAssetPath(a, b) {
+  return assetPath(a) === assetPath(b);
 }
 
 // Standard check object. `weight` may come back undefined for ids not in W —
