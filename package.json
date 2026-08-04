@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Compare production vs AEM-migrated Bangkok Bank pages at scale",
   "scripts": {
+    "test": "node --test test/",
     "fetch": "node src/fetch-urls.js",
     "fetch:news": "node src/fetch-urls.js --gid=1728025962 --output=data/urls-news.csv",
     "fetch:priority": "node src/fetch-priority-urls.js",
@@ -16,6 +17,9 @@
     "scrape:meta": "node src/scrape-meta.js",
     "dashboard:meta": "node src/build-meta-dashboard.js",
     "docs": "node src/build-docs.js",
+    "layout-profile": "node src/layout-profile.js",
+    "check-downloads": "node src/check-downloads.js",
+    "rescore": "node src/rescore.js",
     "safe-run": "node src/safe-run.js",
     "sync-sheet": "node src/sync-sheet.js",
     "all": "node src/fetch-urls.js && node src/compare.js && node src/build-dashboard.js && node src/build-docs.js"

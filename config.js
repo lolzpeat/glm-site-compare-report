@@ -154,6 +154,62 @@ export const CRITERIA_GROUPS = [
   { id: 'structure', label: 'Structure / SEO',  weight: 0.25, checks: ['headings', 'links', 'meta', 'thaiBalance'] },
 ];
 
+// ─── v2 criteria (defect-aligned) ──────────────────────────────────────────
+// 5 groups named after QA's recurring defect categories. Lives beside the
+// old WEIGHTS_MAIN until rescore output is reviewed; the promotion step
+// replaces WEIGHTS_MAIN/CRITERIA_GROUPS with these values and deletes the
+// _V2 names. See docs/superpowers/specs/2026-08-04-defect-aligned-criteria-design.md
+export const WEIGHTS_MAIN_V2 = {
+  // Missing content (30%)
+  contentLength:       0.10,
+  missingText:         0.12,
+  missingKeywords:     0.08,
+  // Missing assets (25%)
+  missingImage:        0.10,  // count only (alt split out)
+  brokenImage:         0.11,  // tag renders but file never loads
+  imageAlt:            0.04,
+  // Content alignment (20%)
+  contentOrder:        0.10,  // LIS over shared text blocks
+  visualLayout:        0.10,  // screenshot column-profile match
+  // Download links (15%)
+  missingDownloadLink: 0.09,
+  deadDownloadLink:    0.06,
+  // Structure & template (10%)
+  headings:            0.04,
+  links:               0.02,
+  meta:                0.02,
+  template:            0.02,  // header+footer+components merged
+};
+
+export const CRITERIA_GROUPS_V2 = [
+  { id: 'missing-content', label: 'Missing content',      weight: 0.30, checks: ['contentLength', 'missingText', 'missingKeywords'] },
+  { id: 'missing-assets',  label: 'Missing assets',       weight: 0.25, checks: ['missingImage', 'brokenImage', 'imageAlt'] },
+  { id: 'alignment',       label: 'Content alignment',    weight: 0.20, checks: ['contentOrder', 'visualLayout'] },
+  { id: 'downloads',       label: 'Download links',       weight: 0.15, checks: ['missingDownloadLink', 'deadDownloadLink'] },
+  { id: 'structure',       label: 'Structure & template', weight: 0.10, checks: ['headings', 'links', 'meta', 'template'] },
+];
+
+// Download-link checks: an href whose URL *path* ends in one of these.
+export const DOWNLOAD_EXTENSIONS = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.zip'];
+
+// contentOrder: pass threshold on LIS/shared ratio; below MIN_BLOCKS shared
+// blocks the check is `insufficient` (LIS over a tiny sample is noise).
+export const CONTENT_ORDER_PASS = 0.90;
+export const CONTENT_ORDER_MIN_BLOCKS = 5;
+
+// visualLayout: column-ink profiles binned to this many buckets; pass when
+// histogram intersection ≥ LAYOUT_PROFILE_PASS. Thresholds get tuned during
+// the hand-check calibration step.
+export const LAYOUT_PROFILE_BINS = 64;
+export const LAYOUT_PROFILE_PASS = 0.85;
+export const LAYOUT_PROFILE_PATH = join(DIR.data, 'layout-profiles.json');
+
+// check-downloads.js — HEAD requests against BBL hosts (WAF applies).
+export const LINK_HEAD_CONCURRENCY = 4;
+export const LINK_HEAD_PACING_MS = 250;
+export const LINK_HEAD_TIMEOUT = 10000;
+export const LINK_STATUS_PATH = join(DIR.data, 'link-status.json');
+
 // News article weights — focused on 5 news-specific elements only.
 // Ignores generic checks (accordions, mega menu, etc.) that don't apply to articles.
 export const WEIGHTS_NEWS = {
