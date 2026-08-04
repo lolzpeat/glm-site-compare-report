@@ -43,11 +43,28 @@ function scoreComponents(prod, aem) {
     }
     return { type: t, prod: p, aem: a, ratio, ok };
   });
+
+  // Advisory-only components (carousel, tabs) with counts split per side so a component
+  // prod has but AEM dropped is visible (a merged union couldn't distinguish).
+  const advisory = ['carousel', 'tabs'].map(t => ({ type: t, prod: pC[t] || 0, aem: aC[t] || 0 })).filter(t => t.prod || t.aem);
+
+  // Other components present on each side.
+  const pOther = new Set(prod.otherComponents || []);
+  const aOther = new Set(aem.otherComponents || []);
+  const otherComponents = {
+    prodOnly: [...pOther].filter(c => !aOther.has(c)),
+    aemOnly: [...aOther].filter(c => !pOther.has(c)),
+    both: [...pOther].filter(c => aOther.has(c)),
+  };
+
+  const detailParts = perType.map(t => `${t.type} ${t.aem}/${t.prod}${t.type === 'accordion' && emptyAcc ? ` (${emptyAcc} empty)` : ''}${t.ok ? '' : '✗'}`);
+  const advisoryPart = advisory.length ? ` · advisory: ${advisory.map(t => `${t.type} ${t.aem}/${t.prod}`).join(', ')}` : '';
+
   return {
     pass: perType.every(t => t.ok),
     hit: perType.reduce((s, t) => s + t.ratio, 0) / perType.length,
-    detail: perType.map(t => `${t.type} ${t.aem}/${t.prod}${t.ok ? '' : '✗'}`).join(' · '),
-    diff: { perType, emptyAccordions: emptyAcc },
+    detail: detailParts.join(' · ') + advisoryPart,
+    diff: { perType, advisory, emptyAccordions: emptyAcc, otherComponents },
   };
 }
 

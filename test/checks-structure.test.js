@@ -42,3 +42,12 @@ test('template fails when accordions match count but are empty shells', () => {
   const c = byId(structureChecks(prod, aem), 'template');
   assert.equal(c.passed, false);
 });
+
+test('template diff.components carries advisory + otherComponents for the drill-down', () => {
+  const prod = metrics({ componentCounts: { ...metrics().componentCounts, carousel: 2 }, otherComponents: ['map', 'dialog/modal'] });
+  const aem = metrics({ otherComponents: ['dialog/modal'] });
+  const c = byId(structureChecks(prod, aem), 'template');
+  assert.deepEqual(c.diff.components.advisory, [{ type: 'carousel', prod: 2, aem: 0 }]);
+  assert.deepEqual(c.diff.components.otherComponents, { prodOnly: ['map'], aemOnly: [], both: ['dialog/modal'] });
+  assert.ok(c.detail.includes('advisory: carousel 0/2'));
+});
