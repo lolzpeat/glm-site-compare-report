@@ -54,7 +54,10 @@ async function main() {
     for (const side of ['prod', 'aem']) {
       const stored = p[side]?.screenshot;
       const abs = resolveShot(stored);
-      if (!stored || !abs || !existsSync(abs)) continue;   // no screenshot → no cache key
+      // Missing file → key stays absent (same consumer effect as null: rescore's
+      // `?.bins ?? null` marks visualLayout insufficient either way). `null` is
+      // reserved for sharp failing on a file that exists (corrupt/unreadable).
+      if (!stored || !abs || !existsSync(abs)) continue;
       const mtimeMs = statSync(abs).mtimeMs;
       if (cache[stored] && cache[stored].mtimeMs === mtimeMs) { cached++; continue; }
       try {

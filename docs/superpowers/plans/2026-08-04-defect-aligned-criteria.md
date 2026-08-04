@@ -1378,7 +1378,7 @@ git commit -m "feat(scoring): advisory module + score-main assembler with demoti
 
 **Interfaces:**
 - Consumes: `data/results.json` page shape (`{ pages: [{ id, prod: { screenshot }, aem: { screenshot } }] }`; screenshot paths are ROOT-relative like `data/screenshots/1/prod.jpg`, legacy absolute tolerated); `LAYOUT_PROFILE_BINS`, `LAYOUT_PROFILE_PATH` from config.
-- Produces: `data/layout-profiles.json` shaped `{ [storedScreenshotPath]: { mtimeMs, bins: number[] } | null }` — **keyed by the stored screenshot path, not page id**, because page ids collide across pipelines (main/news/priority all number from 1) while stored paths are unique. `null` means "cannot be computed" (unreadable file), distinct from an absent key ("not yet computed"). Task 10's rescore reads this file.
+- Produces: `data/layout-profiles.json` shaped `{ [storedScreenshotPath]: { mtimeMs, bins: number[] } | null }` — **keyed by the stored screenshot path, not page id**, because page ids collide across pipelines (main/news/priority all number from 1) while stored paths are unique. `null` means sharp failed on an existing file (corrupt/unreadable); paths whose file does not exist on disk are simply absent, the same as never-computed — Task 10's rescore treats both identically (`?.bins ?? null` → visualLayout `insufficient`), so the distinction carries no consumer weight.
 
 - [ ] **Step 1: Create `src/layout-profile.js`**
 
