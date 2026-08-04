@@ -144,6 +144,42 @@ export const EXTRACT_FN = () => {
   const cleanClone = document.body.cloneNode(true);
   cleanClone.querySelectorAll('script, style, iframe, noscript, template, svg').forEach(el => el.remove());
   const bodyText = norm(cleanClone.textContent);
+
+  // --- Main-content text (header/footer/nav chrome excluded) ---
+  // bodyText counts the whole page, so the global header+footer (nearly
+  // identical on both sites) dilutes the prod-vs-AEM length ratio toward 1 and
+  // flatters AEM. contentLength prefers these when both sides have them.
+  // Selectors are deliberately NARROW: broad `[class*="header" i]` would also
+  // delete legitimate content wrappers like `card-header`/`table-header`.
+  const CHROME_SEL = [
+    'header', 'footer', 'nav',
+    '[role="banner"]', '[role="contentinfo"]', '[role="navigation"]',
+    '[class*="site-header" i]', '[class*="site-footer" i]',
+    '[class*="page-header" i]', '[class*="page-footer" i]',
+    '[class*="global-header" i]', '[class*="global-footer" i]',
+    '[class*="navbar" i]', '[class*="main-nav" i]', '[class*="mega-menu" i]',
+    '[class*="breadcrumb" i]', '[class*="cookie" i]', '[class*="skip-to" i]',
+  ].join(', ');
+  const stripChrome = (root) => {
+    const c = root.cloneNode(true);
+    c.querySelectorAll('script, style, iframe, noscript, template, svg').forEach(el => el.remove());
+    c.querySelectorAll(CHROME_SEL).forEach(el => el.remove());
+    return c;
+  };
+  const mainInfo = (() => {
+    const explicit = document.querySelector('main, [role="main"], #main-content, #mainContent, .main-content');
+    const root = explicit || document.body;
+    const cleaned = stripChrome(root);
+    return {
+      source: explicit ? 'main' : 'body-minus-chrome',
+      text: norm(cleaned.textContent),
+      // Same block extraction as textBlocks, but content-only — lets a future
+      // missingText variant ignore menu items without another re-capture.
+      blocks: Array.from(cleaned.querySelectorAll('h1,h2,h3,h4,p,li'))
+        .map(el => norm(el.textContent)).filter(t => t.length > 3).slice(0, 200),
+    };
+  })();
+
   const features = {
     login: /login|เข้าสู่ระบบ|ล็อกอิน/i.test(bodyText.slice(0, 3000)),
     languageSwitch: !!document.querySelector('[class*="language" i], [class*="lang-" i]'),
@@ -174,6 +210,10 @@ export const EXTRACT_FN = () => {
     leakedContentPaths: leakedPaths,
     features,
     textLength: bodyText.length,
+    mainTextLength: mainInfo.text.length,
+    mainTextSource: mainInfo.source,
+    mainTextSample: mainInfo.text.slice(0, 800),
+    mainTextBlocks: mainInfo.blocks,
     pageHeight: document.documentElement.scrollHeight,
     bodyTextSample: bodyText.slice(0, 800),
     // News-specific: extract article body from known containers.

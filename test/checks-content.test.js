@@ -25,6 +25,27 @@ test('contentLength partial degrades on BOTH too-short and too-long', () => {
   assert.ok(Math.abs(long.partial - 0.4) < 1e-9);                // 1 - |1 - 1.6|
 });
 
+test('contentLength uses main-content length when both sides have it', () => {
+  // Shared chrome (identical header/footer) inflates the whole-page ratio:
+  // 5000/20000 = 25% full-page, but only 3000/18000 = 17% of real content.
+  const prod = metrics({ textLength: 20000, mainTextLength: 18000, mainTextSource: 'main' });
+  const aem = metrics({ textLength: 5000, mainTextLength: 3000, mainTextSource: 'main' });
+  const c = byId(contentChecks(prod, aem), 'contentLength');
+  assert.equal(c.diff.scope, 'main');
+  assert.equal(c.diff.ratio, 17);
+  assert.match(c.detail, /3000\/18000/);
+  assert.match(c.detail, /main content only/);
+});
+
+test('contentLength falls back to whole-page length when either side lacks it', () => {
+  const prod = metrics({ textLength: 20000, mainTextLength: 18000 });
+  const aem = metrics({ textLength: 5000 });                    // legacy capture
+  const c = byId(contentChecks(prod, aem), 'contentLength');
+  assert.equal(c.diff.scope, 'full-page');
+  assert.equal(c.diff.ratio, 25);
+  assert.match(c.detail, /legacy capture/);
+});
+
 test('missingText reports prod blocks absent from AEM, dynamic blocks filtered', () => {
   const prod = metrics({ textBlocks: ['บริการบัญชีเงินเดือน', 'สิทธิประโยชน์พิเศษ', '12 มกราคม 2569'] });
   const aem = metrics({ textBlocks: ['บริการบัญชีเงินเดือน'] });

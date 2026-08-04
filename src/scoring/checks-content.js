@@ -7,13 +7,31 @@ export function contentChecks(prod, aem) {
 
   // contentLength: text within ±TEXT_MATCH_TOLERANCE. Partial degrades on
   // both sides of 1.0 (the pre-v2 code let ratio>1 exceed full credit).
-  const ratio = prod.textLength > 0 ? aem.textLength / prod.textLength : 0;
+  //
+  // Prefers main-content length (header/footer/nav excluded) when BOTH sides
+  // carry it. The global chrome is near-identical across the two sites, so
+  // counting it dilutes the ratio toward 1 and flatters AEM. Captures predating
+  // the metric fall back to whole-page length, flagged in `detail` and `scope`
+  // so a legacy page is never silently compared against a main-only one.
+  const useMain = typeof prod.mainTextLength === 'number' && typeof aem.mainTextLength === 'number';
+  const pLen = useMain ? prod.mainTextLength : prod.textLength;
+  const aLen = useMain ? aem.mainTextLength : aem.textLength;
+  const ratio = pLen > 0 ? aLen / pLen : 0;
   const lenPass = Math.abs(1 - ratio) <= TEXT_MATCH_TOLERANCE;
+  const sample = (m) => (useMain ? (m.mainTextSample || m.bodyTextSample) : m.bodyTextSample) || '';
   checks.push(makeCheck('contentLength',
     `Content length (±${Math.round(TEXT_MATCH_TOLERANCE * 100)}%)`, lenPass,
-    `${aem.textLength}/${prod.textLength} chars (${Math.round(ratio * 100)}%)`,
+    `${aLen}/${pLen} chars (${Math.round(ratio * 100)}%)` +
+      (useMain ? ' · main content only' : ' · incl. header/footer (legacy capture)'),
     lenPass ? 1 : Math.max(0, 1 - Math.abs(1 - ratio)),
-    { ratio: Math.round(ratio * 100), prodSample: (prod.bodyTextSample || '').slice(0, 600), aemSample: (aem.bodyTextSample || '').slice(0, 600) }));
+    {
+      ratio: Math.round(ratio * 100),
+      scope: useMain ? 'main' : 'full-page',
+      prodSource: useMain ? prod.mainTextSource : null,
+      aemSource: useMain ? aem.mainTextSource : null,
+      prodSample: sample(prod).slice(0, 600),
+      aemSample: sample(aem).slice(0, 600),
+    }));
 
   // missingText: prod text blocks not present in AEM.
   const aemBlockSet = new Set((aem.textBlocks || []).map(t => String(t).toLowerCase()));
