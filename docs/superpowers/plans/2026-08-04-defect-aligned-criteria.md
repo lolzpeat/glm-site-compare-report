@@ -1930,87 +1930,95 @@ git commit -m "feat: Thai labels + docs entries for v2 checks; drop superseded c
 
 ---
 
-### Task 13: Calibration — brokenImage gate + hand-check + threshold tuning
+### Task 13: Calibration on the priority set (REVISED 2026-08-04)
 
-This task is analysis with the user in the loop, not code. Its output is recorded threshold/weight decisions.
+**Revision note.** As first written this task calibrated against the 632-page main dataset and asked the user to eyeball 20 screenshots. Both premises are gone: the customer's focus is the 15 "Done" priority pages, and the main dataset predates every metric added during execution (`mainTextFull`, `mainImages`, `mainComponentCounts`, `img.complete`) so it scores entirely through legacy fallback paths. The main set will be re-captured and re-checked separately; nothing here depends on it.
 
 **Files:**
-- Modify (possibly): `config.js` (`CONTENT_ORDER_PASS`, `LAYOUT_PROFILE_PASS`, and the brokenImage weight if the gate fails)
-- Modify: `docs/superpowers/specs/2026-08-04-defect-aligned-criteria-design.md` (record observed precision + final thresholds)
+- Modify (only if calibration says so): `config.js` — `CONTENT_ORDER_PASS`, `LAYOUT_PROFILE_PASS`
+- Modify: `docs/superpowers/specs/2026-08-04-defect-aligned-criteria-design.md` — record observed values
 
-- [ ] **Step 1: Generate the brokenImage calibration sample (20 random flagged pages)**
+#### Already resolved — brokenImage gate
 
-```bash
-node -e "
-const f = require('fs');
-const pages = JSON.parse(f.readFileSync('data/results-v2.json')).pages;
-const flagged = pages.filter(p => (p.checks || []).some(c => c.id === 'brokenImage' && !c.passed && !c.insufficient));
-console.log('flagged total:', flagged.length);
-const pick = flagged.map(p => [Math.random(), p]).sort((a, b) => a[0] - b[0]).slice(0, 20).map(([, p]) => p);
-for (const p of pick) {
-  const c = p.checks.find(c => c.id === 'brokenImage');
-  console.log('id', p.id, '| data/screenshots/' + p.id + '/aem.jpg |', c.diff.broken.map(b => b.src.split('/').pop()).join(', '));
-}"
-```
+The gate is closed and needs no user review. The check was a **100% false positive**, root-caused rather than sampled:
 
-- [ ] **Step 2: Review each sampled page's `aem.jpg` with the user**
+1. Re-captured the 6 failing pages — counts reproduced exactly (14/23, 10/15, …), so not flake.
+2. HTTP-checked every flagged URL — all returned 200 with a valid image body (17KB–152KB).
+3. Live DOM probe — at capture time 43/49 images loaded, 6 `complete === false`, **zero** complete-but-zero; after a full scroll-through, 49/49. 48 of 49 images carry `loading="lazy"`.
 
-For each of the 20: `open data/screenshots/<id>/aem.jpg` and confirm a visibly broken/blank image region matching the flagged srcs. Tally true/false positives. **This step requires the user's judgment — present the tally and stop for their call.**
+Two real bugs in `compare.js` were behind it: `stimulateLazy()` was never called, and its `page.evaluate` callback referenced `SCROLL_STIMULATE_STEPS` (a Node constant) inside the browser, throwing a `ReferenceError` that `.catch(() => {})` swallowed. Both fixed; `extract.js` now records `img.complete` and `brokenImage` only judges images that finished loading. `brokenImage` reports 0 on every priority page and **keeps its 0.11 weight** — the check is sound, the capture was not.
 
-- [ ] **Step 3: Apply the gate decision**
+#### Remaining work — threshold tuning
 
-- Precision ≥ 80% → keep `brokenImage: 0.11`. No change.
-- Precision < 80% → in `config.js` `WEIGHTS_MAIN_V2`: delete the `brokenImage` line, change `missingImage` to `0.21`, and remove `'brokenImage'` from the `missing-assets` group's `checks` array. The demotion mechanism in score-main then reports it as an advisory automatically. Run `npm test` (weights invariants must still pass), then `npm run rescore`.
+`CONTENT_ORDER_PASS` (0.90) and `LAYOUT_PROFILE_PASS` (0.85) were set by judgement when neither check had ever run on real data. They have never been checked against a page.
 
-Record the observed precision and decision in the spec's "Calibration gate" section.
+- [ ] **Step 1: Wait for a complete priority capture**
 
-- [ ] **Step 4: Hand-check 15 pages across the other new checks**
-
-For each of `contentOrder`, `visualLayout`, `missingDownloadLink`, `deadDownloadLink` (+ `brokenImage` if it survived), list the top-3 failing pages:
+All 15 pages must be free of `errorType` — a WAF-blocked page scores 0 and would poison any threshold read. Verify:
 
 ```bash
 node -e "
-const f = require('fs');
-const pages = JSON.parse(f.readFileSync('data/results-v2.json')).pages;
-for (const id of ['contentOrder', 'visualLayout', 'missingDownloadLink', 'deadDownloadLink', 'brokenImage']) {
-  const fails = pages.filter(p => (p.checks || []).some(c => c.id === id && !c.passed && !c.insufficient))
-    .sort((a, b) => a.parity - b.parity).slice(0, 3);
-  console.log('\n──', id);
-  for (const p of fails) console.log('  id', p.id, 'parity', p.parity, '\n   prod:', p.prodUrl, '\n   aem: ', p.aemUrl);
-}"
+import('node:fs').then(({readFileSync})=>{
+  const p=JSON.parse(readFileSync('data/results-priority.json')).pages;
+  const blocked=p.filter(x=>x.errorType);
+  console.log(blocked.length ? '❌ blocked: '+blocked.map(x=>x.id).join(',') : '✅ all 15 scored');
+});"
 ```
 
-Confirm each against its cached screenshots (`data/screenshots/<id>/`) and, where reachable, the live AEM URL. If `visualLayout` or `contentOrder` flags pages that look fine, lower `LAYOUT_PROFILE_PASS` / `CONTENT_ORDER_PASS` in `config.js` in 0.05 steps and re-run `npm run rescore` (seconds — no image/network work) until the failures are genuine. Record final threshold values in the spec.
+Expected: `✅ all 15 scored`. If not, re-capture the blocked ids after a WAF cooldown (probe one page into `/tmp` first).
 
-- [ ] **Step 5: Rebuild the v2 dashboard with final thresholds and commit**
+- [ ] **Step 2: List every visualLayout and contentOrder failure with its margin**
 
 ```bash
-npm run rescore
-node src/build-dashboard.js --source=data/results-v2.json --prefix=v2 --criteria=v2
-git add config.js docs/ output/v2-dashboard.html output/v2-pages
-git commit -m "chore(criteria): calibrate brokenImage gate + alignment thresholds from hand-check"
+node -e "
+import('node:fs').then(({readFileSync})=>{
+  const p=JSON.parse(readFileSync('data/results-priority.json')).pages.filter(x=>!x.errorType);
+  for (const id of ['visualLayout','contentOrder']) {
+    console.log('\n── '+id);
+    for (const x of p) {
+      const c=x.checks.find(c=>c.id===id);
+      if (!c || c.insufficient) continue;
+      console.log(' ', (c.passed?'✓':'✗'), 'id'+String(x.id).padStart(2), c.detail, '| parity', x.parity);
+      if (!c.passed) console.log('     ', x.aemUrl);
+    }
+  }
+});"
+```
+
+- [ ] **Step 3: Judge each failure against its screenshots — with the user**
+
+For every failing page open `data/screenshots/priority/<id>/prod.jpg` and `aem.jpg` side by side and decide: is the layout/order difference real, or is the threshold too strict? **This step needs the user's eyes — present the list and stop.**
+
+- [ ] **Step 4: Apply the verdict**
+
+- Failures look genuine → leave both thresholds. Record "validated against 15 priority pages, unchanged" in the spec.
+- Pages that look fine are failing → lower the offending constant in `config.js` in 0.05 steps, re-running `node src/rescore.js --source=data/results-priority.json --out=data/results-priority.json` after each step (seconds — no capture, no network) until only genuine failures remain.
+
+Record the final values and the reasoning in the spec's calibration section.
+
+- [ ] **Step 5: Rebuild and commit**
+
+```bash
+node src/build-dashboard.js --source=data/results-priority.json --prefix=priority --criteria=v2
+git add config.js docs/ output/priority-dashboard.html output/priority-pages output/priority-screenshots
+git commit -m "chore(criteria): calibrate alignment thresholds against the priority set"
 ```
 
 ---
 
-### Task 14: Promotion — switch compare.js + live data to v2 (USER-GATED)
+### Task 14: Promotion — priority-gated (REVISED 2026-08-04, USER-GATED)
 
-**⚠️ STOP: do not start this task until the user has reviewed `output/v2-dashboard.html` and explicitly approved promotion.** This task overwrites `data/results.json` (the one un-backed-up mutable cache) and changes what every future capture scores with.
+**⚠️ STOP: do not start until the user has reviewed `output/priority-dashboard.html` and explicitly approved promotion.**
+
+**Revision note.** The original gate was "user reviews `output/v2-dashboard.html` (632 pages)". That dashboard is now misleading — none of its pages carry the metrics added during execution, so every check falls back to its legacy path. The gate is now the **priority dashboard**. Promotion still switches what all future captures score with, including the main set when it is eventually re-captured.
 
 **Files:**
-- Modify: `config.js` (v2 becomes canonical)
-- Modify: `src/scoring/weights.js`
-- Modify: `src/compare.js`
-- Modify: `src/build-dashboard.js` (drop the flag)
-- Data: `data/results.json` (backup + replace)
-
-**Interfaces:**
-- Consumes: everything above.
-- Produces: `scoreParity(prod, aem, newsMode, context)` in compare.js delegating main mode to `scoreMain`; `WEIGHTS_MAIN`/`CRITERIA_GROUPS` in config carry the v2 values; `_V2` names deleted.
+- Modify: `config.js`, `src/scoring/weights.js`, `src/compare.js`, `src/build-dashboard.js`
+- Data: `data/results-priority.json` (backup + keep), `data/results.json` (left stale on purpose — see Step 6)
 
 - [ ] **Step 1: Make v2 canonical in `config.js`**
 
-Replace the old `WEIGHTS_MAIN` object's value with the (calibrated) v2 weights and `CRITERIA_GROUPS`'s value with the v2 groups; delete the `WEIGHTS_MAIN_V2` and `CRITERIA_GROUPS_V2` exports (keep all the other Task-1 constants). The old 11-check weights are gone — git history preserves them.
+Replace `WEIGHTS_MAIN`'s value with the calibrated v2 weights and `CRITERIA_GROUPS`'s value with the v2 groups; delete the `WEIGHTS_MAIN_V2` / `CRITERIA_GROUPS_V2` exports. Keep every other constant added during execution (`META_KEYS`, `META_INFO_KEYS`, `ASSET_ROOT_PREFIXES`, `SEGMENT_*`, `DOWNLOAD_EXTENSIONS`, `CONTENT_ORDER_*`, `LAYOUT_PROFILE_*`, `LINK_HEAD_*`). The old 11-check weights are dropped — git history preserves them.
 
 - [ ] **Step 2: Point `src/scoring/weights.js` at the canonical names**
 
@@ -2025,78 +2033,92 @@ export const GROUPS = CRITERIA_GROUPS;
 
 - [ ] **Step 3: Drop the dashboard flag**
 
-In `src/build-dashboard.js`: remove the `CRITERIA_GROUPS_V2` import and the `--criteria=v2` line; `const GROUPS = CRITERIA_GROUPS;` (or rename `GROUPS` back). Delete the now-redundant old `.group-head.template/.content` CSS rules if desired (the `structure` rule is shared — keep it).
+In `src/build-dashboard.js` remove the `CRITERIA_GROUPS_V2` import and the `--criteria=v2` line; `const GROUPS = CRITERIA_GROUPS;`.
 
 - [ ] **Step 4: Switch `src/compare.js` to the v2 scorer**
 
-1. Add imports: `import { scoreMain } from './scoring/score-main.js';` and `import { LINK_STATUS_PATH } from '../config.js';` (merge into the existing config import). Remove `WEIGHTS_MAIN` and `CRITERIA_GROUPS` from compare.js's config import if now unused.
-2. Add a module-level cache holder + load it in `main()` before the pool starts:
-
-```js
-// Cached download-link statuses (data/link-status.json) — feeds the
-// deadDownloadLink check. Loaded once per run; absent file → the check is
-// `insufficient`, never failed. visualLayout is NOT fed here: a fresh capture
-// just rewrote the screenshots, so any cached profile is stale — refresh with
-// `npm run layout-profile && npm run rescore -- --out=data/results.json` after
-// a capture run.
-let LINK_STATUS = null;
-```
-
-and in `main()`:
-
-```js
-  LINK_STATUS = existsSync(LINK_STATUS_PATH) ? JSON.parse(await readFile(LINK_STATUS_PATH, 'utf8')) : null;
-```
-
-3. In `scoreParity`, keep the error-page guard and news dispatch exactly as-is, and replace the entire main-mode body (from `const W = WEIGHTS_MAIN;` down to the final `return { parity, checks, gaps, aemIssues, brokenLinks, imageIssues, thaiIssues };`) with:
+1. Import `scoreMain` from `./scoring/score-main.js` and `LINK_STATUS_PATH` from config.
+2. Add a module-level `let LINK_STATUS = null;` loaded once in `main()` from `LINK_STATUS_PATH` when present.
+3. In `scoreParity`, keep the error-page guard and the news dispatch exactly as they are, and replace the whole main-mode body with:
 
 ```js
   // ─── MAIN MODE: v2 defect-aligned scoring (src/scoring/score-main.js) ────
   return scoreMain(prod, aem, { linkStatus: LINK_STATUS });
 ```
 
-4. Delete the now-dead code from compare.js: `hasNewMetrics`, `isDynamicBlock`, `filenameOf`, `normCompare` local definitions — and import what `scoreNews` still needs from the scoring utils: `import { normCompare, isDynamicBlock, filenameOf } from './scoring/util.js';` (check `scoreNews`'s actual references before deleting: `grep -nE "isDynamicBlock|filenameOf|normCompare|splitSentences" src/compare.js` — keep `splitSentences` and anything else scoreNews uses).
-5. Both `scoreParity` call sites (previously lines ~775 and ~853) need no signature change — `newsMode` still passes through, context is read from the module-level `LINK_STATUS`.
+4. Delete compare.js's now-dead local `hasNewMetrics`, `isDynamicBlock`, `filenameOf`, `normCompare`, importing from `./scoring/util.js` whatever `scoreNews` still needs. Check first: `grep -nE "isDynamicBlock|filenameOf|normCompare|splitSentences" src/compare.js`.
 
-- [ ] **Step 5: Verify everything still works**
+Do NOT feed a cached `layout` profile here: a fresh capture has just rewritten the screenshots, so any cached profile is stale. `visualLayout` will be `insufficient` on fresh captures until `layout-profile.js` + `rescore.js` run — which is the documented refresh flow in Step 7.
 
-```bash
-npm test                                       # all suites green
-node --check src/compare.js                    # parses
-node src/rescore.js --source=data/results.json --out=/tmp/promotion-check.json
-```
-
-Expected: rescore output identical fail-count numbers to the last Task-13 run (same scorer, same data). Then a 2-page live smoke test of compare.js **with the user's go-ahead** (it hits BBL hosts):
+- [ ] **Step 5: Verify**
 
 ```bash
-node src/compare.js --ids=1-2 --force --concurrency=1 --output=/tmp/compare-smoke.json --source=data/results.json
-node -e "const p=JSON.parse(require('fs').readFileSync('/tmp/compare-smoke.json')).pages.filter(x=>['1','2'].includes(String(x.id))); for(const x of p) console.log(x.id, x.parity, x.checks.length, 'checks')"
+npm test                                        # 56/56
+node --check src/compare.js
+node src/rescore.js --source=data/results-priority.json --out=/tmp/promotion-check.json
 ```
 
-Expected: pages 1–2 score with 14 checks (visualLayout `insufficient` — expected for fresh captures).
-
-- [ ] **Step 6: Promote the data + rebuild everything**
+Expected: rescore reports the same per-check fail counts as the last Task 13 run — same scorer, same data. Then a 2-page live smoke test **with the user's go-ahead** (it hits BBL hosts):
 
 ```bash
-cp data/results.json data/results.json.backup-pre-v2-promotion
-cp data/results-v2.json data/results.json
-npm run dashboard && npm run docs
-rm -rf output/v2-dashboard.html output/v2-pages   # superseded by the live dashboard
-node src/sync-sheet.js --dry-run                  # verify Thai labels on real flow; DO NOT run a real sync without the user
+node src/compare.js --urls=data/urls-priority.csv --output=/tmp/smoke.json --source=/tmp/smoke.json \
+  --shots-dir=/tmp/smoke-shots --ids=1-2 --concurrency=1 --pacing=8000 --force
+node -e "import('node:fs').then(({readFileSync})=>{for(const x of JSON.parse(readFileSync('/tmp/smoke.json')).pages) console.log(x.id, x.parity, x.checks.length+' checks')})"
 ```
 
-Expected: `output/dashboard.html` now shows 5 groups; `output/criteria.html` shows the v2 table; dry-run sync prints Thai labels.
+Expected: both pages score with 13 checks (`visualLayout` insufficient — expected on a fresh capture).
 
-- [ ] **Step 7: Commit (do not push — user pushes)**
+- [ ] **Step 6: Promote the priority data; leave the main set alone**
 
 ```bash
-git add config.js src/scoring/weights.js src/compare.js src/build-dashboard.js output/
-git commit -m "feat(criteria)!: promote defect-aligned v2 scoring to main pipeline"
+cp data/results-priority.json data/results-priority.json.backup-pre-promotion
+node src/layout-profile.js --source=data/results-priority.json
+node src/rescore.js --source=data/results-priority.json --out=data/results-priority.json
+node src/build-dashboard.js --source=data/results-priority.json --prefix=priority
+npm run docs
 ```
 
-Remind the user: `data/results.json.backup-pre-v2-promotion` is the rollback; after their next capture run, the refresh flow is `npm run layout-profile && npm run rescore -- --out=data/results.json && npm run dashboard`.
+`data/results.json` (the 632-page main set) is **deliberately not touched**. It predates the new metrics, so re-scoring it under v2 would produce legacy-fallback numbers that look authoritative but are not. It stays as-is until its own re-capture, which is separate work.
+
+For the same reason, delete the stale v2 side artefacts so nobody reads them as current:
+
+```bash
+rm -rf output/v2-dashboard.html output/v2-pages output/v2-screenshots
+```
+
+- [ ] **Step 7: Document the refresh flow and commit**
+
+Add to `AGENTS.md`: after any capture run, the refresh sequence is
+
+```bash
+node src/layout-profile.js --source=<results file>
+node src/rescore.js --source=<results file> --out=<results file>
+node src/build-dashboard.js --source=<results file> --prefix=<prefix>
+```
+
+because `visualLayout` needs screenshot profiles that only exist after capture, and `compare.js` cannot compute them inline.
+
+```bash
+git add config.js src/ output/ AGENTS.md docs/
+git commit -m "feat(criteria)!: promote defect-aligned v2 scoring to the main pipeline"
+```
+
+Do not push — the user pushes. Remind them that `data/results-priority.json.backup-pre-promotion` is the rollback.
 
 ---
+
+### Task 15: Re-capture and re-check the main 632-page set (DEFERRED)
+
+Not started, and deliberately out of the promotion path. The customer's focus is the priority set; the main set is checked again later.
+
+What it needs, in order:
+
+1. A full `npm run safe-run` re-capture (~632 pages, chunked with 20-minute pauses, 5+ hours, real WAF ban risk). Every metric added during execution is capture-time, so nothing short of this makes the main dashboard trustworthy.
+2. `node src/layout-profile.js` then `node src/rescore.js --source=data/results.json --out=data/results.json` (backing up first).
+3. `npm run dashboard` and a fresh review.
+4. `node src/check-downloads.js` for `deadDownloadLink` — its cache currently holds 10 URLs, all 403 from a WAF-blocked probe, so the check is `insufficient` everywhere. Re-run when the WAF is quiet and delete those poisoned entries first.
+
+Known blocker to investigate during that pass: production exposes only 2–5 `<img>` in main content while AEM exposes 15–25 with real content alts (id9: prod 2, AEM 25) even after the lazy-load fix. Production likely serves content imagery as CSS `background-image`, which `extract.js` does not capture — so `missingImage` and `imageAlt` are toothless on image-heavy pages. One live DOM probe on a prod page will confirm or refute it.
 
 ## Self-Review Notes
 
