@@ -24,7 +24,7 @@
 - `insufficient` checks are excluded from the weight denominator, never scored 0.
 - Logging: emoji-prefixed `console.log` (🚀 ✅ 📥 ❌ 📸). Code/comments English; dashboard/sheet copy Thai.
 - Commit after every task; conventional commit format (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`); **do not push** (user pushes manually).
-- Tests run with `npm test` → `node --test test/`. Every pure module gets tests; I/O scripts get manual verification commands with expected output.
+- Tests run with `npm test` → `node --test test`. Every pure module gets tests; I/O scripts get manual verification commands with expected output.
 
 ## File Map
 
@@ -96,7 +96,7 @@ test('group weights are the sum of their check weights', () => {
 In `package.json` scripts add (keep existing entries):
 
 ```json
-"test": "node --test test/",
+"test": "node --test test",
 "layout-profile": "node src/layout-profile.js",
 "check-downloads": "node src/check-downloads.js",
 "rescore": "node src/rescore.js"
