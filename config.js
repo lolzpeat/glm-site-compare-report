@@ -161,9 +161,13 @@ export const CRITERIA_GROUPS = [
 // _V2 names. See docs/superpowers/specs/2026-08-04-defect-aligned-criteria-design.md
 export const WEIGHTS_MAIN_V2 = {
   // Missing content (30%)
-  contentLength:       0.10,
-  missingText:         0.12,
-  missingKeywords:     0.08,
+  // `missingKeywords` is deliberately ABSENT: it failed on every scored page
+  // (358/358 main, 15/15 priority), so it carried no discriminating signal.
+  // checks-content.js still emits it; score-main demotes any check whose id is
+  // missing here to an unscored advisory. Its 0.08 was split into the two
+  // remaining content checks, keeping the group at 30%.
+  contentLength:       0.13,
+  missingText:         0.17,
   // Missing assets (25%)
   missingImage:        0.10,  // count only (alt split out)
   brokenImage:         0.11,  // tag renders but file never loads
@@ -182,7 +186,7 @@ export const WEIGHTS_MAIN_V2 = {
 };
 
 export const CRITERIA_GROUPS_V2 = [
-  { id: 'missing-content', label: 'Missing content',      weight: 0.30, checks: ['contentLength', 'missingText', 'missingKeywords'] },
+  { id: 'missing-content', label: 'Missing content',      weight: 0.30, checks: ['contentLength', 'missingText'] },
   { id: 'missing-assets',  label: 'Missing assets',       weight: 0.25, checks: ['missingImage', 'brokenImage', 'imageAlt'] },
   { id: 'alignment',       label: 'Content alignment',    weight: 0.20, checks: ['contentOrder', 'visualLayout'] },
   { id: 'downloads',       label: 'Download links',       weight: 0.15, checks: ['missingDownloadLink', 'deadDownloadLink'] },

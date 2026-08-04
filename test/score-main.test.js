@@ -37,10 +37,28 @@ test('formatting advisory fires on table drop', () => {
   assert.ok(r.aemIssues.some(i => /Formatting/.test(i.label)));
 });
 
-test('all 14 scored check ids are present exactly once', () => {
+test('all 13 scored check ids are present exactly once, missingKeywords excluded', () => {
   const r = scoreMain(metrics(), metrics(), {});
   const ids = r.checks.map(c => c.id).sort();
   assert.deepEqual(ids, ['brokenImage', 'contentLength', 'contentOrder', 'deadDownloadLink',
     'headings', 'imageAlt', 'links', 'meta', 'missingDownloadLink', 'missingImage',
-    'missingKeywords', 'missingText', 'template', 'visualLayout'].sort());
+    'missingText', 'template', 'visualLayout'].sort());
+});
+
+test('missingKeywords is demoted: never scored, surfaces as advisory when it fails', () => {
+  // Passing case: demoted check contributes nothing at all.
+  const clean = scoreMain(metrics(), metrics(), {});
+  assert.equal(clean.checks.find(c => c.id === 'missingKeywords'), undefined);
+  assert.equal(clean.gaps.some(g => /keyword/i.test(g.label)), false);
+  assert.equal(clean.aemIssues.some(i => /keyword/i.test(i.label)), false);
+
+  // Failing case: still unscored, but visible as an advisory.
+  const prod = metrics({ topWords: [{ w: 'สินเชื่อ', c: 9 }, { w: 'ดอกเบี้ย', c: 5 }] });
+  const aem = metrics({ topWords: [{ w: 'สินเชื่อ', c: 7 }] });
+  const r = scoreMain(prod, aem, {});
+  assert.equal(r.checks.find(c => c.id === 'missingKeywords'), undefined);
+  // Same inputs apart from the keyword mismatch → identical parity, since the
+  // demoted check contributes to neither numerator nor denominator.
+  assert.equal(r.parity, clean.parity, 'a failing demoted check must not move parity');
+  assert.ok(r.aemIssues.some(i => /Missing keywords \(advisory\)/.test(i.label)));
 });

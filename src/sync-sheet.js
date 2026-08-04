@@ -78,6 +78,8 @@ const AEM_ISSUE_LABELS_TH = [
   [/broken links/i, 'ลิงก์พัง'],
   [/thai\/english balance differs/i, 'ภาษาไทย/อังกฤษไม่สมดุล'],
   [/image distortion/i, 'รูปเพี้ยน/สัดส่วนผิด'],
+  // Demoted (unscored) checks reach aemIssues as "<label> (advisory)".
+  [/missing keywords/i, 'คำสำคัญหาย (ไม่คิดคะแนน)'],
   [/page load failed/i, 'โหลดหน้าไม่สำเร็จ'],
 ];
 
