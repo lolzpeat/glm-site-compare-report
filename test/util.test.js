@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   makeCheck, isDynamicBlock, isDownloadHref, downloadBasename, lis, profileMatch,
+  normCompare, filenameOf,
 } from '../src/scoring/util.js';
 
 test('makeCheck fills the standard shape and looks up weight', () => {
@@ -52,4 +53,15 @@ test('profileMatch is 1 for identical, null when unavailable, 0 for zero-mass', 
   assert.equal(profileMatch([0, 0], [1, 0]), 0);
   const m = profileMatch([1, 0], [0, 1]);
   assert.equal(m, 0);
+});
+
+test('normCompare ignores case, punctuation and whitespace; compares Thai text', () => {
+  assert.equal(normCompare('ธนาคารกรุงเทพ – Bank', 'ธนาคารกรุงเทพ bank'), true);
+  assert.equal(normCompare('Title A', 'Title B'), false);
+  assert.equal(normCompare('', ''), true);
+});
+
+test('filenameOf falls back to lowercased input on malformed URLs', () => {
+  assert.equal(filenameOf('not a url'), 'not a url');
+  assert.equal(filenameOf('https://x.com/path/Report%20Q1.PDF'), 'report q1.pdf');
 });
