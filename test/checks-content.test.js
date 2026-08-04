@@ -76,3 +76,22 @@ test('missingKeywords scores hit rate over prod top-30', () => {
   assert.deepEqual(c.diff.missingKeywords, ['ดอกเบี้ย']);
   assert.ok(Math.abs(c.partial - 0.5) < 1e-9);
 });
+
+test('contentLength ignores main metrics when a side never laid out', () => {
+  // mainTextLength 0 with a large raw length means the capture ran before
+  // layout settled — that zero must not be scored as deleted content.
+  const prod = metrics({ textLength: 20000, mainTextLength: 18000, mainTextRawLength: 18000 });
+  const aem = metrics({ textLength: 5000, mainTextLength: 0, mainTextRawLength: 4200 });
+  const c = byId(contentChecks(prod, aem), 'contentLength');
+  assert.equal(c.diff.scope, 'full-page');
+  assert.equal(c.diff.ratio, 25);
+});
+
+test('contentLength still uses main when a side is legitimately empty', () => {
+  // mainTextLength 0 AND raw ~0 is a genuinely empty main container.
+  const prod = metrics({ textLength: 20000, mainTextLength: 18000, mainTextRawLength: 18000 });
+  const aem = metrics({ textLength: 5000, mainTextLength: 0, mainTextRawLength: 0 });
+  const c = byId(contentChecks(prod, aem), 'contentLength');
+  assert.equal(c.diff.scope, 'main');
+  assert.equal(c.diff.ratio, 0);
+});

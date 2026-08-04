@@ -160,23 +160,52 @@ export const EXTRACT_FN = () => {
     '[class*="navbar" i]', '[class*="main-nav" i]', '[class*="mega-menu" i]',
     '[class*="breadcrumb" i]', '[class*="cookie" i]', '[class*="skip-to" i]',
   ].join(', ');
-  const stripChrome = (root) => {
-    const c = root.cloneNode(true);
-    c.querySelectorAll('script, style, iframe, noscript, template, svg').forEach(el => el.remove());
-    c.querySelectorAll(CHROME_SEL).forEach(el => el.remove());
-    return c;
+  const NON_CONTENT_TAGS = { SCRIPT: 1, STYLE: 1, IFRAME: 1, NOSCRIPT: 1, TEMPLATE: 1, SVG: 1 };
+  // Prod (Sitecore) ships hidden modals inline — the "leaving our website"
+  // confirm and a full Privacy Notice (~15k chars on some pages) sit in the
+  // DOM with display:block/visibility:visible but a 0×0 box and NO client
+  // rects. Counting them inflated prod's length ~4x and made AEM look like it
+  // had dropped 90% of content that is in fact present. Computed style cannot
+  // see this; getClientRects() can — the same test extract.js already uses for
+  // heading visibility. So walk the live tree and skip unrendered subtrees
+  // rather than cloning (a clone is detached, so it has no geometry at all).
+  const isRendered = (el) =>
+    el.getClientRects().length > 0 || el.offsetWidth > 0 || el.offsetHeight > 0;
+  const walkVisible = (root, onElement) => {
+    let text = '';
+    const visit = (node) => {
+      if (node.nodeType === 3) { text += node.nodeValue + ' '; return; }
+      if (node.nodeType !== 1) return;
+      if (NON_CONTENT_TAGS[node.tagName]) return;
+      if (node !== root && node.matches(CHROME_SEL)) return;
+      if (!isRendered(node)) return;
+      if (onElement) onElement(node);
+      for (let i = 0; i < node.childNodes.length; i++) visit(node.childNodes[i]);
+    };
+    visit(root);
+    return text;
   };
   const mainInfo = (() => {
     const explicit = document.querySelector('main, [role="main"], #main-content, #mainContent, .main-content');
     const root = explicit || document.body;
-    const cleaned = stripChrome(root);
+    const blocks = [];
+    const text = norm(walkVisible(root, (el) => {
+      if (/^(H1|H2|H3|H4|P|LI)$/.test(el.tagName)) {
+        const t = norm(el.textContent);
+        if (t.length > 3) blocks.push(t);
+      }
+    }));
+    // Unfiltered length of the same root, for diagnosis only: if a capture
+    // lands before layout settles, every subtree reports zero rects and `text`
+    // collapses to 0 while `raw` stays large. Scoring compares the two so a
+    // not-yet-laid-out page is never read as "content deleted".
+    const rawClone = root.cloneNode(true);
+    rawClone.querySelectorAll('script, style, iframe, noscript, template, svg').forEach(el => el.remove());
     return {
       source: explicit ? 'main' : 'body-minus-chrome',
-      text: norm(cleaned.textContent),
-      // Same block extraction as textBlocks, but content-only — lets a future
-      // missingText variant ignore menu items without another re-capture.
-      blocks: Array.from(cleaned.querySelectorAll('h1,h2,h3,h4,p,li'))
-        .map(el => norm(el.textContent)).filter(t => t.length > 3).slice(0, 200),
+      text,
+      rawLength: norm(rawClone.textContent).length,
+      blocks: blocks.slice(0, 200),
     };
   })();
 
@@ -211,6 +240,7 @@ export const EXTRACT_FN = () => {
     features,
     textLength: bodyText.length,
     mainTextLength: mainInfo.text.length,
+    mainTextRawLength: mainInfo.rawLength,
     mainTextSource: mainInfo.source,
     mainTextSample: mainInfo.text.slice(0, 800),
     mainTextBlocks: mainInfo.blocks,

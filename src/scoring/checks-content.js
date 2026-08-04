@@ -13,7 +13,12 @@ export function contentChecks(prod, aem) {
   // counting it dilutes the ratio toward 1 and flatters AEM. Captures predating
   // the metric fall back to whole-page length, flagged in `detail` and `scope`
   // so a legacy page is never silently compared against a main-only one.
-  const useMain = typeof prod.mainTextLength === 'number' && typeof aem.mainTextLength === 'number';
+  // A side whose main text collapsed to 0 while its raw text is substantial
+  // never laid out at capture time — its zero is a capture artefact, not
+  // deleted content, so both sides fall back to whole-page length instead.
+  const layoutOk = (m) => !(m.mainTextLength === 0 && (m.mainTextRawLength || 0) > 200);
+  const useMain = typeof prod.mainTextLength === 'number' && typeof aem.mainTextLength === 'number'
+    && layoutOk(prod) && layoutOk(aem);
   const pLen = useMain ? prod.mainTextLength : prod.textLength;
   const aLen = useMain ? aem.mainTextLength : aem.textLength;
   const ratio = pLen > 0 ? aLen / pLen : 0;
