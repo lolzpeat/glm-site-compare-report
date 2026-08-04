@@ -196,6 +196,10 @@ async function capturePage(page, url) {
       // Header/footer never populated within the window — extract whatever we have.
     }
 
+    // Load lazy content BEFORE reading metrics — image, component and layout
+    // checks all read live geometry, which is wrong for anything still unloaded.
+    await stimulateLazy(page);
+
     result.metrics = await page.evaluate(EXTRACT_FN);
     result.ok = true;
     result.metrics.lowContent = result.metrics.textLength < MIN_TEXT_LEN;
@@ -233,13 +237,34 @@ async function capturePage(page, url) {
   return result;
 }
 
+// Scroll the whole page so lazy-loaded content (both sites mark ~all images
+// loading="lazy") actually fetches before metrics are read. Without this,
+// below-the-fold images sit at complete=false / naturalWidth=0 and every
+// image-based check misreads them as missing or broken.
+//
+// Two bugs lived here: the function was never called, and its callback read
+// SCROLL_STIMULATE_STEPS — a Node constant — inside page.evaluate(), where it
+// is undefined; the resulting ReferenceError was swallowed by .catch(() => {}).
+// Constants must be passed in as arguments.
 async function stimulateLazy(page) {
   for (let i = 0; i < SCROLL_STIMULATE_STEPS; i++) {
-    await page.evaluate((step) => window.scrollTo(0, document.body.scrollHeight * (step + 1) / (SCROLL_STIMULATE_STEPS + 1)), i).catch(() => {});
+    await page.evaluate(
+      ({ step, steps }) => window.scrollTo(0, document.body.scrollHeight * (step + 1) / (steps + 1)),
+      { step: i, steps: SCROLL_STIMULATE_STEPS },
+    ).catch(() => {});
     await new Promise(r => setTimeout(r, SCROLL_STIMULATE_DELAY));
   }
   await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
   await new Promise(r => setTimeout(r, 400));
+  // Give still-in-flight images a bounded chance to finish decoding.
+  await page.evaluate(async (timeout) => {
+    const pending = Array.from(document.images).filter(i => !i.complete);
+    if (!pending.length) return;
+    await Promise.race([
+      Promise.allSettled(pending.map(i => i.decode().catch(() => {}))),
+      new Promise(r => setTimeout(r, timeout)),
+    ]);
+  }, LAZY_WAIT_TIMEOUT).catch(() => {});
 }
 
 // ─── Parity scoring ────────────────────────────────────────────────────────

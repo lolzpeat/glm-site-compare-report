@@ -31,6 +31,10 @@ export const EXTRACT_FN = () => {
       naturalHeight: img.naturalHeight,
       renderedWidth: Math.round(r.width),
       renderedHeight: Math.round(r.height),
+      // `complete` separates "finished loading and failed" from "still
+      // loading" — nearly every image here is loading="lazy", so a zero
+      // naturalWidth alone means nothing.
+      complete: img.complete,
     };
   }).filter(img => img.renderedWidth > 0);  // skip hidden images
 
@@ -214,6 +218,7 @@ export const EXTRACT_FN = () => {
           src: (img.currentSrc || img.src || '').slice(0, 120),
           naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight,
           renderedWidth: Math.round(r.width), renderedHeight: Math.round(r.height),
+          complete: img.complete,
         };
       });
     const countIn = (sel) => Array.from(document.querySelectorAll(sel)).filter(el => inScope.has(el)).length;

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { assetChecks } from '../src/scoring/checks-assets.js';
 import { metrics } from './fixtures.js';
 
-const img = (over = {}) => ({ alt: '', src: 'https://x.com/a.jpg', naturalWidth: 100, naturalHeight: 50, renderedWidth: 100, renderedHeight: 50, ...over });
+const img = (over = {}) => ({ alt: '', src: 'https://x.com/a.jpg', naturalWidth: 100, naturalHeight: 50, renderedWidth: 100, renderedHeight: 50, complete: true, ...over });
 const byId = (arr, id) => arr.find(c => c.id === id);
 
 test('missingImage: count-only, 80% floor', () => {
@@ -19,6 +19,18 @@ test('missingImage: prod zero images — AEM adding some fails with 0 partial', 
   const c = byId(assetChecks(metrics(), metrics({ images: [img()] })), 'missingImage');
   assert.equal(c.passed, false);
   assert.equal(c.partial, 0);
+});
+
+test('brokenImage ignores images still loading — only finished-and-failed count', () => {
+  // Nearly every image on both sites is loading="lazy"; naturalWidth 0 with
+  // complete=false means the fetch was in flight at capture, not broken.
+  const aem = metrics({ images: [
+    img(),
+    img({ src: 'https://x.com/lazy.jpg', naturalWidth: 0, naturalHeight: 0, complete: false }),
+  ] });
+  const c = byId(assetChecks(metrics({ images: [img()] }), aem), 'brokenImage');
+  assert.equal(c.passed, true, 'an in-flight image is not a broken image');
+  assert.equal(c.diff.candidateCount, 1, 'the in-flight image is not even a candidate');
 });
 
 test('brokenImage flags rendered-but-unloaded, excluding svg and data URIs', () => {

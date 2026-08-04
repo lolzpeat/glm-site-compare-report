@@ -29,7 +29,13 @@ export function assetChecks(prod, aem) {
 
   // brokenImage: AEM-side only — an image AEM added and failed to load is a
   // defect regardless of what prod had. Insufficient when AEM has no images.
-  const candidates = aemImgs.filter(i => !brokenExcluded(i.src));
+  // Only images that FINISHED loading can be judged: `complete === false`
+  // means the fetch was still in flight when the page was captured, not that
+  // the image is broken. Proven on real pages — every URL flagged under the
+  // old naturalWidth-only rule returned HTTP 200 with a valid image body, and
+  // a full scroll-through loaded all of them. Captures predating the field
+  // (complete === undefined) are excluded rather than guessed at.
+  const candidates = aemImgs.filter(i => !brokenExcluded(i.src) && i.complete === true);
   const broken = candidates.filter(i => i.renderedWidth > 0 && i.naturalWidth === 0 && i.naturalHeight === 0);
   const bCheck = makeCheck('brokenImage', 'Broken image (fails to load on AEM)', broken.length === 0,
     `${broken.length}/${candidates.length} AEM image(s) fail to load${scopeNote}`,
