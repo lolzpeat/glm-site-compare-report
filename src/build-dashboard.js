@@ -7,7 +7,7 @@
 //   node src/build-dashboard.js --source=X.json  # custom results file
 //   node src/build-dashboard.js --prefix=news    # output to news-* files + news-pages/
 
-import { readFile, writeFile, mkdir, copyFile, readdir, stat } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, copyFile, readdir, stat, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, relative, basename, isAbsolute } from 'node:path';
 import { ROOT, DIR, CRITERIA_GROUPS, CRITERIA_GROUPS_V2 } from '../config.js';
@@ -63,6 +63,29 @@ async function main() {
         await copyFile(abs, join(idDir, basename(abs))).catch(() => {});
       }
     }
+  }
+
+  // Drop drill-downs and screenshot folders for ids no longer in the results
+  // file. The build only ever wrote files, so pages removed from the URL list
+  // lingered in output/ — and output/ IS the deployed site, so they stayed
+  // reachable and were committed. Only orphans are removed; anything this run
+  // regenerates is left alone.
+  const liveIds = new Set(pages.map(p => String(p.id)));
+  const prune = async (dir, isOrphan) => {
+    if (!existsSync(dir)) return 0;
+    const entries = await readdir(dir);
+    let removed = 0;
+    for (const name of entries) {
+      if (!isOrphan(name)) continue;
+      await rm(join(dir, name), { recursive: true, force: true });
+      removed++;
+    }
+    return removed;
+  };
+  const stalePages = await prune(PAGES_DIR, (n) => n.endsWith('.html') && !liveIds.has(n.replace(/\.html$/, '')));
+  const staleShots = await prune(outShots, (n) => !liveIds.has(n));
+  if (stalePages || staleShots) {
+    console.log(`🧹 removed ${stalePages} stale page(s), ${staleShots} stale screenshot folder(s)`);
   }
 
   // --- Aggregate stats ---
@@ -377,11 +400,16 @@ function renderPage(p, total, opts = {}) {
   // Screenshots are copied into output/screenshots/{id}/ (see main()), so the
   // src is just the basename under that dir. resolveShot handles both the
   // current relative-to-ROOT paths and any legacy absolute paths.
+  // Must mirror main()'s copy destination exactly: join(outShots, p.id, basename).
+  // Deriving it from relative(DIR.screenshots, abs) instead only agreed while
+  // every capture wrote to data/screenshots/<id>/. With --shots-dir=<subdir>
+  // that relative path gains the subdir ("priority/1/prod.jpg"), producing
+  // ../priority-screenshots/priority/1/prod.jpg — a directory that never
+  // exists, so every image on the priority dashboard silently 404'd.
   const toRelShot = (stored) => {
     const abs = resolveShot(stored);
     if (!abs) return null;
-    const rel = relative(DIR.screenshots, abs); // e.g. "1/prod.jpg"
-    return `../${shotsDirName}/${rel}`;
+    return `../${shotsDirName}/${p.id}/${basename(abs)}`;
   };
   const prodShot = toRelShot(p.prod?.screenshot);
   const aemShot = toRelShot(p.aem?.screenshot);
