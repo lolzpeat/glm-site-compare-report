@@ -7,6 +7,7 @@
   "scripts": {
     "fetch": "node src/fetch-urls.js",
     "fetch:news": "node src/fetch-urls.js --gid=1728025962 --output=data/urls-news.csv",
+    "fetch:priority": "node src/fetch-priority-urls.js",
     "compare": "node src/compare.js",
     "compare:news": "node src/compare.js --news --urls=data/urls-news.csv --output=data/results-news.json --source=data/results-news.json",
     "dashboard": "node src/build-dashboard.js && node src/build-dashboard.js --source=data/results-news.json --prefix=news",

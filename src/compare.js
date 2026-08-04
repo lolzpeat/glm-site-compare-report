@@ -17,7 +17,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { glob } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
-import { relative } from 'node:path';
+import { relative, join } from 'node:path';
 import puppeteer from 'puppeteer-core';
 import {
   ROOT, DIR, VIEWPORT, NAV_TIMEOUT, NAV_WAIT_UNTIL, SETTLE_AFTER_LOAD, LAZY_WAIT_TIMEOUT, LAYOUT_WAIT_TIMEOUT, CONCURRENCY, REQUEST_PACING_MS,
@@ -59,7 +59,13 @@ function filenameOf(url) {
 const OUTPUT_PATH = process.argv.find(a => a.startsWith('--output='))?.split('=')[1] || `${DIR.data}/results.json`;
 // Resume source — defaults to same as output, override with --source=
 const RESULTS_PATH = process.argv.find(a => a.startsWith('--source='))?.split('=')[1] || OUTPUT_PATH;
-const SS_DIR = DIR.screenshots;
+// Screenshot root — override with --shots-dir=<ROOT-relative dir> so parallel
+// pipelines (priority list) don't collide with main-dataset ids 1..N under
+// data/screenshots/. Default unchanged.
+const SS_DIR = (() => {
+  const dir = process.argv.find(a => a.startsWith('--shots-dir='))?.split('=')[1];
+  return dir ? join(ROOT, dir) : DIR.screenshots;
+})();
 
 // Convert an absolute screenshot path to project-relative (e.g.
 // "data/screenshots/1/prod.jpg") before storing it in results.json. Relative

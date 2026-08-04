@@ -84,6 +84,15 @@ export const META_NAV_TIMEOUT = 20000;        // ms — shorter than NAV_TIMEOUT
 // (meta doesn't need any of them): images, fonts, stylesheets, media.
 export const META_BLOCKED_RESOURCE_TYPES = ['image', 'font', 'stylesheet', 'media'];
 
+// ─── Priority pipeline (tab "Priority BBL Thai Manual Pages") ──────────────
+// Re-mapped URL list on the QA master sheet: col B "Create Prod URL" carries
+// the NEW AEM URLs (main--site-prod--bangkok-bank.aem.live) replacing the old
+// blocked AEM host. Only rows whose Status matches PRIORITY_STATUS_FILTER
+// (trimmed, case-insensitive) are captured.
+export const PRIORITY_SHEET_TAB_NAME = 'Priority BBL Thai Manual Pages';
+export const PRIORITY_STATUS_FILTER = ['Done'];
+export const PRIORITY_URLS_PATH = join(DIR.data, 'urls-priority.csv');
+
 export const SCREENSHOT_FULLPAGE = true;
 export const SCREENSHOT_MAX_WIDTH = 800; // resize screenshots to this width (px) to save disk + speed up
 
