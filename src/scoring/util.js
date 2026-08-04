@@ -48,11 +48,22 @@ export function assetPath(url) {
   return path.toLowerCase().replace(/_/g, '-');
 }
 
-// Asset paths agree. Neither side having one counts as a match (nothing was
-// dropped), but prod having one while AEM does not does NOT — that asymmetry
-// is exactly the "missing asset" defect this check exists to catch.
-export function matchAssetPath(a, b) {
+// Asset paths are structurally identical — a positively verified same-asset
+// match, as opposed to merely both being present.
+export function assetPathsEqual(a, b) {
   return assetPath(a) === assetPath(b);
+}
+
+// Presence parity, which is all that can be asked of an og:image here: AEM
+// serves some assets under an opaque hashed name beneath the page path
+// (/th/about-us/media-133d747e….jpg) bearing no relation to prod's semantic
+// path, so "same structure" is unanswerable for those. Both sides having an
+// asset passes; prod having one that AEM lacks does not — that asymmetry is
+// the missing-asset defect this check exists to catch. The stricter
+// assetPathsEqual result is recorded alongside so the drill-down can show
+// whether a match was verified or merely presumed.
+export function matchAssetPath(a, b) {
+  return !!assetPath(a) === !!assetPath(b);
 }
 
 // Standard check object. `weight` may come back undefined for ids not in W —

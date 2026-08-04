@@ -74,3 +74,23 @@ test('template diff.components carries advisory + otherComponents for the drill-
   assert.deepEqual(c.diff.components.otherComponents, { prodOnly: ['map'], aemOnly: [], both: ['dialog/modal'] });
   assert.ok(c.detail.includes('advisory: carousel 0/2'));
 });
+
+test('meta accepts an ogImage AEM serves under a hashed name, flagged as unverified', () => {
+  // AEM rehosts some assets as /th/about-us/media-133d747e….jpg — no structural
+  // relation to prod's path, so presence is all that can be checked.
+  const base = { title: 'A', description: 'B', ogTitle: 'C', keywords: 'D' };
+  const prod = metrics({ meta: { ...base, ogImage: 'https://www.bangkokbank.com/-/media/feature/page-content/banners/careers.jpg' } });
+  const aem = metrics({ meta: { ...base, ogImage: 'https://main--site-prod--bangkok-bank.aem.live/th/about-us/media-133d747e8e774a409907a6135cdfba6614f8a4038.jpg' } });
+  const c = byId(structureChecks(prod, aem), 'meta');
+  assert.equal(c.passed, true, 'both sides carry an image → presence parity passes');
+  const og = c.diff.details.find(d => d.key === 'ogImage');
+  assert.equal(og.pathVerified, false, 'but the match must be marked unverified');
+});
+
+test('meta records ogImage path match as verified when the paths do line up', () => {
+  const base = { title: 'A', description: 'B', ogTitle: 'C', keywords: 'D' };
+  const prod = metrics({ meta: { ...base, ogImage: 'https://www.bangkokbank.com/-/media/feature/logos/bbl_th-1200x630.png' } });
+  const aem = metrics({ meta: { ...base, ogImage: 'https://main--site-prod--bangkok-bank.aem.live/content/dam/feature/logos/bbl-th-1200x630.png' } });
+  const og = byId(structureChecks(prod, aem), 'meta').diff.details.find(d => d.key === 'ogImage');
+  assert.equal(og.pathVerified, true);
+});

@@ -3,7 +3,7 @@
 // checks into one 2% check — their logic is unchanged and their per-part diffs
 // survive under diff.{header,footer,components} for the drill-down view.
 import { META_KEYS } from '../../config.js';
-import { makeCheck, normCompare, assetPath, matchAssetPath } from './util.js';
+import { makeCheck, normCompare, assetPath, matchAssetPath, assetPathsEqual } from './util.js';
 
 // True when a metrics object has the newer extract fields; older captures
 // (300 of the 358 scored pages) mark `template` insufficient instead of failing.
@@ -98,9 +98,11 @@ export function structureChecks(prod, aem) {
     linkHit, { matchedCount: [...pLinks].filter(t => aLinks.has(t)).length }));
 
   // meta: partial credit per matched key (META_KEYS — `canonical` excluded,
-  // see config). ogImage is matched on asset path rather than URL: both sites
-  // serve the same file from different hosts and CMS roots, so a URL compare
-  // reported every page as mismatched while the asset was in fact migrated.
+  // see config). ogImage is matched on asset PRESENCE, with the path compared
+  // for information only: both sites serve the same file from different hosts
+  // and CMS roots, and AEM gives some assets an opaque hashed name that cannot
+  // be matched structurally at all. `pathVerified` in the diff distinguishes a
+  // confirmed same-path match from a presence-only one.
   const metaChecks = META_KEYS.map(k => ({
     key: k,
     prod: prod.meta?.[k] || '',
@@ -108,7 +110,13 @@ export function structureChecks(prod, aem) {
     match: k === 'ogImage'
       ? matchAssetPath(prod.meta?.ogImage, aem.meta?.ogImage)
       : normCompare(prod.meta?.[k], aem.meta?.[k]),
-    ...(k === 'ogImage' ? { prodPath: assetPath(prod.meta?.ogImage), aemPath: assetPath(aem.meta?.ogImage) } : {}),
+    ...(k === 'ogImage' ? {
+      prodPath: assetPath(prod.meta?.ogImage),
+      aemPath: assetPath(aem.meta?.ogImage),
+      // true = same path verified; false = both present but AEM's hashed name
+      // makes the paths incomparable, so presence alone was accepted.
+      pathVerified: assetPathsEqual(prod.meta?.ogImage, aem.meta?.ogImage),
+    } : {}),
   }));
   const metaHits = metaChecks.filter(m => m.match).length;
   const metaMissing = metaChecks.filter(m => m.prod && !m.match).map(m => m.key);
