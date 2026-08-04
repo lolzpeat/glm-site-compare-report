@@ -1378,7 +1378,7 @@ git commit -m "feat(scoring): advisory module + score-main assembler with demoti
 
 **Interfaces:**
 - Consumes: `data/results.json` page shape (`{ pages: [{ id, prod: { screenshot }, aem: { screenshot } }] }`; screenshot paths are ROOT-relative like `data/screenshots/1/prod.jpg`, legacy absolute tolerated); `LAYOUT_PROFILE_BINS`, `LAYOUT_PROFILE_PATH` from config.
-- Produces: `data/layout-profiles.json` shaped `{ [pageId]: { prod: { mtimeMs, bins: number[] } | null, aem: {...} | null } }` — `null` means "cannot be computed" (missing/unreadable file), distinct from an absent id ("not yet computed"). Task 10's rescore reads this file.
+- Produces: `data/layout-profiles.json` shaped `{ [storedScreenshotPath]: { mtimeMs, bins: number[] } | null }` — **keyed by the stored screenshot path, not page id**, because page ids collide across pipelines (main/news/priority all number from 1) while stored paths are unique. `null` means "cannot be computed" (unreadable file), distinct from an absent key ("not yet computed"). Task 10's rescore reads this file.
 
 - [ ] **Step 1: Create `src/layout-profile.js`**
 
@@ -1389,8 +1389,9 @@ git commit -m "feat(scoring): advisory module + score-main assembler with demoti
 // normalised to sum 1. Height-invariant by construction — a page that is
 // merely longer produces the same profile shape.
 //
-// Cached in data/layout-profiles.json keyed by page id with the source file
-// mtime, so re-runs only recompute changed screenshots.
+// Cached in data/layout-profiles.json keyed by the STORED screenshot path
+// (page ids collide across main/news/priority pipelines; paths are unique)
+// with the source file mtime, so re-runs only recompute changed screenshots.
 //
 // Usage:
 //   node src/layout-profile.js                      # all pages in results.json
@@ -1435,18 +1436,18 @@ async function main() {
     : {};
   let done = 0, computed = 0, cached = 0, failed = 0;
   for (const p of data.pages) {
-    const entry = cache[p.id] || (cache[p.id] = {});
     for (const side of ['prod', 'aem']) {
-      const abs = resolveShot(p[side]?.screenshot);
-      if (!abs || !existsSync(abs)) { entry[side] = null; continue; }
+      const stored = p[side]?.screenshot;
+      const abs = resolveShot(stored);
+      if (!stored || !abs || !existsSync(abs)) continue;   // no screenshot → no cache key
       const mtimeMs = statSync(abs).mtimeMs;
-      if (entry[side] && entry[side].mtimeMs === mtimeMs) { cached++; continue; }
+      if (cache[stored] && cache[stored].mtimeMs === mtimeMs) { cached++; continue; }
       try {
-        entry[side] = { mtimeMs, bins: await columnProfile(abs) };
+        cache[stored] = { mtimeMs, bins: await columnProfile(abs) };
         computed++;
       } catch (e) {
         console.log(`❌ page ${p.id} ${side}: ${e.message}`);
-        entry[side] = null;
+        cache[stored] = null;
         failed++;
       }
     }
@@ -1476,9 +1477,10 @@ Run:
 node -e "
 import('node:fs').then(async ({ readFileSync }) => {
   const c = JSON.parse(readFileSync('data/layout-profiles.json', 'utf8'));
+  const pages = JSON.parse(readFileSync('data/results.json', 'utf8')).pages;
   const { profileMatch } = await import('./src/scoring/util.js');
-  const ids = Object.keys(c).filter(id => c[id].prod?.bins && c[id].aem?.bins).slice(0, 10);
-  for (const id of ids) console.log('page', id, 'match', profileMatch(c[id].prod.bins, c[id].aem.bins)?.toFixed(3));
+  const ready = pages.filter(p => c[p.prod?.screenshot]?.bins && c[p.aem?.screenshot]?.bins).slice(0, 10);
+  for (const p of ready) console.log('page', p.id, 'match', profileMatch(c[p.prod.screenshot].bins, c[p.aem.screenshot].bins)?.toFixed(3));
 });"
 ```
 
@@ -1655,9 +1657,9 @@ async function main() {
   const pages = data.pages.map(p => {
     const skip = (IDS && !IDS.has(String(p.id))) || p.errorType || p.newsMode || !p.prod?.metrics || !p.aem?.metrics;
     if (skip) { preserved++; return p; }
-    const lp = layout[p.id] || {};
     const sc = scoreMain(p.prod.metrics, p.aem.metrics, {
-      layout: { prod: lp.prod?.bins ?? null, aem: lp.aem?.bins ?? null },
+      // layout cache is keyed by stored screenshot path (unique across pipelines)
+      layout: { prod: layout[p.prod?.screenshot]?.bins ?? null, aem: layout[p.aem?.screenshot]?.bins ?? null },
       linkStatus,
     });
     for (const c of sc.checks) if (!c.passed && !c.insufficient) failCounts[c.id] = (failCounts[c.id] || 0) + 1;
@@ -2101,3 +2103,185 @@ Remind the user: `data/results.json.backup-pre-v2-promotion` is the rollback; af
 - **Spec coverage:** 5 groups/14 checks (Tasks 1, 3–7), brokenImage calibration gate (13), contentOrder LIS + first-occurrence mapping (5), visualLayout column profile (5, 9), basename download matching + HEAD cache with WAF discipline (6, 10), insufficient-denominator rule (8, tested), side-file rollout (10, 11, 14), rescore backups (10, 14), CHECK_LABELS_TH (12), build-docs (12), review-new-criteria deletion (12), verification items 1–6 of the spec map to Task 1 tests / Task 10 step 4 / Task 10 step 4 / Task 13 / Task 13 / Task 12+14 respectively. Phase 2 is out of scope by design.
 - **Deliberate deviations from spec text:** contentLength partial formula fixed (old one exceeded 1.0 when AEM was longer — noted in Task 3); `brokenImage` keys off AEM images alone rather than prod count (spec was amended to say exactly this).
 - Type/name consistency verified: `W`/`GROUPS` (weights.js), `makeCheck`, `scoreMain`, context `{ layout: {prod, aem}, linkStatus }`, diff field names match between check modules (Tasks 4–7) and dashboard renderers (Task 11).
+
+---
+
+## Priority Pipeline (added 2026-08-04 — user request during execution)
+
+The QA master sheet gained a tab **"Priority BBL Thai Manual Pages"** (gid `2062864236`, private — service-account read like scrape-meta) with re-mapped URLs: column A = production URL, column B **"Create Prod URL"** = the NEW AEM URL on `main--site-prod--bangkok-bank.aem.live` (replacing the old blocked AEM host), column F = Status. The user wants: **only rows with Status exactly "Done"** (18 rows at time of writing, 3 possibly missing AEM URLs), captured live (canary of 5 pages first to confirm no WAF block), scored with the v2 criteria, rendered as a NEW dashboard (`output/priority-dashboard.html`) — alongside, not replacing, the main dashboard.
+
+Execution order: P1 → P2 (canary + full capture, runs in background) → Tasks 1–11 → P3 → Task 12 → 13 → 14.
+
+### Task P1: Priority URL fetch + compare.js --shots-dir flag
+
+**Files:**
+- Create: `src/fetch-priority-urls.js`
+- Modify: `config.js` (priority constants, after the META_* block)
+- Modify: `src/compare.js` (SS_DIR flag at line ~62; add `join` to its `node:path` import)
+- Modify: `package.json` (add script)
+
+**Interfaces:**
+- Consumes: `getAccessToken(keyPath, scope)` from `src/google-auth.js`; `SYNC_SPREADSHEET_ID`, `SYNC_KEY_PATH` from config.
+- Produces: `data/urls-priority.csv` with header `prodUrl,aemUrl,category,subCategory` (identical format to fetch-urls.js output, consumed by compare.js `readPairs`); compare.js `--shots-dir=<ROOT-relative dir>` flag (default unchanged: `DIR.screenshots`) so the priority capture writes `data/screenshots/priority/<id>/` instead of colliding with main-dataset ids 1–18.
+
+- [ ] **Step 1: Add config constants**
+
+After the META_* block in `config.js`:
+
+```js
+// ─── Priority pipeline (tab "Priority BBL Thai Manual Pages") ──────────────
+// Re-mapped URL list on the QA master sheet: col B "Create Prod URL" carries
+// the NEW AEM URLs (main--site-prod--bangkok-bank.aem.live) replacing the old
+// blocked AEM host. Only rows whose Status matches PRIORITY_STATUS_FILTER
+// (trimmed, case-insensitive) are captured.
+export const PRIORITY_SHEET_TAB_NAME = 'Priority BBL Thai Manual Pages';
+export const PRIORITY_STATUS_FILTER = ['Done'];
+export const PRIORITY_URLS_PATH = join(DIR.data, 'urls-priority.csv');
+```
+
+- [ ] **Step 2: Create `src/fetch-priority-urls.js`**
+
+```js
+// Fetch the "Priority BBL Thai Manual Pages" tab (PRIVATE QA master sheet —
+// service-account read, not the public CSV export) and emit
+// data/urls-priority.csv in the same format as fetch-urls.js.
+// Column map (frozen 2-row header, data from row 3):
+//   A=prod URL  B=Create Prod URL (NEW AEM URL)  D=Category  E=Sub-Category  F=Status
+// Usage: node src/fetch-priority-urls.js
+import { writeFile } from 'node:fs/promises';
+import {
+  SYNC_SPREADSHEET_ID, SYNC_KEY_PATH,
+  PRIORITY_SHEET_TAB_NAME, PRIORITY_STATUS_FILTER, PRIORITY_URLS_PATH,
+} from '../config.js';
+import { getAccessToken } from './google-auth.js';
+
+function csvEscape(value) {
+  if (value == null) return '';
+  const v = String(value);
+  return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+}
+
+async function main() {
+  console.log(`⬇️  Fetching "${PRIORITY_SHEET_TAB_NAME}" via service account`);
+  const token = await getAccessToken(SYNC_KEY_PATH, 'https://www.googleapis.com/auth/spreadsheets.readonly');
+  const range = encodeURIComponent(`'${PRIORITY_SHEET_TAB_NAME}'!A3:F`);
+  const res = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SYNC_SPREADSHEET_ID}/values/${range}`,
+    { headers: { authorization: `Bearer ${token}` } },
+  );
+  if (!res.ok) throw new Error(`Sheets API HTTP ${res.status}: ${await res.text()}`);
+  const rows = (await res.json()).values || [];
+
+  const statusOk = (s) => PRIORITY_STATUS_FILTER.some(f => f.toLowerCase() === String(s || '').trim().toLowerCase());
+  const statusCounts = {};
+  const pairs = [];
+  let skippedNoAem = 0;
+  for (const row of rows) {
+    const prodUrl = (row[0] || '').trim();
+    const aemUrl = (row[1] || '').trim();
+    const status = (row[5] || '').trim();
+    if (!prodUrl.startsWith('http')) continue;               // blank/notes rows
+    statusCounts[status || '(empty)'] = (statusCounts[status || '(empty)'] || 0) + 1;
+    if (!statusOk(status)) continue;
+    if (!aemUrl.startsWith('http')) {
+      skippedNoAem++;
+      console.log(`⚠️ skip (no Create Prod URL): ${prodUrl}`);
+      continue;
+    }
+    pairs.push({ prodUrl, aemUrl, category: (row[3] || '').trim(), subCategory: (row[4] || '').trim() });
+  }
+  console.log('📊 status counts:', JSON.stringify(statusCounts));
+
+  const csv = [
+    'prodUrl,aemUrl,category,subCategory',
+    ...pairs.map(p => [csvEscape(p.prodUrl), csvEscape(p.aemUrl), csvEscape(p.category), csvEscape(p.subCategory)].join(',')),
+  ].join('\n');
+  await writeFile(PRIORITY_URLS_PATH, csv, 'utf8');
+  console.log(`✅ Wrote ${pairs.length} URL pair(s) → ${PRIORITY_URLS_PATH}` +
+    (skippedNoAem ? ` (${skippedNoAem} matching row(s) skipped — no AEM URL)` : ''));
+}
+
+main().catch(e => { console.error('❌', e); process.exit(1); });
+```
+
+- [ ] **Step 3: Add the `--shots-dir=` flag to `src/compare.js`**
+
+Change line ~20 `import { relative } from 'node:path';` to `import { relative, join } from 'node:path';`, and replace line ~62 `const SS_DIR = DIR.screenshots;` with:
+
+```js
+// Screenshot root — override with --shots-dir=<ROOT-relative dir> so parallel
+// pipelines (priority list) don't collide with main-dataset ids 1..N under
+// data/screenshots/. Default unchanged.
+const SS_DIR = (() => {
+  const dir = process.argv.find(a => a.startsWith('--shots-dir='))?.split('=')[1];
+  return dir ? join(ROOT, dir) : DIR.screenshots;
+})();
+```
+
+(`ROOT` is already imported from config in compare.js.)
+
+- [ ] **Step 4: Add npm script**
+
+In `package.json` scripts: `"fetch:priority": "node src/fetch-priority-urls.js"`
+
+- [ ] **Step 5: Verify**
+
+Run: `npm test` (nothing broken), `node --check src/compare.js`, then `npm run fetch:priority`
+Expected: status counts printed (Done ≈ 18), `✅ Wrote N URL pair(s) → .../data/urls-priority.csv` where N ≈ 15–18; spot-check the CSV: prod URLs on `www.bangkokbank.com`, AEM URLs on `main--site-prod--bangkok-bank.aem.live`.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add config.js src/fetch-priority-urls.js src/compare.js package.json
+git commit -m "feat: priority URL list fetch (Done rows, re-mapped AEM URLs) + --shots-dir flag"
+```
+
+### Task P2: Priority capture — canary then full (controller-run, operational)
+
+No new code. The controller runs these directly (compare.js scores with the OLD criteria at capture time — irrelevant, P3 rescores with v2; what matters is the captured metrics + screenshots).
+
+- [ ] **Step 1: Canary — first 5 pages, concurrency 1**
+
+```bash
+node src/compare.js --urls=data/urls-priority.csv --output=data/results-priority.json --source=data/results-priority.json --shots-dir=data/screenshots/priority --ids=1-5 --concurrency=1
+```
+
+Then inspect: `node -e "const p=JSON.parse(require('fs').readFileSync('data/results-priority.json')).pages; for(const x of p) console.log(x.id, x.errorType||('parity '+x.parity), x.prodUrl.slice(0,60))"`
+Expected: 5 pages, no `blocked`. **If any page is `blocked`, STOP the pipeline and report to the user — do not continue capturing.**
+
+- [ ] **Step 2: Full capture — remaining pages**
+
+```bash
+node src/compare.js --urls=data/urls-priority.csv --output=data/results-priority.json --source=data/results-priority.json --shots-dir=data/screenshots/priority --ids=6-18 --concurrency=1
+```
+
+(adjust `6-18` to the actual pair count from P1). Expected: all pages captured, screenshots under `data/screenshots/priority/<id>/`, no blocked. Runs in background while Tasks 1–8 proceed.
+
+### Task P3: Priority scoring + dashboard (after Tasks 9–11)
+
+No new code — runs the Task 9–11 tooling against the priority results:
+
+- [ ] **Step 1: Build caches + rescore in place**
+
+```bash
+node src/layout-profile.js --source=data/results-priority.json
+node src/check-downloads.js --source=data/results-priority.json
+node src/rescore.js --source=data/results-priority.json --out=data/results-priority.json
+```
+
+Expected: profiles keyed under `data/screenshots/priority/...` merged into the shared caches; rescore backs up then rewrites the priority file with 14-check v2 scoring; histogram printed.
+
+- [ ] **Step 2: Build the priority dashboard**
+
+```bash
+node src/build-dashboard.js --source=data/results-priority.json --prefix=priority --criteria=v2
+```
+
+Expected: `output/priority-dashboard.html` + `output/priority-pages/` with 5 defect-aligned groups.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add output/priority-dashboard.html output/priority-pages
+git commit -m "feat: priority pages dashboard (Done rows, v2 criteria, re-mapped AEM URLs)"
+```
