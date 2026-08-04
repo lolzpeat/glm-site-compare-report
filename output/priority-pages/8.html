@@ -179,7 +179,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Missing text (sentences)</b> 1/28 prod sentence(s) missing · main content only</li><li class="gap high"><span class="sev">high</span> <b>Broken image (fails to load on AEM)</b> 1/21 AEM image(s) fail to load</li><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0%</li><li class="gap high"><span class="sev">high</span> <b>Visual layout (column profile)</b> profile match 74%</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 2/5 matched — missing: title, description, keywords</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 7 missing · 7 extra · footer 31/31 labels · 1 missing · 1 extra · accordion 0/6✗ · table 0/0 · form 0/0 · video 1/1 · advisory: carousel 4/2</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 6 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 6 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 17/30 prod keywords missing</li></ul></section>
+<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Missing text (sentences)</b> 1/28 prod sentence(s) missing · main content only</li><li class="gap high"><span class="sev">high</span> <b>Broken image (fails to load on AEM)</b> 1/21 AEM image(s) fail to load</li><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0%</li><li class="gap high"><span class="sev">high</span> <b>Visual layout (column profile)</b> profile match 74%</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 2/4 matched — missing: title, description · (not scored) keywords: prod ✓ / AEM ✗</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 7 missing · 7 extra · footer 31/31 labels · 1 missing · 1 extra · accordion 0/6✗ · table 0/0 · form 0/0 · video 1/1 · advisory: carousel 4/2</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 6 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 6 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 17/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
@@ -335,7 +335,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
       </div><div class="group-block">
         <div class="group-head structure">
           <span>Structure &amp; template</span>
-          <span class="group-pct">8/10 · 85%</span>
+          <span class="group-pct">9/10 · 87%</span>
         </div>
         <div class="checks-list">
     <details class="check-block passed">
@@ -684,7 +684,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <summary class="check-row">
         <span class="check-status bad">✗</span>
         <span class="check-label">Meta tags</span>
-        <span class="check-detail">2/5 matched — missing: title, description, keywords</span>
+        <span class="check-detail">2/4 matched — missing: title, description · (not scored) keywords: prod ✓ / AEM ✗</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body"><table class="meta-diff"><thead><tr><th>Meta</th><th>Production</th><th>AEM</th><th>Status</th></tr></thead><tbody>
@@ -711,12 +711,6 @@ table.mini td { padding:2px 8px; font-size:12px; }
         <td class="ok">https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/wealth-and-privatebank/wealth/1-campaign/head-banner-wealth-launch/wealth_brand_1200x630-campaign.jpg</td>
         <td class="ok">https://main--site-prod--bangkok-bank.aem.live/content/dam/feature/page-content/bbl-corporate/wealth-and-privatebank/wealth/1-campaign/head-banner-wealth-launch/wealth-brand-1200x630-campaign.jpg</td>
         <td class="ok">✓</td>
-      </tr>
-      <tr>
-        <td><code>keywords</code></td>
-        <td class="bad">Bangkok Bank Wealth, ธนาคารกรุงเทพ, Grow Never Ends, การเงินและการลงทุน, Bangkok Bank CIO, Comprehensive wealth solution, Bangkok Bank Wealth App</td>
-        <td class="muted">—</td>
-        <td class="bad">✗ ต่างกัน</td>
       </tr></tbody></table></div>
     </details>
     <details class="check-block failed">

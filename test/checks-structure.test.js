@@ -13,16 +13,31 @@ test('headings: Jaccard over normalised text sets', () => {
   assert.ok(Math.abs(c.partial - 0.5) < 1e-9);
 });
 
-test('meta gives partial credit per matched key, canonical excluded', () => {
-  // canonical is no longer compared: prod emits none while AEM always does,
-  // so the pair was a guaranteed mismatch carrying no signal.
-  const prod = metrics({ meta: { title: 'A', description: 'B', ogTitle: '', ogImage: '', keywords: '', canonical: '' } });
+test('meta scores 4 keys — canonical dropped, keywords reported but not scored', () => {
+  // canonical: prod emits none while AEM always does — a guaranteed mismatch
+  // carrying no signal. keywords: editorial, differs by CMS, so informational.
+  const prod = metrics({ meta: { title: 'A', description: 'B', ogTitle: '', ogImage: '', keywords: 'kw', canonical: '' } });
   const aem = metrics({ meta: { title: 'A', description: 'X', ogTitle: '', ogImage: '', keywords: '', canonical: 'https://aem.example/th/x' } });
   const c = byId(structureChecks(prod, aem), 'meta');
   assert.equal(c.passed, false);
-  assert.ok(Math.abs(c.partial - 4 / 5) < 1e-9, `expected 4/5, got ${c.partial}`);
-  assert.deepEqual(c.diff.missing, ['description']);
+  assert.ok(Math.abs(c.partial - 3 / 4) < 1e-9, `expected 3/4, got ${c.partial}`);
+  assert.deepEqual(c.diff.missing, ['description'], 'keywords must not count as a miss');
   assert.equal(c.diff.details.some(d => d.key === 'canonical'), false);
+  assert.equal(c.diff.details.some(d => d.key === 'keywords'), false, 'keywords is not a scored key');
+  const kw = c.diff.info.find(d => d.key === 'keywords');
+  assert.equal(kw.scored, false);
+  assert.equal(kw.prod, 'kw');
+  assert.equal(kw.aem, '');
+  assert.match(c.detail, /not scored.*keywords: prod ✓ \/ AEM ✗/);
+});
+
+test('a keywords difference alone cannot fail the meta check', () => {
+  const base = { title: 'A', description: 'B', ogTitle: 'C', ogImage: 'https://p.example/-/media/a/x.png' };
+  const prod = metrics({ meta: { ...base, keywords: 'สินเชื่อ, บัญชี' } });
+  const aem = metrics({ meta: { ...base, ogImage: 'https://a.example/content/dam/a/x.png', keywords: '' } });
+  const c = byId(structureChecks(prod, aem), 'meta');
+  assert.equal(c.passed, true);
+  assert.equal(c.partial, 1);
 });
 
 test('meta matches ogImage by asset path across differing hosts and CMS roots', () => {

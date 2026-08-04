@@ -232,7 +232,11 @@ export const TEXT_MATCH_TOLERANCE = 0.30;
 // always does, so the pair carried no comparable signal — only a guaranteed
 // mismatch. ogImage is compared by asset PATH, not URL: the two sites serve
 // the same asset from different hosts and CMS roots.
-export const META_KEYS = ['title', 'description', 'ogTitle', 'ogImage', 'keywords'];
+export const META_KEYS = ['title', 'description', 'ogTitle', 'ogImage'];
+// Reported (present / absent per side) but never scored. `keywords` carries no
+// migration-parity signal — it is an editorial field the two CMSes populate
+// differently — so it informs without moving the number.
+export const META_INFO_KEYS = ['keywords'];
 // CMS asset roots stripped before comparing an ogImage path.
 // prod (Sitecore): /-/media/<path>   ·   AEM: /content/dam/<path>
 export const ASSET_ROOT_PREFIXES = [/^\/-\/media\//i, /^\/content\/dam\//i];

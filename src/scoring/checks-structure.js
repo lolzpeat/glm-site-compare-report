@@ -2,7 +2,7 @@
 // pre-v2 checks. `template` merges the pre-v2 headerMenu/footerMenu/components
 // checks into one 2% check — their logic is unchanged and their per-part diffs
 // survive under diff.{header,footer,components} for the drill-down view.
-import { META_KEYS } from '../../config.js';
+import { META_KEYS, META_INFO_KEYS } from '../../config.js';
 import { makeCheck, normCompare, assetPath, matchAssetPath, assetPathsEqual } from './util.js';
 
 // True when a metrics object has the newer extract fields; older captures
@@ -97,14 +97,17 @@ export function structureChecks(prod, aem) {
     `${aem.linkCount}/${prod.linkCount} links (${Math.round(linkHit * 100)}% of prod link-texts found)`,
     linkHit, { matchedCount: [...pLinks].filter(t => aLinks.has(t)).length }));
 
-  // meta: partial credit per matched key (META_KEYS — `canonical` excluded,
-  // see config). ogImage is matched on asset PRESENCE, with the path compared
-  // for information only: both sites serve the same file from different hosts
-  // and CMS roots, and AEM gives some assets an opaque hashed name that cannot
-  // be matched structurally at all. `pathVerified` in the diff distinguishes a
-  // confirmed same-path match from a presence-only one.
-  const metaChecks = META_KEYS.map(k => ({
+  // meta: partial credit per matched key (META_KEYS). `canonical` is excluded
+  // because prod emits none while AEM always does, and META_INFO_KEYS (keywords)
+  // are reported but not scored — see config for the reasoning on each.
+  // ogImage is matched on asset PRESENCE, with the path compared for
+  // information only: both sites serve the same file from different hosts and
+  // CMS roots, and AEM gives some assets an opaque hashed name that cannot be
+  // matched structurally at all. `pathVerified` distinguishes a confirmed
+  // same-path match from a presence-only one.
+  const metaEntry = (k, scored) => ({
     key: k,
+    scored,
     prod: prod.meta?.[k] || '',
     aem: aem.meta?.[k] || '',
     match: k === 'ogImage'
@@ -113,16 +116,23 @@ export function structureChecks(prod, aem) {
     ...(k === 'ogImage' ? {
       prodPath: assetPath(prod.meta?.ogImage),
       aemPath: assetPath(aem.meta?.ogImage),
-      // true = same path verified; false = both present but AEM's hashed name
-      // makes the paths incomparable, so presence alone was accepted.
       pathVerified: assetPathsEqual(prod.meta?.ogImage, aem.meta?.ogImage),
     } : {}),
-  }));
+  });
+  const metaChecks = META_KEYS.map(k => metaEntry(k, true));
+  const metaInfo = META_INFO_KEYS.map(k => metaEntry(k, false));
   const metaHits = metaChecks.filter(m => m.match).length;
   const metaMissing = metaChecks.filter(m => m.prod && !m.match).map(m => m.key);
+  // Presence note for the unscored keys, e.g. "keywords: prod ✓ / AEM ✗".
+  const infoNote = metaInfo
+    .map(m => `${m.key}: prod ${m.prod ? '✓' : '✗'} / AEM ${m.aem ? '✓' : '✗'}`)
+    .join(' · ');
   checks.push(makeCheck('meta', 'Meta tags', metaHits === META_KEYS.length,
-    `${metaHits}/${META_KEYS.length} matched` + (metaMissing.length ? ` — missing: ${metaMissing.join(', ')}` : ''),
-    metaHits / META_KEYS.length, { missing: metaMissing, details: metaChecks }));
+    `${metaHits}/${META_KEYS.length} matched` +
+      (metaMissing.length ? ` — missing: ${metaMissing.join(', ')}` : '') +
+      (infoNote ? ` · (not scored) ${infoNote}` : ''),
+    metaHits / META_KEYS.length,
+    { missing: metaMissing, details: metaChecks, info: metaInfo }));
 
   // template: header + footer + components merged.
   const tCheck = (() => {
