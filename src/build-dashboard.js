@@ -10,7 +10,11 @@
 import { readFile, writeFile, mkdir, copyFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, relative, basename, isAbsolute } from 'node:path';
-import { ROOT, DIR, CRITERIA_GROUPS } from '../config.js';
+import { ROOT, DIR, CRITERIA_GROUPS, CRITERIA_GROUPS_V2 } from '../config.js';
+
+// --criteria=v2 renders with the defect-aligned v2 groups (results-v2.json);
+// default stays the live groups until promotion.
+const GROUPS = process.argv.includes('--criteria=v2') ? CRITERIA_GROUPS_V2 : CRITERIA_GROUPS;
 
 const PASS_THRESHOLD = 85;
 
@@ -36,7 +40,8 @@ async function main() {
   const dashName = prefix ? `${prefix}-dashboard.html` : 'dashboard.html';
   const pagesDirName = prefix ? `${prefix}-pages` : 'pages';
   const shotsDirName = prefix ? `${prefix}-screenshots` : 'screenshots';
-  const titleSuffix = prefix ? ` · ${prefix.toUpperCase()}` : '';
+  const PREFIX_LABELS = { news: 'News & Media', priority: 'Priority Manual Pages' };
+  const titleSuffix = prefix ? ` · ${(PREFIX_LABELS[prefix] || prefix.toUpperCase())}` : '';
   const PAGES_DIR = join(DIR.output, pagesDirName);
   const OUT = DIR.output;
 
@@ -109,7 +114,7 @@ async function main() {
       status,
       loadError: loadErr,
       lowContent,
-      failedGroups: CRITERIA_GROUPS
+      failedGroups: GROUPS
         .filter(g => (p.checks || []).some(c => g.checks.includes(c.id) && !c.passed && !c.insufficient))
         .map(g => g.id),
     };
@@ -151,6 +156,7 @@ function renderDashboard({ total, avg, passed, warned, failed, lowContent, bucke
 <style>${DASHBOARD_CSS}</style></head><body>
 <nav class="topnav">
   <a href="dashboard.html" class="${!prefix ? 'active' : ''}">📊 Dashboard หลัก</a>
+  <a href="priority-dashboard.html" class="${prefix === 'priority' ? 'active' : ''}">⭐ Priority Manual Pages</a>
   <a href="news-dashboard.html" class="${prefix === 'news' ? 'active' : ''}">📰 News & Media</a>
   <a href="criteria.html">📋 เกณฑ์ตรวจจับ</a>
 </nav>
@@ -413,11 +419,12 @@ function renderPage(p, total, opts = {}) {
     </details>`;
   };
 
-  // Group checks into CRITERIA_GROUPS (Template/Content/Structure). Checks whose
-  // id matches no group (news-mode checks, error placeholder) fall into an
-  // "Other" fallback section so those pages still render.
+  // Group checks into GROUPS (Template/Content/Structure, or the v2 defect-
+  // aligned groups). Checks whose id matches no group (news-mode checks,
+  // error placeholder) fall into an "Other" fallback section so those pages
+  // still render.
   const checks = p.checks || [];
-  const groupedIds = new Set(CRITERIA_GROUPS.flatMap(g => g.checks));
+  const groupedIds = new Set(GROUPS.flatMap(g => g.checks));
   const subScore = (groupChecks) => {
     let earned = 0, possible = 0;
     for (const c of groupChecks) {
@@ -429,7 +436,7 @@ function renderPage(p, total, opts = {}) {
     return { earned, possible, pct };
   };
 
-  const groupBlocks = CRITERIA_GROUPS
+  const groupBlocks = GROUPS
     .map(g => {
       const gc = checks.filter(c => g.checks.includes(c.id));
       if (!gc.length) return null; // skip empty groups
@@ -496,6 +503,7 @@ function renderPage(p, total, opts = {}) {
 <style>${PAGE_CSS}</style></head><body>
 <nav class="topnav">
   <a href="../dashboard.html">📊 Dashboard หลัก</a>
+  <a href="../priority-dashboard.html">⭐ Priority Manual Pages</a>
   <a href="../news-dashboard.html">📰 News & Media</a>
   <a href="../criteria.html">📋 เกณฑ์ตรวจจับ</a>
 </nav>
@@ -627,6 +635,77 @@ function renderDiffDetails(check, esc) {
         </div>
       </div>`;
 
+    case 'imageAlt':
+      // diff = { altMatchPct, missingAlts, prodAltCount }
+      return `<div class="diff-body"><div class="diff-section">
+        <div class="diff-title">alt ตรงกัน ${diff.altMatchPct ?? 0}% (จาก ${diff.prodAltCount ?? 0} alt บน prod)</div>
+        ${diff.missingAlts?.length ? `<div class="chip-list">${diff.missingAlts.map(a => `<span class="chip chip-missing">${esc(a)}</span>`).join('')}</div>` : ''}
+      </div></div>`;
+
+    case 'brokenImage':
+      // diff = { broken: [{src, alt}], candidateCount }
+      if (!diff.broken?.length) return `<div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (${diff.candidateCount ?? 0} รูป)</div></div></div>`;
+      return `<div class="diff-body"><div class="diff-section">
+        <div class="diff-title bad">รูปบน AEM ที่โหลดไม่ขึ้น (${diff.broken.length}/${diff.candidateCount ?? 0})</div>
+        <div class="chip-list">${diff.broken.map(b => `<span class="chip chip-missing" title="${esc(b.alt || '')}">${esc(b.src.split('/').pop() || b.src)}</span>`).join('')}</div>
+      </div></div>`;
+
+    case 'contentOrder':
+      // diff = { sharedCount, inOrder, outOfOrder }
+      return `<div class="diff-body"><div class="diff-section">
+        <div class="diff-title">${diff.inOrder ?? 0}/${diff.sharedCount ?? 0} block ตามลำดับ prod</div>
+        ${diff.outOfOrder?.length ? `<div class="diff-title bad">Block ที่ย้ายตำแหน่ง (${diff.outOfOrder.length})</div>
+        <div class="chip-list">${diff.outOfOrder.map(t => `<span class="chip chip-missing">${esc(String(t).slice(0, 80))}</span>`).join('')}</div>` : ''}
+      </div></div>`;
+
+    case 'visualLayout': {
+      // diff = { match, prodBins, aemBins } — sparkline of the two column profiles
+      const spark = (bins, color) => {
+        if (!bins?.length) return '';
+        const w = 280, h = 44, max = Math.max(...bins, 1e-9);
+        const pts = bins.map((v, i) => `${(i / (bins.length - 1) * w).toFixed(1)},${(h - v / max * h).toFixed(1)}`).join(' ');
+        return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5"/></svg>`;
+      };
+      return `<div class="diff-body"><div class="diff-section">
+        <div class="diff-title">การกระจายเนื้อหาแนวนอน — ตรงกัน ${diff.match ?? 0}%</div>
+        <div class="outline-grid">
+          <div class="outline-col"><div class="outline-head src">PRODUCTION</div>${spark(diff.prodBins, '#2563eb')}</div>
+          <div class="outline-col"><div class="outline-head tgt">AEM</div>${spark(diff.aemBins, '#d97706')}</div>
+        </div>
+      </div></div>`;
+    }
+
+    case 'missingDownloadLink':
+      // diff = { missing, prodCount, aemCount, prodLinks }
+      if (!diff.missing?.length) return `<div class="diff-body"><div class="diff-section"><div class="diff-title ok">ไฟล์ดาวน์โหลดครบ ✓ (${diff.prodCount ?? 0} ไฟล์)</div></div></div>`;
+      return `<div class="diff-body"><div class="diff-section">
+        <div class="diff-title bad">ไฟล์ดาวน์โหลดที่หายจาก AEM (${diff.missing.length}/${diff.prodCount ?? 0})</div>
+        <div class="chip-list">${diff.missing.map(n => `<span class="chip chip-missing">${esc(n)}</span>`).join('')}</div>
+        ${diff.prodLinks?.length ? `<div class="diff-title">ลิงก์บน prod:</div><ul>${diff.prodLinks.map(l => `<li>${esc(l.text)} — <code>${esc(l.href)}</code></li>`).join('')}</ul>` : ''}
+      </div></div>`;
+
+    case 'deadDownloadLink':
+      // diff = { dead: [{url, status}], checkedCount, totalCount }
+      if (!diff.dead?.length) return `<div class="diff-body"><div class="diff-section"><div class="diff-title ok">ลิงก์ดาวน์โหลดทำงานทั้งหมด ✓ (${diff.checkedCount ?? 0} ลิงก์)</div></div></div>`;
+      return `<div class="diff-body"><div class="diff-section">
+        <div class="diff-title bad">ลิงก์ดาวน์โหลดที่ตาย (${diff.dead.length}/${diff.checkedCount ?? 0})</div>
+        <ul>${diff.dead.map(d => `<li><code>${esc(d.url)}</code> → HTTP ${esc(d.status)}</li>`).join('')}</ul>
+      </div></div>`;
+
+    case 'template': {
+      // diff = { header, footer, components } — the pre-v2 per-part diff shapes
+      const menuPart = (name, m) => !m ? '' : `<div class="diff-section">
+        <div class="diff-title">${name}: ${m.aemCount}/${m.prodCount} labels</div>
+        ${m.missing?.length ? `<div class="chip-list">${m.missing.map(l => `<span class="chip chip-missing">${esc(l)}</span>`).join('')}</div>` : ''}
+        ${m.extra?.length ? `<div class="chip-list">${m.extra.map(l => `<span class="chip">${esc(l)} (extra)</span>`).join('')}</div>` : ''}
+      </div>`;
+      const comp = diff.components?.perType
+        ? `<div class="diff-section"><div class="diff-title">Components</div>
+           <table class="mini">${diff.components.perType.map(t => `<tr><td>${esc(t.type)}</td><td>${t.aem}/${t.prod}</td><td class="${t.ok ? 'ok' : 'bad'}">${t.ok ? '✓' : '✗'}</td></tr>`).join('')}</table></div>`
+        : '';
+      return `<div class="diff-body">${menuPart('Header', diff.header)}${menuPart('Footer', diff.footer)}${comp}</div>`;
+    }
+
     case 'links':
       // diff = { matchedCount }  (new main-mode shape)
       return `<div class="diff-body"><div class="diff-section">
@@ -664,16 +743,11 @@ function renderDiffDetails(check, esc) {
     }
 
     case 'missingImage':
-      // diff = { prodCount, aemCount, altMatchPct, prodAlts, aemAlts }
-      return `<div class="diff-body">
-        <div class="diff-section">
-          <div class="diff-title">prod ${diff.prodCount} / aem ${diff.aemCount} images · alt match ${diff.altMatchPct}%</div>
-        </div>
-        ${diff.prodAlts?.length || diff.aemAlts?.length ? `<div class="diff-section"><div class="outline-grid">
-          <div class="outline-col"><div class="outline-head src">PROD alts (${diff.prodAlts?.length || 0})</div><div class="kw-body">${(diff.prodAlts || []).map(a => `<span class="kw kw-shared">${esc(a)}</span>`).join('')}</div></div>
-          <div class="outline-col"><div class="outline-head tgt">AEM alts (${diff.aemAlts?.length || 0})</div><div class="kw-body">${(diff.aemAlts || []).map(a => `<span class="kw kw-shared">${esc(a)}</span>`).join('')}</div></div>
-        </div></div>` : ''}
-      </div>`;
+      // v2 diff = { prodCount, aemCount } (count only; alt split into imageAlt)
+      return `<div class="diff-body"><div class="diff-section">
+        <div class="diff-title">AEM ${diff.aemCount ?? '?'} / Production ${diff.prodCount ?? '?'} รูป</div>
+        ${diff.altMatchPct !== undefined ? `<div class="diff-title">alt match ${diff.altMatchPct}% (legacy)</div>` : ''}
+      </div></div>`;
 
     case 'thaiBalance':
       // diff = { prod, aem, delta }
@@ -1026,6 +1100,15 @@ const PAGE_CSS = SHARED + `
 .group-head.content { background:#f0f7e6; color:#1a6b3c; }
 .group-head.structure { background:#fdf0e6; color:#8a5a00; }
 .group-head.other { background:#f0f1f3; color:#555; }
+/* v2 (defect-aligned) group ids. Note: v2's own "structure" group shares the
+   id (and thus the rule above) with the old CRITERIA_GROUPS "structure" —
+   intentionally not redeclared here to avoid a cascade override that would
+   change the live default dashboard's colors. */
+.group-head.missing-content { background:#eef2ff; color:#1a2b5c; }
+.group-head.missing-assets { background:#f0f7e6; color:#1a6b3c; }
+.group-head.alignment { background:#fff7e0; color:#7a5200; }
+.group-head.downloads { background:#fdf0e6; color:#8a5a00; }
+table.mini td { padding:2px 8px; font-size:12px; }
 .group-pct { font-size:12px; opacity:.8; font-weight:600; }
 .group-block .checks-list { padding:4px; }
 .group-block .check-block { margin:2px; border:none; border-radius:4px; }
