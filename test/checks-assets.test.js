@@ -52,6 +52,44 @@ test('brokenImage is insufficient (not failed) when AEM has no images', () => {
   assert.equal(c.insufficient, true);
 });
 
+const bg = (src = 'https://x.com/b.jpg') => ({ src, renderedWidth: 300, renderedHeight: 200 });
+
+test('missingImage counts CSS backgrounds — the case an <img>-only count missed', () => {
+  // Real shape of prod's Board-of-Directors page: 2 <img> in main content,
+  // the 18 director photos served as CSS backgrounds. AEM ships 20 <img> and
+  // no backgrounds. Counting tags alone made a genuinely-complete AEM page and
+  // a gutted one look identical, because both had "more <img> than prod".
+  const prod = metrics({ mainImages: [img(), img()], mainBgImages: Array.from({ length: 18 }, (_, i) => bg(`https://x.com/d${i}.jpg`)) });
+  const complete = metrics({ mainImages: Array.from({ length: 20 }, () => img()), mainBgImages: [] });
+  const gutted = metrics({ mainImages: [img(), img()], mainBgImages: [] });
+
+  assert.equal(byId(assetChecks(prod, complete), 'missingImage').passed, true);
+  const c = byId(assetChecks(prod, gutted), 'missingImage');
+  assert.equal(c.passed, false, 'AEM dropping 18 background images must not pass');
+  assert.equal(c.diff.prodCount, 20);
+  assert.equal(c.diff.aemCount, 2);
+});
+
+test('brokenImage never judges CSS backgrounds — they have no naturalWidth', () => {
+  // A background reports no natural dimensions, so folding it into mainImages
+  // would make every one of them look like a failed load.
+  const aem = metrics({ mainImages: [img()], mainBgImages: [bg(), bg('https://x.com/c.jpg')] });
+  const c = byId(assetChecks(metrics({ mainImages: [img()], mainBgImages: [] }), aem), 'brokenImage');
+  assert.equal(c.passed, true);
+  assert.equal(c.diff.candidateCount, 1, 'only the real <img> is a candidate');
+});
+
+test('missingImage falls back to <img>-only when one side predates mainBgImages', () => {
+  // Mixing a background-aware side with one that is not would read as mass
+  // image loss on the older capture.
+  const prod = metrics({ mainImages: [img(), img()], mainBgImages: [bg(), bg('https://x.com/c.jpg')] });
+  const legacy = metrics({ mainImages: [img(), img()] });   // no mainBgImages key
+  const c = byId(assetChecks(prod, legacy), 'missingImage');
+  assert.equal(c.diff.bgScoped, false);
+  assert.equal(c.diff.prodCount, 2, 'backgrounds excluded on both sides, not just one');
+  assert.equal(c.passed, true);
+});
+
 test('imageAlt is not emitted — alt text is not comparable across the two CMSes', () => {
   // Prod writes Thai alts and AEM writes English for the same asset, and prod
   // does not expose its content imagery as <img> at all, so the check scored

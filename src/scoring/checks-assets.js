@@ -18,14 +18,29 @@ export function assetChecks(prod, aem) {
   const aemImgs = scoped ? aem.mainImages : (aem.images || []);
   const scopeNote = scoped ? ' · main content only' : ' · whole page (legacy capture)';
 
-  // missingImage: count ≥80% of prod. When prod has none, AEM adding images
-  // is a template mismatch — partial must be 0, not 1 (pre-v2 invariant kept).
-  const target = Math.ceil(prodImgs.length * 0.8);
-  const countPass = prodImgs.length === 0 ? aemImgs.length === 0 : aemImgs.length >= target;
-  const countPartial = prodImgs.length === 0 ? (aemImgs.length === 0 ? 1 : 0) : Math.min(1, aemImgs.length / target);
+  // missingImage counts CSS background-images alongside <img>. Prod serves much
+  // of its content imagery as backgrounds, so an <img>-only count was blind
+  // exactly where it mattered: prod 2 vs AEM 20 on Board-of-Directors "passed"
+  // because AEM had more tags, while prod's real photos were never counted.
+  // Captures predating mainBgImages fall back to <img>-only rather than
+  // silently comparing a background-aware side against one that isn't.
+  const bgScoped = Array.isArray(prod.mainBgImages) && Array.isArray(aem.mainBgImages);
+  const prodBg = bgScoped ? prod.mainBgImages : [];
+  const aemBg = bgScoped ? aem.mainBgImages : [];
+  const prodTotal = prodImgs.length + prodBg.length;
+  const aemTotal = aemImgs.length + aemBg.length;
+  const bgNote = bgScoped ? ` (${prodImgs.length} img + ${prodBg.length} css / ${aemImgs.length} img + ${aemBg.length} css)` : ' · <img> only (legacy capture)';
+
+  // count ≥80% of prod. When prod has none, AEM adding images is a template
+  // mismatch — partial must be 0, not 1 (pre-v2 invariant kept).
+  const target = Math.ceil(prodTotal * 0.8);
+  const countPass = prodTotal === 0 ? aemTotal === 0 : aemTotal >= target;
+  const countPartial = prodTotal === 0 ? (aemTotal === 0 ? 1 : 0) : Math.min(1, aemTotal / target);
   checks.push(makeCheck('missingImage', 'Missing image (count ≥80%)', countPass,
-    `${aemImgs.length}/${prodImgs.length} images${scopeNote}`, countPartial,
-    { prodCount: prodImgs.length, aemCount: aemImgs.length, scope: scoped ? 'main' : 'full-page' }));
+    `${aemTotal}/${prodTotal} images${scopeNote}${bgNote}`, countPartial,
+    { prodCount: prodTotal, aemCount: aemTotal, prodImgCount: prodImgs.length, aemImgCount: aemImgs.length,
+      prodBgCount: prodBg.length, aemBgCount: aemBg.length, bgScoped,
+      scope: scoped ? 'main' : 'full-page' }));
 
   // brokenImage: AEM-side only — an image AEM added and failed to load is a
   // defect regardless of what prod had. Insufficient when AEM has no images.

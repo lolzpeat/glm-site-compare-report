@@ -221,6 +221,47 @@ export const EXTRACT_FN = () => {
           complete: img.complete,
         };
       });
+    // Prod (Sitecore) serves much of its content imagery as a CSS
+    // background-image rather than an <img>: the Board-of-Directors page
+    // carries 7 <img> in the ENTIRE document, all of it chrome, while the
+    // director photos are backgrounds. Counting only <img> left missingImage
+    // blind on exactly the image-heavy pages it exists to check — prod 2 vs
+    // AEM 20 "passed" because AEM had more, not because nothing was missing.
+    //
+    // Kept SEPARATE from mainImages on purpose: a background has no
+    // naturalWidth, so folding these into that list would make every one of
+    // them look like a failed load to the brokenImage check.
+    //
+    // Thresholds are inline because extract.js is serialized into the page and
+    // cannot import config.js — same constraint as the other caps in this file.
+    const BG_MIN_PX = 24;   // ignore bullet/sprite decoration
+    const BG_MAX = 40;      // payload cap, matches the <img> cap in spirit
+    const seenBg = new Set();
+    const mainBgImages = [];
+    for (const el of inScope) {
+      if (mainBgImages.length >= BG_MAX) break;
+      const bi = getComputedStyle(el).backgroundImage;
+      // 'none' is the overwhelmingly common case — bail before the regex.
+      if (!bi || bi === 'none') continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < BG_MIN_PX || r.height < BG_MIN_PX) continue;
+      // backgroundImage may hold several layers plus gradients; take real url()s.
+      const re = /url\((['"]?)([^'")]+)\1\)/g;
+      let m;
+      while ((m = re.exec(bi))) {
+        const raw = m[2];
+        if (/^data:/i.test(raw)) continue;
+        let abs;
+        try { abs = new URL(raw, location.href).href; } catch { continue; }
+        if (seenBg.has(abs)) continue;
+        seenBg.add(abs);
+        mainBgImages.push({
+          src: abs.slice(0, 120),
+          renderedWidth: Math.round(r.width), renderedHeight: Math.round(r.height),
+        });
+      }
+    }
+
     const countIn = (sel) => Array.from(document.querySelectorAll(sel)).filter(el => inScope.has(el)).length;
     const mainComponentCounts = {
       accordion: countIn('[class*="accordion" i], [data-accordion], details, [class*="cmp-accordion"]'),
@@ -245,6 +286,7 @@ export const EXTRACT_FN = () => {
       rawLength: norm(rawClone.textContent).length,
       blocks: blocks.slice(0, 200),
       images: mainImages.slice(0, 30),
+      bgImages: mainBgImages,
       componentCounts: mainComponentCounts,
     };
   })();
@@ -287,6 +329,7 @@ export const EXTRACT_FN = () => {
     // be retuned without another capture run.
     mainTextFull: mainInfo.text.slice(0, 40000),
     mainImages: mainInfo.images,
+    mainBgImages: mainInfo.bgImages,
     mainComponentCounts: mainInfo.componentCounts,
     mainTextSample: mainInfo.text.slice(0, 800),
     mainTextBlocks: mainInfo.blocks,
