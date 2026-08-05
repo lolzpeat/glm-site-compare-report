@@ -93,11 +93,21 @@ export const RETRYABLE_HTTP_STATUS = [408, 429, 500, 502, 503, 504];
 // It is also more human-like: a real visitor reading 20 pages keeps their
 // cache, they do not re-download the whole site on every click.
 //
-// Set false to restore the per-pair isolated contexts introduced 2026-07-09 to
-// escape a ban. That experiment is not why this defaults to true — it recovered
-// only 5 of 87 pages, so its benefit was never established, while its cost is
-// now measured.
-export const SHARE_BROWSER_CONTEXT = true;
+// DEFAULTS TO FALSE — the request saving above is real but not worth having.
+// Sharing a context also shares cookies, which lets the WAF correlate every
+// page into one long bot session, and that is what the per-pair isolation was
+// there to prevent. Turning it on on 2026-08-05 blocked a 28-page run from
+// page 2 onward (page 1 fine, then five straight blocks and an abort) — the
+// exact "flagged after the first request or two, then everything from that
+// session is blocked" pattern the isolation was introduced for. A controlled
+// re-test on the same six prod URLs: isolated 3/6 through, shared 0/6.
+//
+// This setting was originally flipped to true by arguing the isolation's
+// benefit was unproven, citing that it recovered only 5 of 87 pages. That
+// statistic is about escaping a ban that has ALREADY started, which is a
+// different claim from preventing a session being flagged in the first place.
+// Do not flip it again on that reasoning.
+export const SHARE_BROWSER_CONTEXT = false;
 
 // Stop the run after this many CONSECUTIVE blocked pages. Once the WAF starts
 // refusing us, every further request deepens the ban and writes a garbage 0%
