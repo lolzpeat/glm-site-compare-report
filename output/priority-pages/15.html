@@ -157,7 +157,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 </header>
 
 <section class="score-row">
-  <div class="score parity-bad"><span class="big">0</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="score parity-good"><span class="big">93</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
   <div class="urls">
     <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Save" target="_blank">https://www.bangkokbank.com/th-TH/Personal/Save-And-Invest/Save</a></div>
     <div><b class="tag tgt">AEM</b> <a href="https://main--site-prod--bangkok-bank.aem.live/th/personal/save-and-invest/save" target="_blank">https://main--site-prod--bangkok-bank.aem.live/th/personal/save-and-invest/save</a></div>
@@ -179,31 +179,671 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Production page is BLOCKED (Access Denied / WAF)</b> Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</li></ul></section>
+<ul class="gap-list"><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0% · main content only</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 34/54 headings (Jaccard 58%)</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0 · advisory: tabs 6/0</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 5 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 6 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 17/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
-<tbody><tr><td>Headings</td><td>1</td><td>34</td><td class="bad">✗</td></tr><tr><td>Links</td><td>0</td><td>197</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>232</td><td>8101</td><td class="bad">✗</td></tr><tr><td>Images</td><td>0</td><td>39</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Empty accordions</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>0</td><td>131</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>0</td><td>32</td><td class="bad">✗</td></tr><tr><td>Page height (px)</td><td>900</td><td>3362</td><td class="bad">✗</td></tr></tbody></table></section>
+<tbody><tr><td>Headings</td><td>54</td><td>34</td><td class="bad">✗</td></tr><tr><td>Links</td><td>222</td><td>197</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>25088</td><td>8101</td><td class="bad">✗</td></tr><tr><td>Images</td><td>8</td><td>39</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>6</td><td>0</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>2</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>148</td><td>131</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>32</td><td>32</td><td class="ok">✓</td></tr><tr><td>Page height (px)</td><td>3373</td><td>3362</td><td class="bad">✗</td></tr></tbody></table></section>
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
 <div class="groups"><div class="group-block">
-        <div class="group-head other"><span>Other checks</span><span class="group-pct">0/1 passed</span></div>
+        <div class="group-head missing-content">
+          <span>Missing content</span>
+          <span class="group-pct">30/30 · 100%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Content length (±30%)</span>
+        <span class="check-detail">2440/2440 chars (100%) · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">เทียบเนื้อหา (text sample · ratio 100%)</div>
+          <div class="outline-grid">
+            <div class="outline-col">
+              <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
+              <div class="text-sample">การออม เพื่อนคู่คิดเคียงข้าง ทุกเส้นทางการออม กับบัญชีเงินฝาก ธนาคารกรุงเทพ ออมเงินได้ตรงใจ ออมเงินได้ตรงใจ บริการ e-Withholding Tax เครื่องมือช่วยเหลือ ออมเงินได้ตรงใจ เลือกในสไตล์ที่เป็นคุณ บัญชีเงินฝากสะสมทรัพย์และกระแสรายวัน บัญชีเงินฝากประจำ บัญชีเงินฝากเงินตราต่างประเทศ บัญชีเงินฝากสะสมทรัพย์ ฝากเริ่มต้น 500 บาท ฝาก ถอน โอน จ่ายได้ไม่จำกัดจำนวนครั้งและจำนวนเงิน สะดวกกับการชำระค่าบริการต่างๆ ผ่านสาขาและช่องทางอิเล็กทรอนิกส์ของธนาคาร ดูรายละเอียด บัญชีเงินฝากสะสมทรัพย์ ประเภทไม่มีสมุดคู่ฝาก นิยามใหม่ของการฝากเงินที่ไม่ต้องมีสมุดบัญชี ตอบโจทย์ไลฟ์สไตล์คนรุ่นใหม่ ไม่ต้องไปแบงก์ ไม่ต้องคอยปรั</div>
+            </div>
+            <div class="outline-col">
+              <div class="outline-head tgt">AEM (migrate)</div>
+              <div class="text-sample">การออม เพื่อนคู่คิดเคียงข้าง ทุกเส้นทางการออม กับบัญชีเงินฝาก ธนาคารกรุงเทพ ออมเงินได้ตรงใจ ออมเงินได้ตรงใจ บริการ e-Withholding Tax เครื่องมือช่วยเหลือ ออมเงินได้ตรงใจ เลือกในสไตล์ที่เป็นคุณ บัญชีเงินฝากสะสมทรัพย์และกระแสรายวัน บัญชีเงินฝากประจำ บัญชีเงินฝากเงินตราต่างประเทศ บัญชีเงินฝากสะสมทรัพย์ ฝากเริ่มต้น 500 บาท ฝาก ถอน โอน จ่ายได้ไม่จำกัดจำนวนครั้งและจำนวนเงิน สะดวกกับการชำระค่าบริการต่างๆ ผ่านสาขาและช่องทางอิเล็กทรอนิกส์ของธนาคาร ดูรายละเอียด บัญชีเงินฝากสะสมทรัพย์ ประเภทไม่มีสมุดคู่ฝาก นิยามใหม่ของการฝากเงินที่ไม่ต้องมีสมุดบัญชี ตอบโจทย์ไลฟ์สไตล์คนรุ่นใหม่ ไม่ต้องไปแบงก์ ไม่ต้องคอยปรั</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Missing text (sentences)</span>
+        <span class="check-detail">0/32 prod sentence(s) missing · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">ไม่มี text block ขาด ✓ (32 blocks)</div></div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head missing-assets">
+          <span>Missing assets</span>
+          <span class="group-pct">21/25 · 84%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Missing image (count ≥80%)</span>
+        <span class="check-detail">15/5 images · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">AEM 15 / Production 5 รูป</div>
+        
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Broken image (fails to load on AEM)</span>
+        <span class="check-detail">0/15 AEM image(s) fail to load · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (15 รูป)</div></div></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Image alt text (&gt;50% match)</span>
+        <span class="check-detail">alt match 0% · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">alt ตรงกัน 0% (จาก 3 alt บน prod)</div>
+        <div class="chip-list"><span class="chip chip-missing">ไอคอน livechat</span><span class="chip chip-missing">ไอคอนแผนที่</span><span class="chip chip-missing">ไอคอนทางการเงิน</span></div>
+      </div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head alignment">
+          <span>Content alignment</span>
+          <span class="group-pct">20/20 · 100%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Content order (sequence)</span>
+        <span class="check-detail">116/118 shared block(s) in prod order (98%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">116/118 block ตามลำดับ prod</div>
+        <div class="diff-title bad">Block ที่ย้ายตำแหน่ง (2)</div>
+        <div class="chip-list"><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span></div>
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Visual layout (column profile)</span>
+        <span class="check-detail">profile match 89%</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">การกระจายเนื้อหาแนวนอน — ตรงกัน 89%</div>
+        <div class="outline-grid">
+          <div class="outline-col"><div class="outline-head src">PRODUCTION</div><svg width="280" height="44" viewBox="0 0 280 44" style="display:block"><polyline points="0.0,18.6 4.4,20.9 8.9,20.1 13.3,17.7 17.8,0.0 22.2,3.7 26.7,5.0 31.1,9.9 35.6,9.6 40.0,14.5 44.4,17.4 48.9,20.3 53.3,14.8 57.8,16.9 62.2,13.8 66.7,14.7 71.1,10.6 75.6,16.9 80.0,15.4 84.4,18.3 88.9,14.1 93.3,18.0 97.8,14.8 102.2,20.3 106.7,15.9 111.1,11.1 115.6,12.1 120.0,16.7 124.4,12.8 128.9,19.4 133.3,12.8 137.8,9.7 142.2,1.9 146.7,8.7 151.1,8.3 155.6,14.7 160.0,13.0 164.4,11.2 168.9,10.0 173.3,19.5 177.8,7.3 182.2,10.3 186.7,13.1 191.1,17.8 195.6,15.1 200.0,13.1 204.4,7.3 208.9,10.8 213.3,7.1 217.8,12.2 222.2,17.3 226.7,21.4 231.1,10.5 235.6,9.9 240.0,6.3 244.4,12.0 248.9,17.1 253.3,23.0 257.8,23.6 262.2,19.1 266.7,18.3 271.1,19.7 275.6,16.7 280.0,17.3" fill="none" stroke="#2563eb" stroke-width="1.5"/></svg></div>
+          <div class="outline-col"><div class="outline-head tgt">AEM</div><svg width="280" height="44" viewBox="0 0 280 44" style="display:block"><polyline points="0.0,19.1 4.4,21.3 8.9,20.1 13.3,21.1 17.8,15.4 22.2,20.3 26.7,19.5 31.1,22.0 35.6,19.4 40.0,23.4 44.4,24.5 48.9,24.9 53.3,24.6 57.8,27.4 62.2,22.7 66.7,23.0 71.1,19.0 75.6,20.7 80.0,23.2 84.4,27.6 88.9,26.9 93.3,27.5 97.8,26.7 102.2,28.5 106.7,25.5 111.1,24.4 115.6,26.5 120.0,23.3 124.4,20.5 128.9,24.2 133.3,20.5 137.8,14.1 142.2,2.4 146.7,9.2 151.1,7.4 155.6,11.4 160.0,6.8 164.4,6.1 168.9,3.8 173.3,9.6 177.8,3.5 182.2,11.6 186.7,9.5 191.1,12.4 195.6,8.0 200.0,4.4 204.4,0.0 208.9,8.6 213.3,11.0 217.8,16.7 222.2,14.8 226.7,16.4 231.1,12.5 235.6,10.1 240.0,9.7 244.4,12.9 248.9,10.0 253.3,15.7 257.8,19.2 262.2,26.6 266.7,21.0 271.1,20.6 275.6,18.1 280.0,19.4" fill="none" stroke="#d97706" stroke-width="1.5"/></svg></div>
+        </div>
+      </div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head downloads">
+          <span>Download links</span>
+          <span class="group-pct">0/0 · 0%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Download links present<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">prod has no download links</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">ไฟล์ดาวน์โหลดครบ ✓ (0 ไฟล์)</div></div></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Download links alive<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">AEM has no download links</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">ลิงก์ดาวน์โหลดทำงานทั้งหมด ✓ (0 ลิงก์)</div></div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head structure">
+          <span>Structure &amp; template</span>
+          <span class="group-pct">8/10 · 82%</span>
+        </div>
         <div class="checks-list">
     <details class="check-block failed">
       <summary class="check-row">
         <span class="check-status bad">✗</span>
-        <span class="check-label">Production page is BLOCKED (Access Denied / WAF)</span>
-        <span class="check-detail">Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</span>
-        
+        <span class="check-label">Headings (Jaccard)</span>
+        <span class="check-detail">34/54 headings (Jaccard 58%)</span>
+        <span class="expand-hint">▾</span>
       </summary>
-      
+      <div class="diff-body">
+      <div class="diff-section">
+        <div class="diff-title">เทียบ heading outline ทั้งสองฝั่ง — <b class="ok">34 ✓</b> / <b class="bad">20 ✗ ขาด</b> (จาก 54 ใน Production)</div>
+        <div class="outline-grid">
+          <div class="outline-col">
+            <div class="outline-head src">PRODUCTION (ต้นฉบับ) · 54 headings</div>
+            <div class="outline-body"><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หน้าแรกลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออมและการลงทุน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์บัตร</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์เพื่อครอบครัว</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บ้านและที่อยู่อาศัย</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการอื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หน้าแรกลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บริหารธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การเงินเพื่อธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการการค้าระหว่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">คุ้มครองธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการด้านหลักทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วานิชธนกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">เปลี่ยนภาษา</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Online Banking</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออม</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออม</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ออมเงินได้ตรงใจ เลือกในสไตล์ที่เป็นคุณ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์ ประเภทไม่มีสมุดคู่ฝาก</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์ e-Savings</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์บัวหลวงเอ็กซ์ตร้าดิจิทัล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์บัวหลวงเอ็กซ์ตร้า</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์ขวัญบัวหลวง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากพื้นฐาน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากกระแสรายวัน</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากประจำ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากประจำ 4 เดือน และ 7 เดือน</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากสินมัธยะทรัพย์ทวี</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากสินมัธยะทรัพย์ทวี – บัวหลวงคิดส์</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากประจำขวัญบัวหลวง</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากเงินตราต่างประเทศสะสมทรัพย์ทางอิเล็กทรอนิกส์ (FCD e-Savings)</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากเงินตราต่างประเทศสำหรับบุคคลไทย</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากเงินตราต่างประเทศ ประเภทพิเศษ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากเงินตราต่างประเทศสำหรับชาวต่างชาติ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บัญชีเงินฝากเงินตราต่างประเทศ ประเภทเงินฝากประจำ สกุลดอลลาร์สหรัฐอเมริกา (USD)</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการ e-Withholding Tax</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณ ในทุกธุรกรรมทางการเงิน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณในทุกธุรกรรมทางการเงิน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เกี่ยวกับธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กิจการธนาคารต่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุกกี้ประเภทการวิเคราะห์</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุกกี้ประเภทการโฆษณา</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุณกำลังจะออกจากเว็บไซต์ธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หนังสือแจ้งการคุ้มครองข้อมูลส่วนบุคคล (Privacy Notice) สำหรับบุคลากรของธนาคารกรุงเทพ จำกัด (มหาชน)</span>
+        </div></div>
+          </div>
+          <div class="outline-col">
+            <div class="outline-head tgt">AEM (migrate) · 34 headings</div>
+            <div class="outline-body"><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออมและการลงทุน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์บัตร</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์เพื่อครอบครัว</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บ้านและที่อยู่อาศัย</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการอื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">Manage Myบริหารธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การเงินเพื่อธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการการค้าระหว่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">คุ้มครองธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการด้านหลักทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วานิชธนกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Online Banking</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออม</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ออมเงินได้ตรงใจ เลือกในสไตล์ที่เป็นคุณ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์ ประเภทไม่มีสมุดคู่ฝาก</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์ e-Savings</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์บัวหลวงเอ็กซ์ตร้าดิจิทัล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์บัวหลวงเอ็กซ์ตร้า</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากสะสมทรัพย์ขวัญบัวหลวง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากพื้นฐาน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บัญชีเงินฝากกระแสรายวัน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการ e-Withholding Tax</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เกี่ยวกับธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กิจการธนาคารต่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อื่นๆ</span>
+        </div></div>
+          </div>
+        </div>
+        <div class="outline-legend">
+          <span class="hrow hrow-matched" style="display:inline-flex;margin-right:12px"><span class="hicon">✓</span> มีในทั้งคู่</span>
+          <span class="hrow hrow-missing" style="display:inline-flex"><span class="hicon">✗</span> มีฝั่งเดียว (อีกฝั่งขาด)</span>
+        </div>
+      </div>
+    </div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Links match</span>
+        <span class="check-detail">197/222 links (88% of prod link-texts found)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">117 prod link-text <b class="ok">✓ พบใน AEM</b></div>
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Meta tags</span>
+        <span class="check-detail">4/4 matched · (not scored) keywords: prod ✓ / AEM ✓</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><table class="meta-diff"><thead><tr><th>Meta</th><th>Production</th><th>AEM</th><th>Status</th></tr></thead><tbody>
+      <tr>
+        <td><code>title</code></td>
+        <td class="ok">การออม</td>
+        <td class="ok">การออม</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>description</code></td>
+        <td class="ok">ออมเพิ่ม เติมสุข หลากหลายประเภทบัญชีเงินฝากให้เลือกออมได้ตามใจ ออมสั้นหรือออมยาว ออมเพื่อใช้หมุนเวียน ออมเพื่ออนาคต</td>
+        <td class="ok">ออมเพิ่ม เติมสุข หลากหลายประเภทบัญชีเงินฝากให้เลือกออมได้ตามใจ ออมสั้นหรือออมยาว ออมเพื่อใช้หมุนเวียน ออมเพื่ออนาคต</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>ogTitle</code></td>
+        <td class="ok">การออม</td>
+        <td class="ok">การออม</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>ogImage</code></td>
+        <td class="ok">https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/replace-expiredphoto-may2023/savings/1200x630.jpg</td>
+        <td class="ok">https://prod-aem.bangkokbank.com/th/personal/save-and-invest/media_18ce0fc2c579414e494201273fd1bf3896c69e36f.jpg?width=1200&amp;format=pjpg&amp;optimize=medium</td>
+        <td class="ok">✓</td>
+      </tr></tbody></table></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Template (header/footer/components)</span>
+        <span class="check-detail">header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0 · advisory: tabs 6/0</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">Header: 80/80 labels</div>
+        <div class="chip-list"><span class="chip chip-missing">ค้นหา</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">Work Café</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">ออกหนังสือรับรองฐานะทางการเงินอิเล็กทรอนิกส์</span><span class="chip chip-missing">ประกันชีวิตคุ้มครองเครดิต เครดิตเฟิสต์</span></div>
+        <div class="chip-list"><span class="chip">TH (extra)</span><span class="chip">Manage My (extra)</span><span class="chip">วานิชธนกิจ (extra)</span><span class="chip">ธุรกิจตลาดทุน (extra)</span><span class="chip">บริการที่ปรึกษาทางการเงิน (extra)</span><span class="chip">สินเชื่อธุรกิจโครงการ (extra)</span></div>
+      </div><div class="diff-section">
+        <div class="diff-title">Footer: 31/31 labels</div>
+        
+        
+      </div><div class="diff-section"><div class="diff-title">Components</div>
+           <table class="mini"><tr><td>accordion</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div></div>
     </details></div>
       </div></div></section>
 
 
+<section class="panel"><h2>Broken Links on AEM (1)</h2>
+<table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">404</td><td class="lhref-cell">https://main--site-prod--bangkok-bank.aem.live/en/mutual-fund</td></tr></tbody></table></section>
 
+<section class="panel"><h2>Image Distortion / Ratio Issues (6)</h2>
+<ul class="img-issue-list"><li class="img-issue">
+      <div class="img-issue-head">
+        <span class="sev sev-ratio">ratio</span>
+        <b>media_1ea4725d1a4d63275b656e947f131eb3cbd8dfc7a.jpg</b>
+        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
+      </div>
+      
+      <div class="img-preview-grid">
+        <div class="img-preview-cell"><div class="img-preview-label">PROD 24×24</div><img src="https://www.bangkokbank.com/assets/BBL%20Corporate/img/icons/GMAp/icon_headerPC.svg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1ea4725d1a4d63275b656e947f131eb3cbd8dfc7a.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+      </div>
+    </li><li class="img-issue">
+      <div class="img-issue-head">
+        <span class="sev sev-ratio">ratio</span>
+        <b>media_1c11dc9e7c785f8e06b11a88af497e855ddcc73fc.jpg</b>
+        <span class="muted">rendered ratio prod 2.60 vs aem 2.29</span>
+      </div>
+      
+      <div class="img-preview-grid">
+        <div class="img-preview-cell"><div class="img-preview-label">PROD 125×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-livechat.svg?h=48&amp;iar=0&amp;" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1c11dc9e7c785f8e06b11a88af497e855ddcc73fc.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+      </div>
+    </li><li class="img-issue">
+      <div class="img-issue-head">
+        <span class="sev sev-ratio">ratio</span>
+        <b>media_1a84588830cc4dc64f08cd17ddcc073753d00fc6c.jpg</b>
+        <span class="muted">rendered ratio prod 2.00 vs aem 2.29</span>
+      </div>
+      
+      <div class="img-preview-grid">
+        <div class="img-preview-cell"><div class="img-preview-label">PROD 96×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-maps.svg?h=48&amp;iar=0&amp;w=48" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1a84588830cc4dc64f08cd17ddcc073753d00fc6c.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+      </div>
+    </li><li class="img-issue">
+      <div class="img-issue-head">
+        <span class="sev sev-ratio">ratio</span>
+        <b>media_1826648c14d789d7248fd70e3b516af403f95756a.jpg</b>
+        <span class="muted">rendered ratio prod 2.67 vs aem 2.29</span>
+      </div>
+      
+      <div class="img-preview-grid">
+        <div class="img-preview-cell"><div class="img-preview-label">PROD 128×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-financial.svg?h=48&amp;iar=0" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1826648c14d789d7248fd70e3b516af403f95756a.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+      </div>
+    </li><li class="img-issue">
+      <div class="img-issue-head">
+        <span class="sev sev-ratio">ratio</span>
+        <b>media_19758fd1be68537b74809153502e5a40b2a4d3b3b.jpg</b>
+        <span class="muted">rendered ratio prod 2.86 vs aem 2.29</span>
+      </div>
+      
+      <div class="img-preview-grid">
+        <div class="img-preview-cell"><div class="img-preview-label">PROD 60×21</div><img src="https://www.bangkokbank.com/-/media/feature/navigation/bbl-corporate/footer/logo-footer-2.png?h=31&amp;iar=0&amp;w=47&amp;hash=CDCFC" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_19758fd1be68537b74809153502e5a40b2a4d3b3b.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+      </div>
+    </li><li class="img-issue">
+      <div class="img-issue-head">
+        <span class="sev sev-ratio">ratio</span>
+        <b>media_19aa7ee40212a4411e494aa5240d8d9717c495030.jpg</b>
+        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
+      </div>
+      
+      <div class="img-preview-grid">
+        <div class="img-preview-cell"><div class="img-preview-label">PROD 24×24</div><img src="https://www.bangkokbank.com/images/econscent/Arrow-right.svg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_19aa7ee40212a4411e494aa5240d8d9717c495030.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
+      </div>
+    </li></ul></section>
 
 <footer class="foot"><a href="../priority-dashboard.html">← Back to dashboard</a></footer>
 </div>

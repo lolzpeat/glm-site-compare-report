@@ -135,14 +135,14 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 
 <header>
   <h1>Bangkok Bank — AEM Migration Parity Dashboard · PRIORITY</h1>
-  <p class="meta">เป้าหมาย: AEM ต้องเหมือน Production มากที่สุด · 15 หน้า · 4/8/2569 18:22:52</p>
+  <p class="meta">เป้าหมาย: AEM ต้องเหมือน Production มากที่สุด · 15 หน้า · 5/8/2569 10:06:51</p>
 </header>
 
 <section class="cards">
-  <div class="card big"><div class="num">44<span class="pct">%</span></div><div class="lbl">PARITY เฉลี่ย</div></div>
-  <div class="card"><div class="num good">6</div><div class="lbl">PASS (≥85)</div></div>
-  <div class="card"><div class="num mid">1</div><div class="lbl">REVIEW (50–84)</div></div>
-  <div class="card"><div class="num bad">8</div><div class="lbl">FAIL (&lt;50)</div></div>
+  <div class="card big"><div class="num">80<span class="pct">%</span></div><div class="lbl">PARITY เฉลี่ย</div></div>
+  <div class="card"><div class="num good">10</div><div class="lbl">PASS (≥85)</div></div>
+  <div class="card"><div class="num mid">3</div><div class="lbl">REVIEW (50–84)</div></div>
+  <div class="card"><div class="num bad">2</div><div class="lbl">FAIL (&lt;50)</div></div>
   <div class="card"><div class="num good">0</div><div class="lbl">AEM LOW CONTENT</div></div>
   <div class="card"><div class="num">15</div><div class="lbl">TOTAL</div></div>
 </section>
@@ -155,30 +155,30 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
       
         <div class="bar-row">
           <span class="bar-lbl">90-100</span>
-          <div class="bar-track"><div class="bar-fill" style="width:75%"></div></div>
-          <span class="bar-val">6</span>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+          <span class="bar-val">10</span>
         </div>
         <div class="bar-row">
           <span class="bar-lbl">75-89</span>
-          <div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>
-          <span class="bar-val">0</span>
+          <div class="bar-track"><div class="bar-fill" style="width:20%"></div></div>
+          <span class="bar-val">2</span>
         </div>
         <div class="bar-row">
           <span class="bar-lbl">50-74</span>
-          <div class="bar-track"><div class="bar-fill" style="width:13%"></div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:10%"></div></div>
           <span class="bar-val">1</span>
         </div>
         <div class="bar-row">
           <span class="bar-lbl">0-49</span>
-          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
-          <span class="bar-val">8</span>
+          <div class="bar-track"><div class="bar-fill" style="width:20%"></div></div>
+          <span class="bar-val">2</span>
         </div>
     </div>
   </div>
   <div class="panel">
     <h2>By Category</h2>
     <table class="cat-table"><thead><tr><th>Category</th><th>Pages</th><th>Avg</th><th>&lt;85</th></tr></thead>
-    <tbody><tr><td>Uncategorized</td><td>15</td><td class="parity-bad"><b>44</b></td><td>9</td></tr></tbody></table>
+    <tbody><tr><td>Uncategorized</td><td>15</td><td class="parity-mid"><b>80</b></td><td>5</td></tr></tbody></table>
   </div>
 </section>
 
@@ -230,7 +230,7 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 <footer class="foot">Production = source of truth · AEM = target to fix · Click any row to drill down</footer>
 </div>
 <script>
-const ROWS = [{"id":"1","path":"/th-TH/About-Us/Bank-Holidays","category":"","subCategory":"","parity":96,"gaps":9,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["alignment","structure"]},{"id":"2","path":"/th-TH/About-Us/Board-Directors","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"3","path":"/th-TH/Investor-Relations/Search-Results","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"4","path":"/th-TH/Locate-Us","category":"","subCategory":"","parity":36,"gaps":14,"status":"fail","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","alignment","structure"]},{"id":"5","path":"/th-TH/Privacy-Notice","category":"","subCategory":"","parity":100,"gaps":7,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["structure"]},{"id":"6","path":"/th-TH/PrivateBank/Strategic-Insights","category":"","subCategory":"","parity":93,"gaps":10,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-assets","alignment","structure"]},{"id":"7","path":"/th-TH/Search","category":"","subCategory":"","parity":63,"gaps":12,"status":"warn","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","alignment","structure"]},{"id":"8","path":"/th-TH/Wealth","category":"","subCategory":"","parity":95,"gaps":11,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","alignment","structure"]},{"id":"9","path":"/th-TH/About-Us","category":"","subCategory":"","parity":90,"gaps":11,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","structure"]},{"id":"10","path":"/th-TH/About-Us/Bangkok-Bank-Careers","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"11","path":"/th-TH/About-Us/Sustainability","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"12","path":"/th-TH/International-Banking","category":"","subCategory":"","parity":92,"gaps":12,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","alignment","structure"]},{"id":"13","path":"/th-TH/Personal/My-Family-and-Me/Personal-Loan","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"14","path":"/th-TH/Personal/Other-Services/View-Rates","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"15","path":"/th-TH/Personal/Save-And-Invest/Save","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]}];
+const ROWS = [{"id":"1","path":"/th-TH/About-Us/Bank-Holidays","category":"","subCategory":"","parity":96,"gaps":9,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["alignment","structure"]},{"id":"2","path":"/th-TH/About-Us/Board-Directors","category":"","subCategory":"","parity":93,"gaps":10,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","structure"]},{"id":"3","path":"/th-TH/Investor-Relations/Search-Results","category":"","subCategory":"","parity":97,"gaps":9,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["alignment","structure"]},{"id":"4","path":"/th-TH/Locate-Us","category":"","subCategory":"","parity":36,"gaps":14,"status":"fail","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","alignment","structure"]},{"id":"5","path":"/th-TH/Privacy-Notice","category":"","subCategory":"","parity":100,"gaps":7,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["structure"]},{"id":"6","path":"/th-TH/PrivateBank/Strategic-Insights","category":"","subCategory":"","parity":93,"gaps":10,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-assets","alignment","structure"]},{"id":"7","path":"/th-TH/Search","category":"","subCategory":"","parity":63,"gaps":12,"status":"warn","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","alignment","structure"]},{"id":"8","path":"/th-TH/Wealth","category":"","subCategory":"","parity":95,"gaps":11,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","alignment","structure"]},{"id":"9","path":"/th-TH/About-Us","category":"","subCategory":"","parity":90,"gaps":11,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","structure"]},{"id":"10","path":"/th-TH/About-Us/Bangkok-Bank-Careers","category":"","subCategory":"","parity":82,"gaps":11,"status":"warn","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","downloads","structure"]},{"id":"11","path":"/th-TH/About-Us/Sustainability","category":"","subCategory":"","parity":83,"gaps":12,"status":"warn","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","downloads","structure"]},{"id":"12","path":"/th-TH/International-Banking","category":"","subCategory":"","parity":92,"gaps":12,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","alignment","structure"]},{"id":"13","path":"/th-TH/Personal/My-Family-and-Me/Personal-Loan","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"14","path":"/th-TH/Personal/Other-Services/View-Rates","category":"","subCategory":"","parity":94,"gaps":10,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","structure"]},{"id":"15","path":"/th-TH/Personal/Save-And-Invest/Save","category":"","subCategory":"","parity":93,"gaps":10,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-assets","structure"]}];
 const PAGE_SIZE = 25;
 let sortKey = 'id', sortDir = 1;
 let currentPage = 1;
