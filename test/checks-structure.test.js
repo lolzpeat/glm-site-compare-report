@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { structureChecks } from '../src/scoring/checks-structure.js';
+import { structureChecks, scoreMenu } from '../src/scoring/checks-structure.js';
 import { metrics } from './fixtures.js';
 
 const byId = (arr, id) => arr.find(c => c.id === id);
@@ -60,14 +60,17 @@ test('meta still fails ogImage when AEM dropped the image entirely', () => {
   assert.equal(c.passed, false);
   assert.deepEqual(c.diff.missing, ['ogImage']);
 });
-test('template merges header/footer/components; insufficient on old captures', () => {
+test('template scores components only — site-wide menus do not fail a page', () => {
+  // Header/footer are identical on every page, so scoring them per page turned
+  // one mega-menu difference into a defect on all 632 pages. Components differ
+  // page to page and stay scored.
   const menus = [{ label: 'หน้าแรก' }, { label: 'ผลิตภัณฑ์' }];
   const prod = metrics({ headerMenus: menus, footerMenus: menus });
-  const aem = metrics({ headerMenus: menus, footerMenus: [{ label: 'หน้าแรก' }] });
+  const aem = metrics({ headerMenus: [{ label: 'หน้าแรก' }], footerMenus: [{ label: 'หน้าแรก' }] });
   const c = byId(structureChecks(prod, aem), 'template');
-  assert.equal(c.passed, false);           // footer label missing
-  assert.ok(c.partial > 0 && c.partial < 1);
-  assert.equal(c.diff.footer.missing.length, 1);
+  assert.equal(c.passed, true, 'a dropped menu label must not fail the page check');
+  assert.equal(c.diff.header, undefined, 'menu diffs no longer ride on the page check');
+  assert.equal(c.diff.footer, undefined);
   // old capture (no headerMenus/componentCounts) → insufficient
   const old = { ...metrics() };
   delete old.headerMenus; delete old.footerMenus; delete old.componentCounts;
@@ -110,22 +113,23 @@ test('meta records ogImage path match as verified when the paths do line up', ()
   assert.equal(og.pathVerified, true);
 });
 
-test('template menu labels ignore space placement but report original text', () => {
-  const prod = metrics({ headerMenus: [{ label: 'ทรัพย์หลักประกันทางธุรกิจ พร้อมขาย' }, { label: 'ค้นหา' }],
-    footerMenus: [{ label: 'การออม/การลงทุน' }] });
-  const aem = metrics({ headerMenus: [{ label: 'ทรัพย์หลักประกันทางธุรกิจพร้อมขาย' }, { label: 'ค้นหา' }],
-    footerMenus: [{ label: 'การออม / การลงทุน' }] });
-  const c = byId(structureChecks(prod, aem), 'template');
-  assert.deepEqual(c.diff.header.missing, [], 'moved space is not a missing menu item');
-  assert.deepEqual(c.diff.footer.missing, []);
-  assert.deepEqual(c.diff.footer.extra, []);
+// scoreMenu now feeds the site-level chrome panel instead of the page check,
+// so it is tested directly.
+test('scoreMenu ignores space placement but reports original text', () => {
+  const h = scoreMenu(
+    [{ label: 'ทรัพย์หลักประกันทางธุรกิจ พร้อมขาย' }, { label: 'ค้นหา' }],
+    [{ label: 'ทรัพย์หลักประกันทางธุรกิจพร้อมขาย' }, { label: 'ค้นหา' }]);
+  assert.deepEqual(h.diff.missing, [], 'moved space is not a missing menu item');
+  assert.equal(h.pass, true);
+  const f = scoreMenu([{ label: 'การออม/การลงทุน' }], [{ label: 'การออม / การลงทุน' }]);
+  assert.deepEqual(f.diff.missing, []);
+  assert.deepEqual(f.diff.extra, []);
 });
 
-test('template reports a genuinely dropped menu item with its original label', () => {
-  const prod = metrics({ headerMenus: [{ label: 'work café' }, { label: 'ค้นหา' }], footerMenus: [] });
-  const aem = metrics({ headerMenus: [{ label: 'ค้นหา' }], footerMenus: [] });
-  const c = byId(structureChecks(prod, aem), 'template');
-  assert.deepEqual(c.diff.header.missing, ['work café'], 'label reported verbatim, not space-stripped');
+test('scoreMenu reports a genuinely dropped menu item with its original label', () => {
+  const h = scoreMenu([{ label: 'work café' }, { label: 'ค้นหา' }], [{ label: 'ค้นหา' }]);
+  assert.equal(h.pass, false);
+  assert.deepEqual(h.diff.missing, ['work café'], 'label reported verbatim, not space-stripped');
 });
 
 test('template counts content-scoped components when both sides carry them', () => {

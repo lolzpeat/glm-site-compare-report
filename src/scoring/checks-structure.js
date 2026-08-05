@@ -1,7 +1,14 @@
 // Structure & template group. headings/links/meta are straight ports of the
-// pre-v2 checks. `template` merges the pre-v2 headerMenu/footerMenu/components
-// checks into one 2% check — their logic is unchanged and their per-part diffs
-// survive under diff.{header,footer,components} for the drill-down view.
+// pre-v2 checks.
+//
+// `template` scores COMPONENTS ONLY (accordion/table/form/video). Header and
+// footer menus were dropped from per-page scoring 2026-08-05: they are
+// site-wide chrome, so one mega-menu difference was reported as a per-page
+// defect on every page — all 14 priority pages produced a byte-identical
+// header diff (6 of 80 labels), which would be 632 identical "defects" on the
+// full set and 632 rows of "เทมเพลตไม่ครบ" in the sheet's Open Issues. The
+// comparison is correct, the granularity was not. scoreMenu is exported so
+// build-dashboard.js can report it ONCE at site level instead.
 import { META_KEYS, META_INFO_KEYS } from '../../config.js';
 import { makeCheck, normCompare, assetPath, matchAssetPath, assetPathsEqual } from './util.js';
 
@@ -16,7 +23,7 @@ const hasNewMetrics = (m) => !!(m && m.componentCounts && m.headerMenus && m.foo
 // "…ธุรกิจ พร้อมขาย" vs "…ธุรกิจพร้อมขาย"), which is not a missing menu item.
 // Thai has no inter-word spaces, so removing them cannot merge distinct labels.
 const labelKey = (s) => (s || '').toLowerCase().replace(/\s+/g, '');
-function scoreMenu(prodMenus, aemMenus) {
+export function scoreMenu(prodMenus, aemMenus) {
   const keyToLabel = new Map();
   const keys = (menus) => new Set((menus || []).map(m => {
     const k = labelKey(m.label);
@@ -151,22 +158,18 @@ export function structureChecks(prod, aem) {
     metaHits / META_KEYS.length,
     { missing: metaMissing, details: metaChecks, info: metaInfo }));
 
-  // template: header + footer + components merged.
+  // template: page components only. Header/footer live in the site-level
+  // report — see the header comment.
   const tCheck = (() => {
     if (!hasNewMetrics(prod) || !hasNewMetrics(aem)) {
-      const c = makeCheck('template', 'Template (header/footer/components)', false,
+      const c = makeCheck('template', 'Template (page components)', false,
         'insufficient data (page captured before criteria update)', 0, null);
       c.insufficient = true;
       return c;
     }
-    const hm = scoreMenu(prod.headerMenus, aem.headerMenus);
-    const fm = scoreMenu(prod.footerMenus, aem.footerMenus);
     const comp = scoreComponents(prod, aem);
-    return makeCheck('template', 'Template (header/footer/components)',
-      hm.pass && fm.pass && comp.pass,
-      `header ${hm.detail} · footer ${fm.detail} · ${comp.detail}`,
-      (hm.hit + fm.hit + comp.hit) / 3,
-      { header: hm.diff, footer: fm.diff, components: comp.diff });
+    return makeCheck('template', 'Template (page components)',
+      comp.pass, comp.detail, comp.hit, { components: comp.diff });
   })();
   checks.push(tCheck);
 

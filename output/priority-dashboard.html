@@ -81,6 +81,15 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 .meta-diff th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
 .meta-diff code { font-size:11px; }
 
+/* Site-level header/footer chrome report */
+.chrome-group { border:1px solid #e8eaed; border-radius:8px; padding:12px 14px; margin:10px 0; background:#fafbfc; }
+.chrome-head { font-size:13px; margin-bottom:8px; }
+.chrome-part { margin:8px 0; }
+.chrome-part-name { font-size:12px; font-weight:700; text-transform:uppercase; color:#444; margin-bottom:5px; }
+.chrome-row { display:flex; align-items:flex-start; gap:8px; margin:4px 0; }
+.chrome-tag { font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; white-space:nowrap; }
+.chrome-tag.bad { background:#fde8e8; color:#c00; }
+.chrome-tag.warn { background:#fff4e0; color:#8a5a00; }
 .cards { display:flex; gap:12px; margin:16px 0; }
 .card { flex:1; background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,.06); }
 .card .num { font-size:28px; font-weight:800; color:#1a2b5c; }
@@ -182,6 +191,21 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
   </div>
 </section>
 
+
+<section class="panel">
+  <h2>🧩 Site chrome — header / footer (ทั้งเว็บ, ไม่คิดคะแนนรายหน้า)</h2>
+  <p class="muted" style="margin:4px 0 12px">เมนู header/footer เหมือนกันทุกหน้า จึงรายงานครั้งเดียวตรงนี้ แทนที่จะนับเป็น defect ซ้ำทุกหน้า — แก้ที่ template เดียวจบ</p>
+  
+  <div class="chrome-group">
+    <div class="chrome-head">พบบน <b>14</b> หน้า <span class="muted">(id 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, +2 อื่นๆ)</span></div>
+    <div class="chrome-part">
+        <div class="chrome-part-name">header <span class="muted">— prod 80 / AEM 80 labels</span></div>
+        <div class="chrome-row"><span class="chrome-tag bad">ขาดบน AEM (6)</span><span class="chip-list"><span class="chip chip-missing">ค้นหา</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">Work Café</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">ออกหนังสือรับรองฐานะทางการเงินอิเล็กทรอนิกส์</span><span class="chip chip-missing">ประกันชีวิตคุ้มครองเครดิต เครดิตเฟิสต์</span></span></div>
+        <div class="chrome-row"><span class="chrome-tag warn">เกินมาบน AEM (6)</span><span class="chip-list"><span class="chip chip-extra">TH</span><span class="chip chip-extra">Manage My</span><span class="chip chip-extra">วานิชธนกิจ</span><span class="chip chip-extra">ธุรกิจตลาดทุน</span><span class="chip chip-extra">บริการที่ปรึกษาทางการเงิน</span><span class="chip chip-extra">สินเชื่อธุรกิจโครงการ</span></span></div>
+      </div>
+  </div>
+</section>
+
 <section class="panel">
   <div class="toolbar">
     <h2 style="margin:0">Page Detail</h2>
@@ -230,7 +254,7 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 <footer class="foot">Production = source of truth · AEM = target to fix · Click any row to drill down</footer>
 </div>
 <script>
-const ROWS = [{"id":"1","path":"/th-TH/About-Us/Bank-Holidays","category":"","subCategory":"","parity":96,"gaps":8,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["alignment","structure"]},{"id":"2","path":"/th-TH/About-Us/Board-Directors","category":"","subCategory":"","parity":98,"gaps":8,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","structure"]},{"id":"3","path":"/th-TH/Investor-Relations/Search-Results","category":"","subCategory":"","parity":97,"gaps":8,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["alignment","structure"]},{"id":"4","path":"/th-TH/Locate-Us","category":"","subCategory":"","parity":35,"gaps":13,"status":"fail","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","alignment","structure"]},{"id":"5","path":"/th-TH/Privacy-Notice","category":"","subCategory":"","parity":100,"gaps":6,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["structure"]},{"id":"6","path":"/th-TH/PrivateBank/Strategic-Insights","category":"","subCategory":"","parity":98,"gaps":8,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["alignment","structure"]},{"id":"7","path":"/th-TH/Search","category":"","subCategory":"","parity":68,"gaps":10,"status":"warn","loadError":false,"lowContent":false,"failedGroups":["missing-content","alignment","structure"]},{"id":"8","path":"/th-TH/Wealth","category":"","subCategory":"","parity":95,"gaps":10,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","alignment","structure"]},{"id":"9","path":"/th-TH/About-Us","category":"","subCategory":"","parity":94,"gaps":9,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","structure"]},{"id":"10","path":"/th-TH/About-Us/Bangkok-Bank-Careers","category":"","subCategory":"","parity":87,"gaps":9,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","downloads","structure"]},{"id":"11","path":"/th-TH/About-Us/Sustainability","category":"","subCategory":"","parity":87,"gaps":10,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","downloads","structure"]},{"id":"12","path":"/th-TH/International-Banking","category":"","subCategory":"","parity":96,"gaps":10,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","alignment","structure"]},{"id":"13","path":"/th-TH/Personal/My-Family-and-Me/Personal-Loan","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"14","path":"/th-TH/Personal/Other-Services/View-Rates","category":"","subCategory":"","parity":99,"gaps":8,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","structure"]},{"id":"15","path":"/th-TH/Personal/Save-And-Invest/Save","category":"","subCategory":"","parity":98,"gaps":8,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["structure"]}];
+const ROWS = [{"id":"1","path":"/th-TH/About-Us/Bank-Holidays","category":"","subCategory":"","parity":97,"gaps":7,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["alignment"]},{"id":"2","path":"/th-TH/About-Us/Board-Directors","category":"","subCategory":"","parity":98,"gaps":7,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content"]},{"id":"3","path":"/th-TH/Investor-Relations/Search-Results","category":"","subCategory":"","parity":97,"gaps":7,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["alignment"]},{"id":"4","path":"/th-TH/Locate-Us","category":"","subCategory":"","parity":35,"gaps":12,"status":"fail","loadError":false,"lowContent":false,"failedGroups":["missing-content","missing-assets","alignment","structure"]},{"id":"5","path":"/th-TH/Privacy-Notice","category":"","subCategory":"","parity":100,"gaps":5,"status":"pass","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"6","path":"/th-TH/PrivateBank/Strategic-Insights","category":"","subCategory":"","parity":98,"gaps":8,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["alignment","structure"]},{"id":"7","path":"/th-TH/Search","category":"","subCategory":"","parity":68,"gaps":9,"status":"warn","loadError":false,"lowContent":false,"failedGroups":["missing-content","alignment"]},{"id":"8","path":"/th-TH/Wealth","category":"","subCategory":"","parity":95,"gaps":9,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","alignment","structure"]},{"id":"9","path":"/th-TH/About-Us","category":"","subCategory":"","parity":94,"gaps":8,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","structure"]},{"id":"10","path":"/th-TH/About-Us/Bangkok-Bank-Careers","category":"","subCategory":"","parity":87,"gaps":8,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","downloads"]},{"id":"11","path":"/th-TH/About-Us/Sustainability","category":"","subCategory":"","parity":87,"gaps":9,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","downloads","structure"]},{"id":"12","path":"/th-TH/International-Banking","category":"","subCategory":"","parity":96,"gaps":9,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content","alignment","structure"]},{"id":"13","path":"/th-TH/Personal/My-Family-and-Me/Personal-Loan","category":"","subCategory":"","parity":0,"gaps":1,"status":"blocked","loadError":false,"lowContent":false,"failedGroups":[]},{"id":"14","path":"/th-TH/Personal/Other-Services/View-Rates","category":"","subCategory":"","parity":99,"gaps":7,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["missing-content"]},{"id":"15","path":"/th-TH/Personal/Save-And-Invest/Save","category":"","subCategory":"","parity":98,"gaps":7,"status":"pass","loadError":false,"lowContent":false,"failedGroups":["structure"]}];
 const PAGE_SIZE = 25;
 let sortKey = 'id', sortDir = 1;
 let currentPage = 1;

@@ -169,7 +169,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Missing text (sentences)</b> 6/90 prod sentence(s) missing · main content only</li><li class="gap medium"><span class="sev">medium</span> <b>Download links present</b> 0/15 prod download file(s) found on AEM</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 33/62 headings (Jaccard 45%)</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0 · advisory: tabs 18/0</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 7 heading(s) at wrong level · 1 table(s) dropped</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 10/30 prod keywords missing</li></ul></section>
+<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Missing text (sentences)</b> 6/90 prod sentence(s) missing · main content only</li><li class="gap medium"><span class="sev">medium</span> <b>Download links present</b> 0/15 prod download file(s) found on AEM</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 33/62 headings (Jaccard 45%)</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 7 heading(s) at wrong level · 1 table(s) dropped</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 10/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
@@ -232,7 +232,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
       <summary class="check-row">
         <span class="check-status ok">✓</span>
         <span class="check-label">Missing image (count ≥80%)</span>
-        <span class="check-detail">8/3 images · main content only</span>
+        <span class="check-detail">8/3 images · main content only · &lt;img&gt; only (legacy capture)</span>
         <span class="expand-hint">▾</span>
       </summary>
       <div class="diff-body"><div class="diff-section">
@@ -314,7 +314,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
       </div><div class="group-block">
         <div class="group-head structure">
           <span>Structure &amp; template</span>
-          <span class="group-pct">8/10 · 77%</span>
+          <span class="group-pct">8/10 · 78%</span>
         </div>
         <div class="checks-list">
     <details class="check-block failed">
@@ -768,23 +768,15 @@ table.mini td { padding:2px 8px; font-size:12px; }
         <td class="ok">✓</td>
       </tr></tbody></table></div>
     </details>
-    <details class="check-block failed">
+    <details class="check-block passed">
       <summary class="check-row">
-        <span class="check-status bad">✗</span>
-        <span class="check-label">Template (header/footer/components)</span>
-        <span class="check-detail">header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0 · advisory: tabs 18/0</span>
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Template (page components)</span>
+        <span class="check-detail">accordion 0/0 · table 0/0 · form 0/0 · video 0/0 · advisory: tabs 18/0</span>
         <span class="expand-hint">▾</span>
       </summary>
-      <div class="diff-body"><div class="diff-section">
-        <div class="diff-title">Header: 80/80 labels</div>
-        <div class="chip-list"><span class="chip chip-missing">ค้นหา</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">Work Café</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">ออกหนังสือรับรองฐานะทางการเงินอิเล็กทรอนิกส์</span><span class="chip chip-missing">ประกันชีวิตคุ้มครองเครดิต เครดิตเฟิสต์</span></div>
-        <div class="chip-list"><span class="chip">TH (extra)</span><span class="chip">Manage My (extra)</span><span class="chip">วานิชธนกิจ (extra)</span><span class="chip">ธุรกิจตลาดทุน (extra)</span><span class="chip">บริการที่ปรึกษาทางการเงิน (extra)</span><span class="chip">สินเชื่อธุรกิจโครงการ (extra)</span></div>
-      </div><div class="diff-section">
-        <div class="diff-title">Footer: 31/31 labels</div>
-        
-        
-      </div><div class="diff-section"><div class="diff-title">Components</div>
-           <table class="mini"><tr><td>accordion</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div></div>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title">Components</div>
+           <table class="mini"><tr><td>accordion</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div><div class="diff-section"><div class="diff-title muted">header/footer เทียบระดับเว็บ — ดูที่ Site chrome บนหน้า dashboard</div></div></div>
     </details></div>
       </div></div></section>
 

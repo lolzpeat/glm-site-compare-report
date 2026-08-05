@@ -33,7 +33,7 @@ function renderDoc() {
       visualLayout:        ['Visual layout', 'โปรไฟล์ตรง ≥ 85%', 'เทียบการกระจายเนื้อหาแนวนอนจาก screenshot (ไม่ขึ้นกับความสูงหน้า)'],
       missingDownloadLink: ['Download links present', 'ครบทุกไฟล์', 'ไฟล์ .pdf/.doc/.xls/.zip ของ prod ต้องมีบน AEM (เทียบชื่อไฟล์)'],
       deadDownloadLink:    ['Download links alive', 'ไม่มีลิงก์ตอบ ≥400', 'HEAD check ลิงก์ดาวน์โหลดบน AEM จาก cache'],
-      template:            ['Template (header/footer/components)', 'ผ่านทั้ง 3 ส่วน', 'รวม header menu + footer menu + component parity เป็นเช็คเดียว'],
+      template:            ['Template (page components)', 'component แต่ละ type ≥ 80%', 'เทียบ accordion/table/form/video ในเนื้อหาหน้า — header/footer เป็น chrome ระดับเว็บ รายงานแยกบน dashboard ไม่คิดคะแนนรายหน้า'],
     };
     const body = g.checks.map(id => {
       const [name, pass, desc] = labels[id] || [id, '', ''];

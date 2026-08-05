@@ -58,7 +58,7 @@ const CHECK_LABELS_TH = {
   visualLayout: 'การจัดวาง layout ไม่ตรง',
   missingDownloadLink: 'ไฟล์ดาวน์โหลดหาย',
   deadDownloadLink: 'ลิงก์ดาวน์โหลดตาย',
-  template: 'เทมเพลตไม่ครบ',
+  template: 'Component ในหน้าไม่ครบ',
   thaiBalance: 'ภาษาไทย/อังกฤษไม่สมดุล',
   title: 'หัวข้อข่าวไม่ตรง',
   publishDate: 'วันที่ไม่ตรง',

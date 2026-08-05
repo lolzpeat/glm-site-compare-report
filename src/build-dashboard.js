@@ -11,6 +11,7 @@ import { readFile, writeFile, mkdir, copyFile, readdir, stat, rm } from 'node:fs
 import { existsSync } from 'node:fs';
 import { join, relative, basename, isAbsolute } from 'node:path';
 import { ROOT, DIR, CRITERIA_GROUPS, CRITERIA_GROUPS_V2 } from '../config.js';
+import { scoreMenu } from './scoring/checks-structure.js';
 
 // --criteria=v2 renders with the defect-aligned v2 groups (results-v2.json);
 // default stays the live groups until promotion.
@@ -147,6 +148,7 @@ async function main() {
     total, avg, passed, warned, failed, lowContent, buckets, cats: Object.entries(cats),
     rowData, generatedAt: raw.generatedAt, titleSuffix,
     pagesDirName, dashName, prefix,
+    chrome: siteChromeReport(pages),
   });
   await writeFile(`${OUT}/${dashName}`, dashHtml, 'utf8');
 
@@ -164,7 +166,30 @@ async function main() {
 }
 
 // ─── Dashboard HTML ────────────────────────────────────────────────────────
-function renderDashboard({ total, avg, passed, warned, failed, lowContent, buckets, cats, rowData, generatedAt, titleSuffix, pagesDirName, dashName, prefix }) {
+// Header/footer menus are site-wide chrome, so comparing them per page reports
+// one mega-menu difference as N defects. Group pages by their chrome diff
+// instead: normally every page collapses into a single entry, and a second
+// entry means some section genuinely ships different chrome — which is the
+// finding worth seeing, and is invisible when it is buried in 632 page rows.
+function siteChromeReport(pages) {
+  const groups = new Map();
+  for (const p of pages) {
+    // A blocked/404 capture has no chrome to compare — prod returning an
+    // Access Denied page reads as "0 labels vs 80", a fake second variant.
+    if (p.errorType) continue;
+    const prod = p.prod?.metrics, aem = p.aem?.metrics;
+    if (!prod?.headerMenus || !aem?.headerMenus) continue;
+    const header = scoreMenu(prod.headerMenus, aem.headerMenus);
+    const footer = scoreMenu(prod.footerMenus, aem.footerMenus);
+    if (header.pass && footer.pass) continue;
+    const key = JSON.stringify([header.diff.missing, header.diff.extra, footer.diff.missing, footer.diff.extra]);
+    if (!groups.has(key)) groups.set(key, { header, footer, pages: [] });
+    groups.get(key).pages.push(p.id);
+  }
+  return [...groups.values()].sort((a, b) => b.pages.length - a.pages.length);
+}
+
+function renderDashboard({ total, avg, passed, warned, failed, lowContent, buckets, cats, rowData, generatedAt, titleSuffix, pagesDirName, dashName, prefix, chrome = [] }) {
   const maxBucket = Math.max(1, ...Object.values(buckets));
   const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const catRows = cats.map(([name, c]) => {
@@ -216,6 +241,25 @@ ${lowContent > 0 ? `<div class="warn-banner">⚠ <b>${lowContent} หน้า</
     <tbody>${catRows || '<tr><td colspan=4 class="muted">no data</td></tr>'}</tbody></table>
   </div>
 </section>
+
+${chrome.length ? `
+<section class="panel">
+  <h2>🧩 Site chrome — header / footer (ทั้งเว็บ, ไม่คิดคะแนนรายหน้า)</h2>
+  <p class="muted" style="margin:4px 0 12px">เมนู header/footer เหมือนกันทุกหน้า จึงรายงานครั้งเดียวตรงนี้ แทนที่จะนับเป็น defect ซ้ำทุกหน้า — แก้ที่ template เดียวจบ</p>
+  ${chrome.map(g => `
+  <div class="chrome-group">
+    <div class="chrome-head">พบบน <b>${g.pages.length}</b> หน้า <span class="muted">(id ${g.pages.slice(0, 12).join(', ')}${g.pages.length > 12 ? `, +${g.pages.length - 12} อื่นๆ` : ''})</span></div>
+    ${['header', 'footer'].map(part => {
+      const d = g[part].diff;
+      if (!d.missing.length && !d.extra.length) return '';
+      return `<div class="chrome-part">
+        <div class="chrome-part-name">${part} <span class="muted">— prod ${d.prodCount} / AEM ${d.aemCount} labels</span></div>
+        ${d.missing.length ? `<div class="chrome-row"><span class="chrome-tag bad">ขาดบน AEM (${d.missing.length})</span><span class="chip-list">${d.missing.map(l => `<span class="chip chip-missing">${esc(l)}</span>`).join('')}</span></div>` : ''}
+        ${d.extra.length ? `<div class="chrome-row"><span class="chrome-tag warn">เกินมาบน AEM (${d.extra.length})</span><span class="chip-list">${d.extra.map(l => `<span class="chip chip-extra">${esc(l)}</span>`).join('')}</span></div>` : ''}
+      </div>`;
+    }).join('')}
+  </div>`).join('')}
+</section>` : ''}
 
 <section class="panel">
   <div class="toolbar">
@@ -692,17 +736,14 @@ function renderDiffDetails(check, esc) {
       </div></div>`;
 
     case 'template': {
-      // diff = { header, footer, components } — the pre-v2 per-part diff shapes
-      const menuPart = (name, m) => !m ? '' : `<div class="diff-section">
-        <div class="diff-title">${name}: ${m.aemCount}/${m.prodCount} labels</div>
-        ${m.missing?.length ? `<div class="chip-list">${m.missing.map(l => `<span class="chip chip-missing">${esc(l)}</span>`).join('')}</div>` : ''}
-        ${m.extra?.length ? `<div class="chip-list">${m.extra.map(l => `<span class="chip">${esc(l)} (extra)</span>`).join('')}</div>` : ''}
-      </div>`;
+      // diff = { components }. Header/footer moved to the site-level chrome
+      // panel on the dashboard — they are identical on every page, so showing
+      // them here repeated one finding once per page.
       const comp = diff.components?.perType
         ? `<div class="diff-section"><div class="diff-title">Components</div>
            <table class="mini">${diff.components.perType.map(t => `<tr><td>${esc(t.type)}</td><td>${t.aem}/${t.prod}</td><td class="${t.ok ? 'ok' : 'bad'}">${t.ok ? '✓' : '✗'}</td></tr>`).join('')}</table></div>`
         : '';
-      return `<div class="diff-body">${menuPart('Header', diff.header)}${menuPart('Footer', diff.footer)}${comp}</div>`;
+      return `<div class="diff-body">${comp}<div class="diff-section"><div class="diff-title muted">header/footer เทียบระดับเว็บ — ดูที่ Site chrome บนหน้า dashboard</div></div></div>`;
     }
 
     case 'links':
@@ -1044,6 +1085,15 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 `;
 
 const DASHBOARD_CSS = SHARED + `
+/* Site-level header/footer chrome report */
+.chrome-group { border:1px solid #e8eaed; border-radius:8px; padding:12px 14px; margin:10px 0; background:#fafbfc; }
+.chrome-head { font-size:13px; margin-bottom:8px; }
+.chrome-part { margin:8px 0; }
+.chrome-part-name { font-size:12px; font-weight:700; text-transform:uppercase; color:#444; margin-bottom:5px; }
+.chrome-row { display:flex; align-items:flex-start; gap:8px; margin:4px 0; }
+.chrome-tag { font-size:11px; font-weight:700; padding:3px 8px; border-radius:4px; white-space:nowrap; }
+.chrome-tag.bad { background:#fde8e8; color:#c00; }
+.chrome-tag.warn { background:#fff4e0; color:#8a5a00; }
 .cards { display:flex; gap:12px; margin:16px 0; }
 .card { flex:1; background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,.06); }
 .card .num { font-size:28px; font-weight:800; color:#1a2b5c; }
