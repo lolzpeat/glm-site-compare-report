@@ -22,6 +22,7 @@ import puppeteer from 'puppeteer-core';
 import {
   ROOT, DIR, VIEWPORT, NAV_TIMEOUT, NAV_WAIT_UNTIL, SETTLE_AFTER_LOAD, LAZY_WAIT_TIMEOUT, LAYOUT_WAIT_TIMEOUT, CONCURRENCY, REQUEST_PACING_MS,
   SCREENSHOT_FULLPAGE, SCREENSHOT_MAX_WIDTH, MIN_TEXT_LEN, SCROLL_STIMULATE_STEPS, SCROLL_STIMULATE_DELAY,
+  STIMULATE_STEP_TIMEOUT, RETRYABLE_HTTP_STATUS,
   WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
   THAI_RATIO_DELTA, IMAGE_RATIO_TOLERANCE, MAX_LINK_CHECKS, LINK_CHECK_BATCH, LINK_CHECK_DELAY,
   CAPTURE_USER_AGENT, CAPTURE_ACCEPT_LANGUAGE, HEADER_FOOTER_WAIT_EXTRA, HEADER_FOOTER_POLL,
@@ -147,14 +148,17 @@ function parseCsvLine(line) {
 
 // ─── Per-page capture ─────────────────────────────────────────────────────
 async function capturePage(page, url) {
-  const result = { url, ok: false, error: null, metrics: null, screenshot: null };
+  const result = { url, ok: false, error: null, metrics: null, screenshot: null, httpStatus: null };
   if (!url) { result.error = 'no URL'; return result; }
   try {
     // BBL AEM has anti-bot detection that returns a blank page without a
     // realistic User-Agent. Set one on every page before navigating.
     await page.setUserAgent(CAPTURE_USER_AGENT).catch(() => {});
     await page.setExtraHTTPHeaders({ 'Accept-Language': CAPTURE_ACCEPT_LANGUAGE }).catch(() => {});
-    await page.goto(url, { waitUntil: NAV_WAIT_UNTIL, timeout: NAV_TIMEOUT });
+    const resp = await page.goto(url, { waitUntil: NAV_WAIT_UNTIL, timeout: NAV_TIMEOUT });
+    // Kept so processPair can tell a rate-limit/server-error page apart from a
+    // real one. A 429 body loads successfully as far as Chrome is concerned.
+    result.httpStatus = resp ? resp.status() : null;
 
     // AEM is client-side rendered: the DOM populates quickly but layout
     // (offsetHeight/scrollHeight) stays 0 for many seconds while JS/CSS
@@ -246,25 +250,37 @@ async function capturePage(page, url) {
 // SCROLL_STIMULATE_STEPS — a Node constant — inside page.evaluate(), where it
 // is undefined; the resulting ReferenceError was swallowed by .catch(() => {}).
 // Constants must be passed in as arguments.
+// Every page.evaluate here is raced against a deadline. An in-page timeout is
+// not enough: if the renderer is busy or navigating, evaluate() itself never
+// settles and .catch() never fires. One search page hung a run for 26 minutes
+// this way. Nothing in this function is worth stalling a capture over — on
+// timeout we simply extract whatever the page has.
+const evalCapped = (page, fn, arg, ms) => Promise.race([
+  page.evaluate(fn, arg).catch(() => {}),
+  new Promise(r => setTimeout(r, ms)),
+]);
+
 async function stimulateLazy(page) {
   for (let i = 0; i < SCROLL_STIMULATE_STEPS; i++) {
-    await page.evaluate(
+    await evalCapped(
+      page,
       ({ step, steps }) => window.scrollTo(0, document.body.scrollHeight * (step + 1) / (steps + 1)),
       { step: i, steps: SCROLL_STIMULATE_STEPS },
-    ).catch(() => {});
+      STIMULATE_STEP_TIMEOUT,
+    );
     await new Promise(r => setTimeout(r, SCROLL_STIMULATE_DELAY));
   }
-  await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
+  await evalCapped(page, () => window.scrollTo(0, 0), undefined, STIMULATE_STEP_TIMEOUT);
   await new Promise(r => setTimeout(r, 400));
   // Give still-in-flight images a bounded chance to finish decoding.
-  await page.evaluate(async (timeout) => {
+  await evalCapped(page, async (timeout) => {
     const pending = Array.from(document.images).filter(i => !i.complete);
     if (!pending.length) return;
     await Promise.race([
       Promise.allSettled(pending.map(i => i.decode().catch(() => {}))),
       new Promise(r => setTimeout(r, timeout)),
     ]);
-  }, LAZY_WAIT_TIMEOUT).catch(() => {});
+  }, LAZY_WAIT_TIMEOUT, LAZY_WAIT_TIMEOUT + STIMULATE_STEP_TIMEOUT);
 }
 
 // ─── Parity scoring ────────────────────────────────────────────────────────
@@ -880,7 +896,16 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
     result.prod = { url: prodRes.url, ok: prodRes.ok, error: prodRes.error, screenshot: prodRes.screenshot, metrics: prodRes.metrics };
     result.aem = { url: aemRes.url, ok: aemRes.ok, error: aemRes.error, screenshot: aemRes.screenshot, metrics: aemRes.metrics };
 
-    if (prodRes.ok && aemRes.ok) {
+    // A rate-limit or server-error response still LOADS — Chrome gets a real
+    // body ("429 Too Many Requests") and marks the capture ok, so scoreParity
+    // scores the error page as a genuine 0%-parity failure. That is how ids 11
+    // and 13 of the priority set landed at parity 2 and 4 on 2026-08-05 while
+    // the AEM Edge Delivery host was throttling us. Trust the status code here:
+    // sniffing the body for "429" would false-positive on real content.
+    const rateLimited = (r) => RETRYABLE_HTTP_STATUS.includes(r.httpStatus);
+    const throttled = rateLimited(prodRes) || rateLimited(aemRes);
+
+    if (prodRes.ok && aemRes.ok && !throttled) {
       const sc = scoreParity(prodRes.metrics, aemRes.metrics, newsMode);
       result.parity = sc.parity;
       result.checks = sc.checks;
@@ -897,8 +922,9 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
       // page, so `scoreParity`'s isBlocked() never runs. Without this, a banned IP
       // silently scores as a genuine 0%-parity failure instead of "retry later".
       const isConnDrop = (e) => /ERR_HTTP2_PROTOCOL_ERROR/.test(e || '');
-      const blocked = isConnDrop(prodRes.error) || isConnDrop(aemRes.error);
-      const detail = `prod:${prodRes.error || 'ok'} aem:${aemRes.error || 'ok'}`;
+      const blocked = throttled || isConnDrop(prodRes.error) || isConnDrop(aemRes.error);
+      const why = (r) => rateLimited(r) ? `HTTP ${r.httpStatus}` : (r.error || 'ok');
+      const detail = `prod:${why(prodRes)} aem:${why(aemRes)}`;
       result.parity = 0;
       result.gaps = [];
       result.errorType = blocked ? 'blocked' : null;

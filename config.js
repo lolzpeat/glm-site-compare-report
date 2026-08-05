@@ -41,7 +41,20 @@ export const NAV_TIMEOUT = 25000;      // ms per page navigation (prod is slow t
 export const NAV_WAIT_UNTIL = 'domcontentloaded'; // don't wait for idle network (tracking keeps it busy forever)
 export const SETTLE_AFTER_LOAD = 800; // ms to let async content render after DOM is ready
 export const LAZY_WAIT_TIMEOUT = 3500; // ms to wait for client-rendered text to appear (AEM)
+// Hard ceiling on any single scroll/decode page.evaluate during lazy-load
+// stimulation. evaluate() can hang indefinitely when the renderer is busy or
+// navigating, and .catch() never fires for a promise that never settles — a
+// search page once stalled a run for 26 minutes. Stimulation is best-effort,
+// so a page that will not cooperate is simply extracted as-is.
+export const STIMULATE_STEP_TIMEOUT = 5000; // ms ceiling per stimulation evaluate
 export const LAYOUT_WAIT_TIMEOUT = 18000; // ms to wait for AEM client-render layout to settle (scrollHeight > viewport)
+
+// HTTP statuses that mean "the server refused this attempt, try later" rather
+// than "this page is genuinely different". Such a response still loads a real
+// body, so without this the page scores as a 0%-parity failure instead of
+// being flagged for re-capture. 404 is deliberately absent: it IS a finding.
+export const RETRYABLE_HTTP_STATUS = [408, 429, 500, 502, 503, 504];
+
 export const CONCURRENCY = 4;          // parallel URL-pair workers
 export const REQUEST_PACING_MS = 0;    // ms delay after each page in a worker (0 = off, default).
                                         // prod's WAF burst-rate-limits even at --concurrency=1 (2026-07-09:
