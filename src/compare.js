@@ -86,6 +86,10 @@ async function readPairs() {
     aem: header.indexOf('aemUrl'),
     cat: header.indexOf('category'),
     sub: header.indexOf('subCategory'),
+    // Only the priority CSV carries the sheet's QA status column
+    // ("Done" / "Done (with Known issue)"); urls.csv and urls-news.csv don't,
+    // so the index is guarded below.
+    stat: header.indexOf('status'),
   };
   const pairs = [];
   for (let i = 1; i < lines.length; i++) {
@@ -97,6 +101,7 @@ async function readPairs() {
       aemUrl: c[idx.aem],
       category: c[idx.cat] || '',
       subCategory: c[idx.sub] || '',
+      sheetStatus: idx.stat >= 0 ? (c[idx.stat] || '') : '',
     });
   }
   return pairs;
@@ -772,6 +777,7 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
     existing[id].aemUrl = pair.aemUrl;
     existing[id].category = pair.category;
     existing[id].subCategory = pair.subCategory;
+    existing[id].sheetStatus = pair.sheetStatus || '';
     existing[id].parity = sc.parity;
     existing[id].checks = sc.checks;
     existing[id].gaps = sc.gaps;

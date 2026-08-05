@@ -133,6 +133,7 @@ async function main() {
       path: shortPath,
       category: p.category || '',
       subCategory: p.subCategory || '',
+      sheetStatus: p.sheetStatus || '',
       parity: p.parity ?? 0,
       gaps: gapCount,
       status,
@@ -279,6 +280,9 @@ ${chrome.length ? `
         <option value="warn">Review</option>
         <option value="fail">Fail</option>
       </select>
+      <select id="sheetStatusFilter" onchange="render()" style="display:none">
+        <option value="">All sheet statuses</option>
+      </select>
       <select id="groupFilter" onchange="render()">
         <option value="">หมวดที่ fail: ทั้งหมด</option>
         <option value="template">Template</option>
@@ -330,6 +334,19 @@ function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':
   const catSel = document.getElementById('categoryFilter');
   cats.forEach(c => { const o = document.createElement('option'); o.value = o.textContent = c; catSel.appendChild(o); });
   populateSubCats('');
+  // Sheet QA status ("Done" / "Done (with Known issue)") exists only on the
+  // priority dataset — the dropdown stays hidden on dashboards without it.
+  const sheetStatuses = [...new Set(ROWS.map(r => r.sheetStatus).filter(Boolean))].sort();
+  if (sheetStatuses.length) {
+    const sel = document.getElementById('sheetStatusFilter');
+    sheetStatuses.forEach(s => {
+      const n = ROWS.filter(r => r.sheetStatus === s).length;
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s + ' (' + n + ')';
+      sel.appendChild(o);
+    });
+    sel.style.display = '';
+  }
 })();
 
 function populateSubCats(cat) {
@@ -350,6 +367,7 @@ function getFiltered() {
   const cf = document.getElementById('categoryFilter').value;
   const sf2 = document.getElementById('subCategoryFilter').value;
   const sf = document.getElementById('statusFilter').value;
+  const shf = document.getElementById('sheetStatusFilter').value;
   const gf = document.getElementById('groupFilter').value;
   const go = document.getElementById('gapsOnly').checked;
   let rows = ROWS.filter(r =>
@@ -357,6 +375,7 @@ function getFiltered() {
     (!cf || r.category === cf) &&
     (!sf2 || r.subCategory === sf2) &&
     (!sf || r.status === sf) &&
+    (!shf || r.sheetStatus === shf) &&
     (!gf || (r.failedGroups && r.failedGroups.includes(gf))) &&
     (!go || r.gaps > 0)
   );
