@@ -178,7 +178,15 @@ export const PRIORITY_STATUS_FILTER = ['Done'];
 // "Done with Condition". Verified against the live tab 2026-08-05:
 // Done (with Known issue) 66 · Done 23 · Waiting Componant TH page 8 · Not Start 4.
 export const PRIORITY_CONDITIONAL_STATUS = ['Done (with Known issue)'];
-export const PRIORITY_CONDITIONAL_LIMIT = 5;
+// Infinity = no cap. Started at 5 as a pilot of the conditional rows; opened
+// up 2026-08-05 to review the whole reviewed set ("ไล่ทำทั้งหมด").
+export const PRIORITY_CONDITIONAL_LIMIT = Infinity;
+
+// Dashboard: the site-level "Site chrome — header/footer" panel. The detector
+// (siteChromeReport in build-dashboard.js) still runs the comparison and the
+// data stays available — this only controls whether the panel is rendered.
+// Hidden 2026-08-05 per QA: not being used yet.
+export const SHOW_SITE_CHROME_PANEL = false;
 export const PRIORITY_URLS_PATH = join(DIR.data, 'urls-priority.csv');
 
 export const SCREENSHOT_FULLPAGE = true;

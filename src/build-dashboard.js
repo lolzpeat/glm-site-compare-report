@@ -10,7 +10,7 @@
 import { readFile, writeFile, mkdir, copyFile, readdir, stat, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, relative, basename, isAbsolute } from 'node:path';
-import { ROOT, DIR, CRITERIA_GROUPS, CRITERIA_GROUPS_V2 } from '../config.js';
+import { ROOT, DIR, CRITERIA_GROUPS, CRITERIA_GROUPS_V2, SHOW_SITE_CHROME_PANEL } from '../config.js';
 import { scoreMenu } from './scoring/checks-structure.js';
 import { renderNav } from './nav.js';
 
@@ -150,7 +150,7 @@ async function main() {
     total, avg, passed, warned, failed, lowContent, buckets, cats: Object.entries(cats),
     rowData, generatedAt: raw.generatedAt, titleSuffix,
     pagesDirName, dashName, prefix,
-    chrome: siteChromeReport(pages),
+    chrome: SHOW_SITE_CHROME_PANEL ? siteChromeReport(pages) : [],
   });
   await writeFile(`${OUT}/${dashName}`, dashHtml, 'utf8');
 
