@@ -12,6 +12,7 @@ import { existsSync } from 'node:fs';
 import { join, relative, basename, isAbsolute } from 'node:path';
 import { ROOT, DIR, CRITERIA_GROUPS, CRITERIA_GROUPS_V2 } from '../config.js';
 import { scoreMenu } from './scoring/checks-structure.js';
+import { renderNav } from './nav.js';
 
 // --criteria=v2 renders with the defect-aligned v2 groups (results-v2.json);
 // default stays the live groups until promotion.
@@ -201,11 +202,7 @@ function renderDashboard({ total, avg, passed, warned, failed, lowContent, bucke
   return `<!DOCTYPE html><html lang="th"><head><meta charset="utf-8">
 <title>BBL Migration Parity Dashboard</title>
 <style>${DASHBOARD_CSS}</style></head><body>
-<nav class="topnav">
-  <a href="dashboard.html" class="${!prefix ? 'active' : ''}">📊 Dashboard หลัก</a>
-  <a href="news-dashboard.html" class="${prefix === 'news' ? 'active' : ''}">📰 News & Media</a>
-  <a href="criteria.html">📋 เกณฑ์ตรวจจับ</a>
-</nav>
+${renderNav(prefix || 'priority')}
 <div class="wrap">
 
 <header>
@@ -563,11 +560,7 @@ function renderPage(p, total, opts = {}) {
   return `<!DOCTYPE html><html lang="th"><head><meta charset="utf-8">
 <title>Page ${p.id} — ${esc((p.prodUrl || '').split('/').pop())}</title>
 <style>${PAGE_CSS}</style></head><body>
-<nav class="topnav">
-  <a href="../dashboard.html">📊 Dashboard หลัก</a>
-  <a href="../news-dashboard.html">📰 News & Media</a>
-  <a href="../criteria.html">📋 เกณฑ์ตรวจจับ</a>
-</nav>
+${renderNav('', '../')}
 <div class="wrap">
 <a href="../${dashName}" class="back">← Back to dashboard</a>
 <header>

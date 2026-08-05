@@ -41,7 +41,7 @@ code { background:#eef0f3; padding:1px 5px; border-radius:3px; font-size:12px; c
 </style>
 </head><body>
 <nav class="topnav">
-  <a href="dashboard.html">📊 Dashboard หลัก</a>
+  <a href="priority-dashboard.html">⭐ Priority BBL Thai Manual Pages</a>
   <a href="news-dashboard.html">📰 News & Media</a>
   <a href="criteria.html" class="active">📋 เกณฑ์ตรวจจับ</a>
 </nav>
@@ -55,15 +55,28 @@ code { background:#eef0f3; padding:1px 5px; border-radius:3px; font-size:12px; c
 <!-- ─── SCORING ─────────────────────────────────────────────────── -->
 <section class="panel">
   <h2>1. การให้คะแนน Parity Score</h2>
-  <p>แต่ละหน้าจะได้ <b>Parity Score (0–100%)</b> คำนวณจาก <b>11 checks ใน 3 groups</b> ผ่านเมื่อ <b>≥ 85%</b></p>
+  <p>แต่ละหน้าจะได้ <b>Parity Score (0–100%)</b> คำนวณจาก <b>12 checks ใน 5 groups</b> ผ่านเมื่อ <b>≥ 85%</b></p>
+  <p class="muted">เกณฑ์ชุดนี้ออกแบบตาม defect ที่ QA เจอซ้ำจริง — เนื้อหาหาย, รูปหาย, การจัดวางเพี้ยน, ลิงก์ดาวน์โหลดพัง — น้ำหนักจึงเทไปที่ 4 กลุ่มแรก ส่วน structure เหลือ 10%</p>
   <table class="crit-table">
     <thead><tr><th>Check</th><th>น้ำหนัก</th><th>เกณฑ์ผ่าน</th><th>วิธีคำนวณ</th></tr></thead>
     <tbody>
-<tr class="group"><td colspan="4"><b>Template</b> — 25%</td></tr><tr><td><b>Header menu (label + count)</b></td><td>8%</td><td>count เท่ากัน + label 100%</td><td>header label + จำนวนเมนูต้องตรงกันทั้งหมด</td></tr><tr><td><b>Footer menu (label + count)</b></td><td>7%</td><td>count เท่ากัน + label 100%</td><td>footer label + จำนวนเมนูต้องตรงกันทั้งหมด</td></tr><tr><td><b>Components (accordion/table/form/video)</b></td><td>10%</td><td>แต่ละ type ≥ 80%</td><td>component แต่ละประเภทที่ prod มี AEM ต้องมีอย่างน้อย 80%</td></tr><tr class="group"><td colspan="4"><b>Content</b> — 50%</td></tr><tr><td><b>Content length</b></td><td>14%</td><td>AEM อยู่ใน ±30% ของ prod</td><td>เทียบ textContent length — AEM สั้นหรือยาวเกิน 30% ของ prod = fail</td></tr><tr><td><b>Missing text blocks</b></td><td>14%</td><td>missing = 0</td><td>ประโยค/บล็อก text ของ prod ต้องมีใน AEM ครบ (กรอง dynamic content)</td></tr><tr><td><b>Missing keywords</b></td><td>12%</td><td>missing = 0</td><td>คำสำคัญของ prod ต้องมีใน AEM</td></tr><tr><td><b>Missing image</b></td><td>10%</td><td>count ≥ 80% + alt match > 50%</td><td>AEM ต้องมีรูป ≥ 80% ของ prod และ alt text ตรงกัน > 50%</td></tr><tr class="group"><td colspan="4"><b>Structure / SEO</b> — 25%</td></tr><tr><td><b>Headings (Jaccard)</b></td><td>10%</td><td>Jaccard > 0.6</td><td>เปรียบเทียบ heading text sets ด้วย Jaccard index</td></tr><tr><td><b>Links match</b></td><td>8%</td><td>match > 50%</td><td>เปอร์เซ็นต์ของ link text ใน prod ที่พบใน AEM</td></tr><tr><td><b>Meta tags</b></td><td>5%</td><td>ทั้งหมดตรง (partial credit)</td><td>เทียบ title, description, canonical, og:title, og:image, keywords — ให้ partial credit</td></tr><tr><td><b>Thai/English balance</b></td><td>2%</td><td>delta ≤ 10%</td><td>สัดส่วนอักขระไทย vs อังกฤษต้องใกล้เคียงกัน</td></tr>
+<tr class="group"><td colspan="4"><b>Missing content</b> — 30%</td></tr><tr><td><b>Content length (เนื้อหาหลัก)</b></td><td>13%</td><td>AEM อยู่ใน ±30% ของ prod</td><td>เทียบความยาวข้อความเฉพาะ<b>เนื้อหาหลัก</b> — ตัด header/footer/menu และบล็อกที่ไม่ถูก render (prod ฝัง modal ซ่อนไว้ในหน้า ซึ่งเคยทำให้ตัวเลขพองกว่าจริง 4 เท่า)</td></tr><tr><td><b>Missing text (ระดับประโยค)</b></td><td>17%</td><td>ไม่มีประโยคหาย</td><td>ตัดข้อความที่มองเห็นของ prod เป็นประโยค (≥60 ตัวอักษร) แล้วหาว่ามีอยู่ใน AEM ไหม — เทียบแบบไม่สนช่องว่าง จึงไม่ขึ้นกับว่าใครใช้ &lt;p&gt; หรือ &lt;table&gt;</td></tr><tr class="group"><td colspan="4"><b>Missing assets</b> — 25%</td></tr><tr><td><b>Missing image</b></td><td>12%</td><td>จำนวน ≥ 80% ของ prod</td><td>นับรูปในเนื้อหาหลัก <b>รวม CSS background-image</b> ไม่ใช่แค่ &lt;img&gt; — prod เสิร์ฟรูปเนื้อหาเป็น background เป็นส่วนใหญ่ ถ้านับแต่แท็กจะมองไม่เห็น</td></tr><tr><td><b>Broken image (ฝั่ง AEM)</b></td><td>13%</td><td>ไม่มีรูปที่โหลดไม่ขึ้น</td><td>รูปบน AEM ที่แท็ก render แล้วแต่ไฟล์โหลดไม่สำเร็จ (naturalWidth 0 ทั้งที่ complete แล้ว) — ยกเว้น .svg และ data: URI รูปที่ยังโหลดค้างอยู่ไม่นับว่าพัง</td></tr><tr class="group"><td colspan="4"><b>Content alignment</b> — 20%</td></tr><tr><td><b>Content order</b></td><td>10%</td><td>ลำดับตรง ≥ 90%</td><td>บล็อกข้อความที่มีทั้งสองฝั่งต้องเรียงลำดับเดียวกับ prod (หาด้วย LIS)</td></tr><tr><td><b>Visual layout (column profile)</b></td><td>10%</td><td>โปรไฟล์ตรง ≥ 85%</td><td>เทียบการกระจายเนื้อหาแนวนอนจาก screenshot — normalize แล้วจึงไม่ขึ้นกับความสูงหน้า และซ่อน cookie banner ก่อนถ่ายเพื่อไม่ให้ overlay ถูกนับเป็นความต่างของ layout</td></tr><tr class="group"><td colspan="4"><b>Download links</b> — 15%</td></tr><tr><td><b>Download links present</b></td><td>9%</td><td>ครบทุกไฟล์</td><td>ไฟล์ .pdf/.doc/.docx/.xls/.xlsx/.zip ของ prod ต้องมีบน AEM (เทียบจากชื่อไฟล์)</td></tr><tr><td><b>Download links alive</b></td><td>6%</td><td>ไม่มีลิงก์ตอบ ≥ 400</td><td>HEAD check ลิงก์ดาวน์โหลดบน AEM จาก cache — ถ้ายังไม่มีข้อมูล check นี้จะถูกกันออกจากคะแนน ไม่ใช่ตัดสินว่าตก</td></tr><tr class="group"><td colspan="4"><b>Structure & template</b> — 10%</td></tr><tr><td><b>Headings (Jaccard)</b></td><td>4%</td><td>Jaccard > 0.6</td><td>เปรียบเทียบชุด heading text ด้วย Jaccard index</td></tr><tr><td><b>Links match</b></td><td>2%</td><td>match > 50%</td><td>เปอร์เซ็นต์ของ link text ใน prod ที่พบใน AEM</td></tr><tr><td><b>Meta tags</b></td><td>2%</td><td>ตรงครบ 4 รายการ (partial credit)</td><td>คิดคะแนน: title, description, ogTitle, ogImage — og:image เทียบว่า<b>มี path ทั้งสองฝั่ง</b>เท่านั้น เพราะสองระบบเก็บไฟล์คนละที่และ AEM ตั้งชื่อเป็น hash · แจ้งเฉยๆ ไม่คิดคะแนน: keywords · canonical ถูกตัดออกทั้งหมด</td></tr><tr><td><b>Template (component ในหน้า)</b></td><td>2%</td><td>component แต่ละ type ≥ 80%</td><td>เทียบ accordion/table/form/video เฉพาะในเนื้อหาหลัก — header/footer เป็น chrome ระดับเว็บ ย้ายไปรายงานครั้งเดียวบน dashboard</td></tr>
     </tbody>
   </table>
   <div class="note">
-    <b>Partial credit:</b> แม้ check ไม่ผ่าน ก็ยังได้คะแนนบางส่วนตามสัดส่วน (เช่น headings ที่ Jaccard 40% จะได้ 40% ของน้ำหนัก 25% = 10 คะแนน)
+    <b>Partial credit:</b> แม้ check ไม่ผ่าน ก็ยังได้คะแนนบางส่วนตามสัดส่วน (เช่น headings ที่ Jaccard 40% ได้ 40% ของน้ำหนักตัวเอง)
+  </div>
+  <div class="note">
+    <b>ข้อมูลไม่พอ = ไม่ตัดสิน:</b> check ที่ไม่มีอะไรให้เทียบ (เช่น ทั้งสองฝั่งไม่มีไฟล์ดาวน์โหลด) จะถูกกันออกจาก<b>ทั้งตัวตั้งและตัวหาร</b> ไม่ใช่นับเป็นตก — หน้านั้นจึงไม่ถูกลงโทษเพราะไม่มีของให้ตรวจ
+  </div>
+  <div class="note">
+    <b>สิ่งที่ถอดออกจากการคิดคะแนน</b> (เพราะสองระบบเทียบกันไม่ได้จริง ไม่ใช่เพราะเว็บผิด):
+    <ul>
+      <li><b>Image alt text</b> — prod เขียน alt เป็นไทย AEM เป็นอังกฤษสำหรับรูปเดียวกัน และ prod ไม่ได้ใส่รูปเนื้อหาเป็น &lt;img&gt; เลย ทำให้ AEM ที่ทำ alt ดีกว่ากลับได้ 0%</li>
+      <li><b>Image distortion / ratio</b> — AEM ตั้งชื่อไฟล์เป็น hash จับคู่รูปตามชื่อไม่ได้ ต้องจับตามลำดับ ซึ่งเอารูปคนละรูปมาเทียบสัดส่วนกัน</li>
+      <li><b>Header / footer menu</b> — เป็น chrome ระดับเว็บ เหมือนกันทุกหน้า ย้ายไปรายงานครั้งเดียวใน panel <b>Site chrome</b> บน dashboard</li>
+      <li><b>canonical</b> — คนละโดเมนโดยธรรมชาติ · <b>keywords</b> และ <b>Thai/English balance</b> เหลือแค่แจ้งเตือน ไม่คิดคะแนน</li>
+    </ul>
   </div>
 </section>
 
@@ -178,7 +191,7 @@ code { background:#eef0f3; padding:1px 5px; border-radius:3px; font-size:12px; c
 
 <footer class="foot">
   BBL Migration Parity Checker · Detection Criteria Documentation<br>
-  อัปเดตล่าสุด: 5/8/2569 · <a href="dashboard.html">← กลับ Dashboard</a>
+  อัปเดตล่าสุด: 5/8/2569 · <a href="priority-dashboard.html">← กลับ Dashboard</a>
 </footer>
 
 </div></body></html>

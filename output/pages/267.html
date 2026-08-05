@@ -89,6 +89,15 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 .group-head.content { background:#f0f7e6; color:#1a6b3c; }
 .group-head.structure { background:#fdf0e6; color:#8a5a00; }
 .group-head.other { background:#f0f1f3; color:#555; }
+/* v2 (defect-aligned) group ids. Note: v2's own "structure" group shares the
+   id (and thus the rule above) with the old CRITERIA_GROUPS "structure" —
+   intentionally not redeclared here to avoid a cascade override that would
+   change the live default dashboard's colors. */
+.group-head.missing-content { background:#eef2ff; color:#1a2b5c; }
+.group-head.missing-assets { background:#f0f7e6; color:#1a6b3c; }
+.group-head.alignment { background:#fff7e0; color:#7a5200; }
+.group-head.downloads { background:#fdf0e6; color:#8a5a00; }
+table.mini td { padding:2px 8px; font-size:12px; }
 .group-pct { font-size:12px; opacity:.8; font-weight:600; }
 .group-block .checks-list { padding:4px; }
 .group-block .check-block { margin:2px; border:none; border-radius:4px; }

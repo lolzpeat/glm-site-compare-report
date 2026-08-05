@@ -2,9 +2,12 @@
 // Output: output/criteria.html — deployed alongside the dashboard.
 
 import { writeFile, mkdir } from 'node:fs/promises';
+import { renderNav } from './nav.js';
 import { DIR, PASS_THRESHOLD, THAI_RATIO_DELTA,
   TEXT_MATCH_TOLERANCE, MAX_LINK_CHECKS, LINK_CHECK_BATCH,
-  WEIGHTS_MAIN, CRITERIA_GROUPS } from '../config.js';
+  CONTENT_ORDER_PASS, LAYOUT_PROFILE_PASS, SEGMENT_MIN_CHARS, DOWNLOAD_EXTENSIONS,
+  META_KEYS, META_INFO_KEYS,
+  WEIGHTS_MAIN_V2, CRITERIA_GROUPS_V2 } from '../config.js';
 
 async function main() {
   await mkdir(DIR.output, { recursive: true });
@@ -14,30 +17,41 @@ async function main() {
 }
 
 function renderDoc() {
-  const criteriaRows = CRITERIA_GROUPS.map(g => {
+  // Everything below describes the v2 (defect-aligned) criteria — the same
+  // WEIGHTS_MAIN_V2 / CRITERIA_GROUPS_V2 that rescore.js scores with. Reading
+  // the weights straight from config is what keeps this page from drifting: it
+  // previously rendered the v1 set and still advertised checks that no longer
+  // exist (canonical, alt-text matching, header/footer menus).
+  const LABELS = {
+    contentLength:   ['Content length (เนื้อหาหลัก)', `AEM อยู่ใน ±${Math.round(TEXT_MATCH_TOLERANCE * 100)}% ของ prod`,
+      'เทียบความยาวข้อความเฉพาะ<b>เนื้อหาหลัก</b> — ตัด header/footer/menu และบล็อกที่ไม่ถูก render (prod ฝัง modal ซ่อนไว้ในหน้า ซึ่งเคยทำให้ตัวเลขพองกว่าจริง 4 เท่า)'],
+    missingText:     ['Missing text (ระดับประโยค)', 'ไม่มีประโยคหาย',
+      `ตัดข้อความที่มองเห็นของ prod เป็นประโยค (≥${SEGMENT_MIN_CHARS} ตัวอักษร) แล้วหาว่ามีอยู่ใน AEM ไหม — เทียบแบบไม่สนช่องว่าง จึงไม่ขึ้นกับว่าใครใช้ &lt;p&gt; หรือ &lt;table&gt;`],
+    missingImage:    ['Missing image', 'จำนวน ≥ 80% ของ prod',
+      'นับรูปในเนื้อหาหลัก <b>รวม CSS background-image</b> ไม่ใช่แค่ &lt;img&gt; — prod เสิร์ฟรูปเนื้อหาเป็น background เป็นส่วนใหญ่ ถ้านับแต่แท็กจะมองไม่เห็น'],
+    brokenImage:     ['Broken image (ฝั่ง AEM)', 'ไม่มีรูปที่โหลดไม่ขึ้น',
+      'รูปบน AEM ที่แท็ก render แล้วแต่ไฟล์โหลดไม่สำเร็จ (naturalWidth 0 ทั้งที่ complete แล้ว) — ยกเว้น .svg และ data: URI รูปที่ยังโหลดค้างอยู่ไม่นับว่าพัง'],
+    contentOrder:    ['Content order', `ลำดับตรง ≥ ${Math.round(CONTENT_ORDER_PASS * 100)}%`,
+      'บล็อกข้อความที่มีทั้งสองฝั่งต้องเรียงลำดับเดียวกับ prod (หาด้วย LIS)'],
+    visualLayout:    ['Visual layout (column profile)', `โปรไฟล์ตรง ≥ ${Math.round(LAYOUT_PROFILE_PASS * 100)}%`,
+      'เทียบการกระจายเนื้อหาแนวนอนจาก screenshot — normalize แล้วจึงไม่ขึ้นกับความสูงหน้า และซ่อน cookie banner ก่อนถ่ายเพื่อไม่ให้ overlay ถูกนับเป็นความต่างของ layout'],
+    missingDownloadLink: ['Download links present', 'ครบทุกไฟล์',
+      `ไฟล์ ${DOWNLOAD_EXTENSIONS.join('/')} ของ prod ต้องมีบน AEM (เทียบจากชื่อไฟล์)`],
+    deadDownloadLink:    ['Download links alive', 'ไม่มีลิงก์ตอบ ≥ 400',
+      'HEAD check ลิงก์ดาวน์โหลดบน AEM จาก cache — ถ้ายังไม่มีข้อมูล check นี้จะถูกกันออกจากคะแนน ไม่ใช่ตัดสินว่าตก'],
+    headings:        ['Headings (Jaccard)', 'Jaccard > 0.6', 'เปรียบเทียบชุด heading text ด้วย Jaccard index'],
+    links:           ['Links match', 'match > 50%', 'เปอร์เซ็นต์ของ link text ใน prod ที่พบใน AEM'],
+    meta:            ['Meta tags', `ตรงครบ ${META_KEYS.length} รายการ (partial credit)`,
+      `คิดคะแนน: ${META_KEYS.join(', ')} — og:image เทียบว่า<b>มี path ทั้งสองฝั่ง</b>เท่านั้น เพราะสองระบบเก็บไฟล์คนละที่และ AEM ตั้งชื่อเป็น hash · แจ้งเฉยๆ ไม่คิดคะแนน: ${META_INFO_KEYS.join(', ')} · canonical ถูกตัดออกทั้งหมด`],
+    template:        ['Template (component ในหน้า)', 'component แต่ละ type ≥ 80%',
+      'เทียบ accordion/table/form/video เฉพาะในเนื้อหาหลัก — header/footer เป็น chrome ระดับเว็บ ย้ายไปรายงานครั้งเดียวบน dashboard'],
+  };
+  const scoredCount = Object.keys(WEIGHTS_MAIN_V2).length;
+  const criteriaRows = CRITERIA_GROUPS_V2.map(g => {
     const head = `<tr class="group"><td colspan="4"><b>${g.label}</b> — ${Math.round(g.weight * 100)}%</td></tr>`;
-    const labels = {
-      headerMenu:      ['Header menu (label + count)', 'count เท่ากัน + label 100%', 'header label + จำนวนเมนูต้องตรงกันทั้งหมด'],
-      footerMenu:      ['Footer menu (label + count)', 'count เท่ากัน + label 100%', 'footer label + จำนวนเมนูต้องตรงกันทั้งหมด'],
-      components:      ['Components (accordion/table/form/video)', 'แต่ละ type ≥ 80%', 'component แต่ละประเภทที่ prod มี AEM ต้องมีอย่างน้อย 80%'],
-      contentLength:   ['Content length', 'AEM อยู่ใน ±' + Math.round(TEXT_MATCH_TOLERANCE * 100) + '% ของ prod', 'เทียบ textContent length — AEM สั้นหรือยาวเกิน ' + Math.round(TEXT_MATCH_TOLERANCE * 100) + '% ของ prod = fail'],
-      missingText:     ['Missing text blocks', 'missing = 0', 'ประโยค/บล็อก text ของ prod ต้องมีใน AEM ครบ (กรอง dynamic content)'],
-      missingKeywords: ['Missing keywords', 'missing = 0', 'คำสำคัญของ prod ต้องมีใน AEM'],
-      missingImage:    ['Missing image', 'count ≥ 80% + alt match > 50%', 'AEM ต้องมีรูป ≥ 80% ของ prod และ alt text ตรงกัน > 50%'],
-      headings:        ['Headings (Jaccard)', 'Jaccard > 0.6', 'เปรียบเทียบ heading text sets ด้วย Jaccard index'],
-      links:           ['Links match', 'match > 50%', 'เปอร์เซ็นต์ของ link text ใน prod ที่พบใน AEM'],
-      meta:            ['Meta tags', 'ทั้งหมดตรง (partial credit)', 'เทียบ title, description, canonical, og:title, og:image, keywords — ให้ partial credit'],
-      thaiBalance:     ['Thai/English balance', 'delta ≤ ' + Math.round(THAI_RATIO_DELTA * 100) + '%', 'สัดส่วนอักขระไทย vs อังกฤษต้องใกล้เคียงกัน'],
-      brokenImage:         ['Broken image', 'ไม่มีรูปที่โหลดไม่ขึ้น', 'รูปบน AEM ที่แท็ก render แต่ไฟล์ไม่โหลด (naturalWidth 0) — ยกเว้น .svg และ data: URI'],
-      contentOrder:        ['Content order', 'ลำดับตรง ≥ 90%', 'บล็อกข้อความที่มีทั้งสองฝั่งต้องเรียงลำดับเดียวกับ prod (LIS)'],
-      visualLayout:        ['Visual layout', 'โปรไฟล์ตรง ≥ 85%', 'เทียบการกระจายเนื้อหาแนวนอนจาก screenshot (ไม่ขึ้นกับความสูงหน้า)'],
-      missingDownloadLink: ['Download links present', 'ครบทุกไฟล์', 'ไฟล์ .pdf/.doc/.xls/.zip ของ prod ต้องมีบน AEM (เทียบชื่อไฟล์)'],
-      deadDownloadLink:    ['Download links alive', 'ไม่มีลิงก์ตอบ ≥400', 'HEAD check ลิงก์ดาวน์โหลดบน AEM จาก cache'],
-      template:            ['Template (page components)', 'component แต่ละ type ≥ 80%', 'เทียบ accordion/table/form/video ในเนื้อหาหน้า — header/footer เป็น chrome ระดับเว็บ รายงานแยกบน dashboard ไม่คิดคะแนนรายหน้า'],
-    };
     const body = g.checks.map(id => {
-      const [name, pass, desc] = labels[id] || [id, '', ''];
-      return `<tr><td><b>${name}</b></td><td>${Math.round(WEIGHTS_MAIN[id] * 100)}%</td><td>${pass}</td><td>${desc}</td></tr>`;
+      const [name, pass, desc] = LABELS[id] || [id, '', ''];
+      return `<tr><td><b>${name}</b></td><td>${Math.round(WEIGHTS_MAIN_V2[id] * 100)}%</td><td>${pass}</td><td>${desc}</td></tr>`;
     }).join('');
     return head + body;
   }).join('');
@@ -48,11 +62,7 @@ function renderDoc() {
 <title>Detection Criteria — BBL Migration Parity Checker</title>
 <style>${CSS}</style>
 </head><body>
-<nav class="topnav">
-  <a href="dashboard.html">📊 Dashboard หลัก</a>
-  <a href="news-dashboard.html">📰 News & Media</a>
-  <a href="criteria.html" class="active">📋 เกณฑ์ตรวจจับ</a>
-</nav>
+${renderNav('criteria')}
 <div class="wrap">
 
 <header>
@@ -63,7 +73,8 @@ function renderDoc() {
 <!-- ─── SCORING ─────────────────────────────────────────────────── -->
 <section class="panel">
   <h2>1. การให้คะแนน Parity Score</h2>
-  <p>แต่ละหน้าจะได้ <b>Parity Score (0–100%)</b> คำนวณจาก <b>11 checks ใน 3 groups</b> ผ่านเมื่อ <b>≥ ${PASS_THRESHOLD}%</b></p>
+  <p>แต่ละหน้าจะได้ <b>Parity Score (0–100%)</b> คำนวณจาก <b>${scoredCount} checks ใน ${CRITERIA_GROUPS_V2.length} groups</b> ผ่านเมื่อ <b>≥ ${PASS_THRESHOLD}%</b></p>
+  <p class="muted">เกณฑ์ชุดนี้ออกแบบตาม defect ที่ QA เจอซ้ำจริง — เนื้อหาหาย, รูปหาย, การจัดวางเพี้ยน, ลิงก์ดาวน์โหลดพัง — น้ำหนักจึงเทไปที่ 4 กลุ่มแรก ส่วน structure เหลือ 10%</p>
   <table class="crit-table">
     <thead><tr><th>Check</th><th>น้ำหนัก</th><th>เกณฑ์ผ่าน</th><th>วิธีคำนวณ</th></tr></thead>
     <tbody>
@@ -71,7 +82,19 @@ ${criteriaRows}
     </tbody>
   </table>
   <div class="note">
-    <b>Partial credit:</b> แม้ check ไม่ผ่าน ก็ยังได้คะแนนบางส่วนตามสัดส่วน (เช่น headings ที่ Jaccard 40% จะได้ 40% ของน้ำหนัก 25% = 10 คะแนน)
+    <b>Partial credit:</b> แม้ check ไม่ผ่าน ก็ยังได้คะแนนบางส่วนตามสัดส่วน (เช่น headings ที่ Jaccard 40% ได้ 40% ของน้ำหนักตัวเอง)
+  </div>
+  <div class="note">
+    <b>ข้อมูลไม่พอ = ไม่ตัดสิน:</b> check ที่ไม่มีอะไรให้เทียบ (เช่น ทั้งสองฝั่งไม่มีไฟล์ดาวน์โหลด) จะถูกกันออกจาก<b>ทั้งตัวตั้งและตัวหาร</b> ไม่ใช่นับเป็นตก — หน้านั้นจึงไม่ถูกลงโทษเพราะไม่มีของให้ตรวจ
+  </div>
+  <div class="note">
+    <b>สิ่งที่ถอดออกจากการคิดคะแนน</b> (เพราะสองระบบเทียบกันไม่ได้จริง ไม่ใช่เพราะเว็บผิด):
+    <ul>
+      <li><b>Image alt text</b> — prod เขียน alt เป็นไทย AEM เป็นอังกฤษสำหรับรูปเดียวกัน และ prod ไม่ได้ใส่รูปเนื้อหาเป็น &lt;img&gt; เลย ทำให้ AEM ที่ทำ alt ดีกว่ากลับได้ 0%</li>
+      <li><b>Image distortion / ratio</b> — AEM ตั้งชื่อไฟล์เป็น hash จับคู่รูปตามชื่อไม่ได้ ต้องจับตามลำดับ ซึ่งเอารูปคนละรูปมาเทียบสัดส่วนกัน</li>
+      <li><b>Header / footer menu</b> — เป็น chrome ระดับเว็บ เหมือนกันทุกหน้า ย้ายไปรายงานครั้งเดียวใน panel <b>Site chrome</b> บน dashboard</li>
+      <li><b>canonical</b> — คนละโดเมนโดยธรรมชาติ · <b>keywords</b> และ <b>Thai/English balance</b> เหลือแค่แจ้งเตือน ไม่คิดคะแนน</li>
+    </ul>
   </div>
 </section>
 
@@ -186,7 +209,7 @@ ${criteriaRows}
 
 <footer class="foot">
   BBL Migration Parity Checker · Detection Criteria Documentation<br>
-  อัปเดตล่าสุด: ${new Date().toLocaleDateString('th-TH')} · <a href="dashboard.html">← กลับ Dashboard</a>
+  อัปเดตล่าสุด: ${new Date().toLocaleDateString('th-TH')} · <a href="priority-dashboard.html">← กลับ Dashboard</a>
 </footer>
 
 </div></body></html>`;

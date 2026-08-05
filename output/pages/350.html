@@ -89,6 +89,15 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 .group-head.content { background:#f0f7e6; color:#1a6b3c; }
 .group-head.structure { background:#fdf0e6; color:#8a5a00; }
 .group-head.other { background:#f0f1f3; color:#555; }
+/* v2 (defect-aligned) group ids. Note: v2's own "structure" group shares the
+   id (and thus the rule above) with the old CRITERIA_GROUPS "structure" —
+   intentionally not redeclared here to avoid a cascade override that would
+   change the live default dashboard's colors. */
+.group-head.missing-content { background:#eef2ff; color:#1a2b5c; }
+.group-head.missing-assets { background:#f0f7e6; color:#1a6b3c; }
+.group-head.alignment { background:#fff7e0; color:#7a5200; }
+.group-head.downloads { background:#fdf0e6; color:#8a5a00; }
+table.mini td { padding:2px 8px; font-size:12px; }
 .group-pct { font-size:12px; opacity:.8; font-weight:600; }
 .group-block .checks-list { padding:4px; }
 .group-block .check-block { margin:2px; border:none; border-radius:4px; }
@@ -252,6 +261,7 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
         <div class="diff-section">
           <div class="diff-title bad">Text blocks ที่ขาดใน AEM (15/141)</div>
           <div class="chip-list"><span class="chip chip-missing">กิจการธนาคารต่างประเทศ</span><span class="chip chip-missing">นักลงทุนสัมพันธ์</span><span class="chip chip-missing">เกี่ยวกับธนาคารกรุงเทพ</span><span class="chip chip-missing">ลูกค้าบุคคล หน้าแรกลูกค้าบุคคล การออมและการลงทุน ผลิตภัณฑ์เพื่อการออม กองทุนรวม </span><span class="chip chip-missing">หน้าแรกลูกค้าบุคคล</span><span class="chip chip-missing">การออมและการลงทุน</span><span class="chip chip-missing">ผลิตภัณฑ์เพื่อการออม</span><span class="chip chip-missing">กองทุนรวม</span><span class="chip chip-missing">พันธบัตรและหุ้นกู้</span><span class="chip chip-missing">เปิดบัญชีซื้อขายหลักทรัพย์</span><span class="chip chip-missing">ผลิตภัณฑ์บัตร</span><span class="chip chip-missing">บัตรเครดิต</span><span class="chip chip-missing">บัตรธนาคารกรุงเทพ เอ็ม วีซ่า</span><span class="chip chip-missing">ตรวจสอบสถานะการสมัครบัตรเครดิต</span><span class="chip chip-missing">บัตรเดบิตบีเฟิสต์</span></div>
+          
         </div>
       </div>
     </details>
@@ -276,15 +286,10 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
         <span class="check-detail">4/11 images · alt match 0%</span>
         <span class="expand-hint">▾</span>
       </summary>
-      <div class="diff-body">
-        <div class="diff-section">
-          <div class="diff-title">prod 11 / aem 4 images · alt match 0%</div>
-        </div>
-        <div class="diff-section"><div class="outline-grid">
-          <div class="outline-col"><div class="outline-head src">PROD alts (6)</div><div class="kw-body"><span class="kw kw-shared">en</span><span class="kw kw-shared">logo</span><span class="kw kw-shared">ไอคอน livechat</span><span class="kw kw-shared">ไอคอนแผนที่</span><span class="kw kw-shared">ไอคอนทางการเงิน</span><span class="kw kw-shared">call us</span></div></div>
-          <div class="outline-col"><div class="outline-head tgt">AEM alts (0)</div><div class="kw-body"></div></div>
-        </div></div>
-      </div>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">AEM 4 / Production 11 รูป</div>
+        <div class="diff-title">alt match 0% (legacy)</div>
+      </div></div>
     </details></div>
       </div><div class="group-block">
         <div class="group-head structure">

@@ -89,6 +89,15 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 .group-head.content { background:#f0f7e6; color:#1a6b3c; }
 .group-head.structure { background:#fdf0e6; color:#8a5a00; }
 .group-head.other { background:#f0f1f3; color:#555; }
+/* v2 (defect-aligned) group ids. Note: v2's own "structure" group shares the
+   id (and thus the rule above) with the old CRITERIA_GROUPS "structure" —
+   intentionally not redeclared here to avoid a cascade override that would
+   change the live default dashboard's colors. */
+.group-head.missing-content { background:#eef2ff; color:#1a2b5c; }
+.group-head.missing-assets { background:#f0f7e6; color:#1a6b3c; }
+.group-head.alignment { background:#fff7e0; color:#7a5200; }
+.group-head.downloads { background:#fdf0e6; color:#8a5a00; }
+table.mini td { padding:2px 8px; font-size:12px; }
 .group-pct { font-size:12px; opacity:.8; font-weight:600; }
 .group-block .checks-list { padding:4px; }
 .group-block .check-block { margin:2px; border:none; border-radius:4px; }
@@ -160,22 +169,22 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
 <div class="sxs sync-scroll">
   <figure>
     <figcaption class="pcap">PRODUCTION (ต้นฉบับ)</figcaption>
-    <div class="shot-pane"><div class="noimg">no screenshot</div></div>
+    <div class="shot-pane"><img src="../screenshots/448/prod.jpg" loading="lazy" alt="production"></div>
   </figure>
   <figure>
     <figcaption class="acap">AEM (ต้องแก้ให้เหมือนซ้าย)</figcaption>
-    <div class="shot-pane"><div class="noimg">no screenshot</div></div>
+    <div class="shot-pane"><img src="../screenshots/448/aem.jpg" loading="lazy" alt="aem"></div>
   </figure>
 </div></section>
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Production page is BLOCKED (Access Denied / WAF)</b> Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</li></ul></section>
+<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>AEM page is 404</b> AEM title: &quot;404 error&quot;</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
-<tbody><tr><td>Headings</td><td>1</td><td>24</td><td class="bad">✗</td></tr><tr><td>Links</td><td>0</td><td>101</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>274</td><td>3308</td><td class="bad">✗</td></tr><tr><td>Images</td><td>0</td><td>2</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Empty accordions</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>0</td><td>65</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>0</td><td>32</td><td class="bad">✗</td></tr><tr><td>Page height (px)</td><td>900</td><td>900</td><td class="ok">✓</td></tr></tbody></table></section>
+<tbody><tr><td>Headings</td><td>52</td><td>2</td><td class="bad">✗</td></tr><tr><td>Links</td><td>207</td><td>4</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>23837</td><td>349</td><td class="bad">✗</td></tr><tr><td>Images</td><td>13</td><td>1</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>8</td><td>0</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>3</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>148</td><td>0</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>32</td><td>0</td><td class="bad">✗</td></tr><tr><td>Page height (px)</td><td>4147</td><td>900</td><td class="bad">✗</td></tr></tbody></table></section>
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
@@ -185,8 +194,8 @@ h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
     <details class="check-block failed">
       <summary class="check-row">
         <span class="check-status bad">✗</span>
-        <span class="check-label">Production page is BLOCKED (Access Denied / WAF)</span>
-        <span class="check-detail">Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</span>
+        <span class="check-label">AEM page is 404</span>
+        <span class="check-detail">AEM title: &quot;404 error&quot;</span>
         
       </summary>
       
