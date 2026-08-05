@@ -500,28 +500,6 @@ function renderPage(p, total, opts = {}) {
 <section class="panel"><h2>Broken Links on AEM (${(p.brokenLinks||[]).length})</h2>
 <table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody>${brokenLinkRows}</tbody></table></section>` : '';
 
-  // Image distortion/ratio issues — with preview thumbnails + dimensions.
-  const imageIssueRows = (p.imageIssues || []).map(ii => {
-    // Show thumbnail previews for ratio/distortion issues (not page-wide missing).
-    const hasPreview = ii.prodSrc || ii.aemSrc;
-    const preview = hasPreview ? `
-      <div class="img-preview-grid">
-        ${ii.prodSrc ? `<div class="img-preview-cell"><div class="img-preview-label">PROD ${esc(ii.prodRendered||'')}</div><img src="${esc(ii.prodSrc)}" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>` : ''}
-        ${ii.aemSrc ? `<div class="img-preview-cell"><div class="img-preview-label">AEM ${esc(ii.aemRendered||'')}</div><img src="${esc(ii.aemSrc)}" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>` : ''}
-      </div>` : '';
-    return `<li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-${ii.kind}">${esc(ii.kind)}</span>
-        <b>${esc(ii.label)}</b>
-        <span class="muted">${esc(ii.detail)}</span>
-      </div>
-      ${preview}
-    </li>`;
-  }).join('');
-  const imageIssuesSection = imageIssueRows ? `
-<section class="panel"><h2>Image Distortion / Ratio Issues (${(p.imageIssues||[]).length})</h2>
-<ul class="img-issue-list">${imageIssueRows}</ul></section>` : '';
-
   const parityClass = p.parity >= PASS_THRESHOLD ? 'good' : p.parity >= 50 ? 'mid' : 'bad';
 
   return `<!DOCTYPE html><html lang="th"><head><meta charset="utf-8">
@@ -574,7 +552,6 @@ ${(groupBlocks || otherBlock) ? `
 <div class="groups">${groupBlocks}${otherBlock}</div></section>` : ''}
 
 ${brokenLinksSection}
-${imageIssuesSection}
 
 <footer class="foot"><a href="../${dashName}">← Back to dashboard</a></footer>
 </div>
@@ -1171,16 +1148,6 @@ table.mini td { padding:2px 8px; font-size:12px; }
 .links-table th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
 .lhref-cell { font-family:monospace; font-size:11px; word-break:break-all; }
 
-/* Image issue cards with preview */
-.img-issue-list { list-style:none; }
-.img-issue { background:#f8f9fb; border:1px solid #e8eaed; border-radius:8px; padding:12px 14px; margin:10px 0; }
-.img-issue-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; }
-.img-issue-head .muted { font-size:12px; }
-.sev-ratio { background:#ea580c; } .sev-distortion { background:#dc2626; } .sev-missing { background:#6366f1; }
-.img-preview-grid { display:flex; gap:12px; margin-top:10px; }
-.img-preview-cell { flex:1; }
-.img-preview-label { font-size:10px; font-weight:700; color:#666; margin-bottom:4px; text-transform:uppercase; }
-.img-thumb { max-width:200px; max-height:120px; border:1px solid #ddd; border-radius:4px; display:block; }
 .noimg { padding:40px; text-align:center; color:#aaa; border:1px solid #ddd; border-top:none; }
 @media print { .sxs{break-inside:avoid;} }
 `;

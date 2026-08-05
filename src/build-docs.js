@@ -2,7 +2,7 @@
 // Output: output/criteria.html — deployed alongside the dashboard.
 
 import { writeFile, mkdir } from 'node:fs/promises';
-import { DIR, PASS_THRESHOLD, THAI_RATIO_DELTA, IMAGE_RATIO_TOLERANCE,
+import { DIR, PASS_THRESHOLD, THAI_RATIO_DELTA,
   TEXT_MATCH_TOLERANCE, MAX_LINK_CHECKS, LINK_CHECK_BATCH,
   WEIGHTS_MAIN, CRITERIA_GROUPS } from '../config.js';
 
@@ -132,18 +132,6 @@ ${criteriaRows}
     <div class="check-row"><b>เกณฑ์ flag:</b> HTTP status ≥ 400 = High (broken), status 0 = Medium (unreachable/CORS)</div>
   </div>
 
-  <div class="check-card">
-    <h3>🖼️ Image Distortion / Ratio</h3>
-    <div class="check-row"><b>จุดประสงค์:</b> ตรวจจับรูปที่ถูกบีบ/ยืดผิดสัดส่วนหลัง migrate</div>
-    <div class="check-row"><b>วิธีการ:</b> ดึง rendered dimensions (<code>getBoundingClientRect</code>) และ natural dimensions (<code>naturalWidth/Height</code>) ของทุกรูป จับคู่ prod↔AEM ด้วย filename ก่อน (เหลือจับคู่ตามลำดับ) แล้วเปรียบเทียบ aspect ratio</div>
-    <div class="check-row"><b>เกณฑ์ flag:</b></div>
-    <ul>
-      <li><b>Ratio mismatch:</b> rendered aspect ratio ต่างกัน > ${Math.round(IMAGE_RATIO_TOLERANCE*100)}% → รูปถูกบิด</li>
-      <li><b>New distortion:</b> AEM ที่ rendered ratio ≠ natural ratio (ถูกบีบ) แต่ prod ปกติ → distortion ใหม่ที่เกิดจาก migrate</li>
-      <li><b>Missing images:</b> AEM มีรูปน้อยกว่า prod > 2 รูป → รูปหาย</li>
-    </ul>
-    <div class="note">หมายเหตุ: AEM เก็บรูปเป็น hash name (media_abc123...) ไม่ตรงกับ prod (logo.svg) — จึงต้องจับคู่ตามลำดับแทน filename เป็นหลัก</div>
-  </div>
 
   <div class="check-card">
     <h3>🔢 Dynamic Block Filter</h3>

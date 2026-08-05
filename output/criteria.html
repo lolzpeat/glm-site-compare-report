@@ -123,18 +123,6 @@ code { background:#eef0f3; padding:1px 5px; border-radius:3px; font-size:12px; c
     <div class="check-row"><b>เกณฑ์ flag:</b> HTTP status ≥ 400 = High (broken), status 0 = Medium (unreachable/CORS)</div>
   </div>
 
-  <div class="check-card">
-    <h3>🖼️ Image Distortion / Ratio</h3>
-    <div class="check-row"><b>จุดประสงค์:</b> ตรวจจับรูปที่ถูกบีบ/ยืดผิดสัดส่วนหลัง migrate</div>
-    <div class="check-row"><b>วิธีการ:</b> ดึง rendered dimensions (<code>getBoundingClientRect</code>) และ natural dimensions (<code>naturalWidth/Height</code>) ของทุกรูป จับคู่ prod↔AEM ด้วย filename ก่อน (เหลือจับคู่ตามลำดับ) แล้วเปรียบเทียบ aspect ratio</div>
-    <div class="check-row"><b>เกณฑ์ flag:</b></div>
-    <ul>
-      <li><b>Ratio mismatch:</b> rendered aspect ratio ต่างกัน > 2% → รูปถูกบิด</li>
-      <li><b>New distortion:</b> AEM ที่ rendered ratio ≠ natural ratio (ถูกบีบ) แต่ prod ปกติ → distortion ใหม่ที่เกิดจาก migrate</li>
-      <li><b>Missing images:</b> AEM มีรูปน้อยกว่า prod > 2 รูป → รูปหาย</li>
-    </ul>
-    <div class="note">หมายเหตุ: AEM เก็บรูปเป็น hash name (media_abc123...) ไม่ตรงกับ prod (logo.svg) — จึงต้องจับคู่ตามลำดับแทน filename เป็นหลัก</div>
-  </div>
 
   <div class="check-card">
     <h3>🔢 Dynamic Block Filter</h3>
@@ -190,7 +178,7 @@ code { background:#eef0f3; padding:1px 5px; border-radius:3px; font-size:12px; c
 
 <footer class="foot">
   BBL Migration Parity Checker · Detection Criteria Documentation<br>
-  อัปเดตล่าสุด: 4/8/2569 · <a href="dashboard.html">← กลับ Dashboard</a>
+  อัปเดตล่าสุด: 5/8/2569 · <a href="dashboard.html">← กลับ Dashboard</a>
 </footer>
 
 </div></body></html>

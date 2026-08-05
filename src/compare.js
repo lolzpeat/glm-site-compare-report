@@ -24,7 +24,7 @@ import {
   SCREENSHOT_FULLPAGE, SCREENSHOT_MAX_WIDTH, MIN_TEXT_LEN, SCROLL_STIMULATE_STEPS, SCROLL_STIMULATE_DELAY,
   STIMULATE_STEP_TIMEOUT, RETRYABLE_HTTP_STATUS,
   WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
-  THAI_RATIO_DELTA, IMAGE_RATIO_TOLERANCE, MAX_LINK_CHECKS, LINK_CHECK_BATCH, LINK_CHECK_DELAY,
+  THAI_RATIO_DELTA, MAX_LINK_CHECKS, LINK_CHECK_BATCH, LINK_CHECK_DELAY,
   CAPTURE_USER_AGENT, CAPTURE_ACCEPT_LANGUAGE, HEADER_FOOTER_WAIT_EXTRA, HEADER_FOOTER_POLL,
 } from '../config.js';
 import sharp from 'sharp';
@@ -45,16 +45,6 @@ function isDynamicBlock(s) {
   return THAI_MONTHS.test(t);
 }
 
-// Lowercased basename of a URL — used to match images across sites where the
-// full src differs but the asset filename is the same.
-function filenameOf(url) {
-  try {
-    const name = new URL(url).pathname.split('/').pop() || '';
-    return decodeURIComponent(name).toLowerCase();
-  } catch {
-    return String(url || '').toLowerCase();
-  }
-}
 
 // Output file — defaults to data/results.json, override with --output=
 const OUTPUT_PATH = process.argv.find(a => a.startsWith('--output='))?.split('=')[1] || `${DIR.data}/results.json`;
@@ -427,7 +417,7 @@ function scoreNews(prod, aem, W, add, checks) {
   const parity = Math.min(100, Math.round(score * 100));
   const gaps = checks.filter(c => !c.passed).map(c => ({ label: c.label, detail: c.detail, weight: c.weight }));
 
-  // Re-use the existing issue detectors (broken links, image distortion, Thai ratio).
+  // Re-use the existing issue detectors (broken links, Thai ratio).
   const aemIssues = [];
   if (aem.leakedContentPaths?.length) aemIssues.push({ severity: 'high', label: 'Leaked /content/ paths', detail: `${aem.leakedContentPaths.length} found` });
 
@@ -727,77 +717,12 @@ export function scoreParity(prod, aem, newsMode = false) {
   }
   if (brokenLinks.length) aemIssues.push({ severity: 'high', label: 'Broken links on AEM', detail: `${brokenLinks.length} links return error` });
 
-  // ─── Image distortion (rendered ratio + newly-introduced distortion) ─────
-  // AEM stores images with hash names (media_abc123...) so filename matching
-  // fails. Fall back to order-based pairing, then compare rendered aspect
-  // ratios. Also flag newly-introduced distortion (natural ≠ rendered on AEM
-  // where prod rendered correctly).
-  const imageIssues = [];
-  const imgRatio = (w, h) => h > 0 ? w / h : 0;
-  const imgDiffers = (a, b) => a > 0 && b > 0 && Math.abs(a - b) / a > IMAGE_RATIO_TOLERANCE;
-
-  // Try filename match first; fill unmatched by order.
-  const usedAem = new Set();
-  const pairs = [];
-  for (const o of prodImgs) {
-    const key = filenameOf(o.src);
-    const idx = key ? aemImgs.findIndex((m, i) => !usedAem.has(i) && filenameOf(m.src) === key) : -1;
-    if (idx !== -1) { usedAem.add(idx); pairs.push([o, aemImgs[idx]]); }
-  }
-  const restProd = prodImgs.filter(o => !pairs.some(([po]) => po === o));
-  const restAem = aemImgs.filter((_, i) => !usedAem.has(i));
-  restProd.forEach((o, i) => { if (restAem[i]) pairs.push([o, restAem[i]]); });
-
-  for (const [o, m] of pairs) {
-    const label = filenameOf(m.src) || m.src.slice(0, 40);
-    const ro = imgRatio(o.renderedWidth, o.renderedHeight);
-    const rm = imgRatio(m.renderedWidth, m.renderedHeight);
-    const imgData = {
-      label,
-      kind: '',
-      detail: '',
-      prodSrc: o.src,
-      aemSrc: m.src,
-      prodAlt: o.alt || '',
-      aemAlt: m.alt || '',
-      prodRendered: `${o.renderedWidth}×${o.renderedHeight}`,
-      aemRendered: `${m.renderedWidth}×${m.renderedHeight}`,
-    };
-    if (imgDiffers(ro, rm)) {
-      imageIssues.push({
-        ...imgData,
-        kind: 'ratio',
-        detail: `rendered ratio prod ${ro.toFixed(2)} vs aem ${rm.toFixed(2)}`,
-      });
-      continue;
-    }
-    const natM = imgRatio(m.naturalWidth, m.naturalHeight);
-    const natO = imgRatio(o.naturalWidth, o.naturalHeight);
-    if (imgDiffers(natM, rm) && !imgDiffers(natO, ro)) {
-      imageIssues.push({
-        ...imgData,
-        kind: 'distortion',
-        detail: `distorted: natural ${natM.toFixed(2)} vs rendered ${rm.toFixed(2)}`,
-      });
-    }
-  }
-  // Count check — flag if AEM has significantly fewer images than prod.
-  if (aemImgs.length < prodImgs.length - 2) {
-    imageIssues.push({
-      label: '(page-wide)',
-      detail: `AEM renders ${aemImgs.length} images vs ${prodImgs.length} on prod`,
-      kind: 'missing',
-    });
-  }
-  if (imageIssues.length) {
-    aemIssues.push({
-      severity: 'medium',
-      label: 'Image distortion/ratio',
-      detail: `${imageIssues.length} image issue(s)`,
-    });
-  }
-
-  return { parity, checks, gaps, aemIssues, brokenLinks, imageIssues, thaiIssues };
+  // Image distortion/ratio was removed 2026-08-05: prod and AEM lay images out
+  // differently enough that rendered-ratio pairing (order-based, because AEM
+  // hashes filenames) compared unrelated images and reported noise. Missing
+  // imagery is covered by the scored missingImage/brokenImage checks, which
+  // scope to main content.
+  return { parity, checks, gaps, aemIssues, brokenLinks, imageIssues: [], thaiIssues };
 }
 
 function normCompare(a, b) {

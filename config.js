@@ -269,11 +269,6 @@ export const PASS_THRESHOLD = 85;
 // prod and AEM — catches "page rendered in wrong language" defects.
 export const THAI_RATIO_DELTA = 0.10;
 
-// ─── Image distortion ───────────────────────────────────────────────────────
-// Flag when rendered aspect ratio differs by more than this fraction, or when
-// AEM distorts an image (rendered ≠ natural) that prod rendered correctly.
-export const IMAGE_RATIO_TOLERANCE = 0.02;
-
 // ─── Broken link detection ──────────────────────────────────────────────────
 // In-browser fetch of AEM links to check HTTP status. Only checks same-origin
 // (AEM host) links to avoid CORS — caps to keep it fast.

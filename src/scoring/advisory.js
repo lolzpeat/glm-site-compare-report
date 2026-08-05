@@ -2,8 +2,7 @@
 // Open Issues, but never part of the weighted parity score. Ports the pre-v2
 // aemIssues/brokenLinks/imageIssues logic, absorbs thaiBalance (demoted from
 // the scored set), and adds the low-priority formatting heuristics.
-import { THAI_RATIO_DELTA, IMAGE_RATIO_TOLERANCE } from '../../config.js';
-import { filenameOf } from './util.js';
+import { THAI_RATIO_DELTA } from '../../config.js';
 
 export function advisoryIssues(prod, aem) {
   const aemIssues = [];
@@ -51,44 +50,12 @@ export function advisoryIssues(prod, aem) {
   }
   if (brokenLinks.length) aemIssues.push({ severity: 'high', label: 'Broken links on AEM', detail: `${brokenLinks.length} links return error` });
 
-  // Image distortion/ratio — filename match first, order-based fill after.
-  const prodImgs = prod.images || [];
-  const aemImgs = aem.images || [];
+  // Image distortion/ratio was removed 2026-08-05 at QA's request: the two CMSes
+  // lay images out too differently for a rendered-ratio comparison to mean
+  // anything. AEM hashes filenames, so pairing fell back to source order and
+  // routinely compared unrelated images. Missing/broken imagery is covered by
+  // the scored missingImage and brokenImage checks, which scope to main content.
   const imageIssues = [];
-  const imgRatio = (w, h) => h > 0 ? w / h : 0;
-  const imgDiffers = (a, b) => a > 0 && b > 0 && Math.abs(a - b) / a > IMAGE_RATIO_TOLERANCE;
-  const usedAem = new Set();
-  const pairs = [];
-  for (const o of prodImgs) {
-    const key = filenameOf(o.src);
-    const idx = key ? aemImgs.findIndex((m, i) => !usedAem.has(i) && filenameOf(m.src) === key) : -1;
-    if (idx !== -1) { usedAem.add(idx); pairs.push([o, aemImgs[idx]]); }
-  }
-  const restProd = prodImgs.filter(o => !pairs.some(([po]) => po === o));
-  const restAem = aemImgs.filter((_, i) => !usedAem.has(i));
-  restProd.forEach((o, i) => { if (restAem[i]) pairs.push([o, restAem[i]]); });
-  for (const [o, m] of pairs) {
-    const label = filenameOf(m.src) || m.src.slice(0, 40);
-    const ro = imgRatio(o.renderedWidth, o.renderedHeight);
-    const rm = imgRatio(m.renderedWidth, m.renderedHeight);
-    const imgData = {
-      label, kind: '', detail: '', prodSrc: o.src, aemSrc: m.src, prodAlt: o.alt || '', aemAlt: m.alt || '',
-      prodRendered: `${o.renderedWidth}×${o.renderedHeight}`, aemRendered: `${m.renderedWidth}×${m.renderedHeight}`,
-    };
-    if (imgDiffers(ro, rm)) {
-      imageIssues.push({ ...imgData, kind: 'ratio', detail: `rendered ratio prod ${ro.toFixed(2)} vs aem ${rm.toFixed(2)}` });
-      continue;
-    }
-    const natM = imgRatio(m.naturalWidth, m.naturalHeight);
-    const natO = imgRatio(o.naturalWidth, o.naturalHeight);
-    if (imgDiffers(natM, rm) && !imgDiffers(natO, ro)) {
-      imageIssues.push({ ...imgData, kind: 'distortion', detail: `distorted: natural ${natM.toFixed(2)} vs rendered ${rm.toFixed(2)}` });
-    }
-  }
-  if (aemImgs.length < prodImgs.length - 2) {
-    imageIssues.push({ label: '(page-wide)', detail: `AEM renders ${aemImgs.length} images vs ${prodImgs.length} on prod`, kind: 'missing' });
-  }
-  if (imageIssues.length) aemIssues.push({ severity: 'medium', label: 'Image distortion/ratio', detail: `${imageIssues.length} image issue(s)` });
 
   return { aemIssues, brokenLinks, imageIssues, thaiIssues };
 }

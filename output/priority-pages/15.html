@@ -131,16 +131,6 @@ table.mini td { padding:2px 8px; font-size:12px; }
 .links-table th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
 .lhref-cell { font-family:monospace; font-size:11px; word-break:break-all; }
 
-/* Image issue cards with preview */
-.img-issue-list { list-style:none; }
-.img-issue { background:#f8f9fb; border:1px solid #e8eaed; border-radius:8px; padding:12px 14px; margin:10px 0; }
-.img-issue-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; }
-.img-issue-head .muted { font-size:12px; }
-.sev-ratio { background:#ea580c; } .sev-distortion { background:#dc2626; } .sev-missing { background:#6366f1; }
-.img-preview-grid { display:flex; gap:12px; margin-top:10px; }
-.img-preview-cell { flex:1; }
-.img-preview-label { font-size:10px; font-weight:700; color:#666; margin-bottom:4px; text-transform:uppercase; }
-.img-thumb { max-width:200px; max-height:120px; border:1px solid #ddd; border-radius:4px; display:block; }
 .noimg { padding:40px; text-align:center; color:#aaa; border:1px solid #ddd; border-top:none; }
 @media print { .sxs{break-inside:avoid;} }
 </style></head><body>
@@ -179,7 +169,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0% · main content only</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 34/54 headings (Jaccard 58%)</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0 · advisory: tabs 6/0</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 5 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Image distortion/ratio</b> 6 image issue(s)</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 17/30 prod keywords missing</li></ul></section>
+<ul class="gap-list"><li class="gap medium"><span class="sev">medium</span> <b>Image alt text (&gt;50% match)</b> alt match 0% · main content only</li><li class="gap medium"><span class="sev">medium</span> <b>Headings (Jaccard)</b> 34/54 headings (Jaccard 58%)</li><li class="gap medium"><span class="sev">medium</span> <b>Template (header/footer/components)</b> header 80/80 labels · 6 missing · 6 extra · footer 31/31 labels · accordion 0/0 · table 0/0 · form 0/0 · video 0/0 · advisory: tabs 6/0</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 5 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 17/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
@@ -775,75 +765,6 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 <section class="panel"><h2>Broken Links on AEM (1)</h2>
 <table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">404</td><td class="lhref-cell">https://main--site-prod--bangkok-bank.aem.live/en/mutual-fund</td></tr></tbody></table></section>
-
-<section class="panel"><h2>Image Distortion / Ratio Issues (6)</h2>
-<ul class="img-issue-list"><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1ea4725d1a4d63275b656e947f131eb3cbd8dfc7a.jpg</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 24×24</div><img src="https://www.bangkokbank.com/assets/BBL%20Corporate/img/icons/GMAp/icon_headerPC.svg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1ea4725d1a4d63275b656e947f131eb3cbd8dfc7a.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1c11dc9e7c785f8e06b11a88af497e855ddcc73fc.jpg</b>
-        <span class="muted">rendered ratio prod 2.60 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 125×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-livechat.svg?h=48&amp;iar=0&amp;" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1c11dc9e7c785f8e06b11a88af497e855ddcc73fc.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1a84588830cc4dc64f08cd17ddcc073753d00fc6c.jpg</b>
-        <span class="muted">rendered ratio prod 2.00 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 96×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-maps.svg?h=48&amp;iar=0&amp;w=48" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1a84588830cc4dc64f08cd17ddcc073753d00fc6c.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1826648c14d789d7248fd70e3b516af403f95756a.jpg</b>
-        <span class="muted">rendered ratio prod 2.67 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 128×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-financial.svg?h=48&amp;iar=0" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_1826648c14d789d7248fd70e3b516af403f95756a.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_19758fd1be68537b74809153502e5a40b2a4d3b3b.jpg</b>
-        <span class="muted">rendered ratio prod 2.86 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 60×21</div><img src="https://www.bangkokbank.com/-/media/feature/navigation/bbl-corporate/footer/logo-footer-2.png?h=31&amp;iar=0&amp;w=47&amp;hash=CDCFC" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_19758fd1be68537b74809153502e5a40b2a4d3b3b.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_19aa7ee40212a4411e494aa5240d8d9717c495030.jpg</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 24×24</div><img src="https://www.bangkokbank.com/images/econscent/Arrow-right.svg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://main--site-prod--bangkok-bank.aem.live/th/media_19aa7ee40212a4411e494aa5240d8d9717c495030.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li></ul></section>
 
 <footer class="foot"><a href="../priority-dashboard.html">← Back to dashboard</a></footer>
 </div>
