@@ -37,11 +37,11 @@ test('formatting advisory fires on table drop', () => {
   assert.ok(r.aemIssues.some(i => /Formatting/.test(i.label)));
 });
 
-test('all 13 scored check ids are present exactly once, missingKeywords excluded', () => {
+test('all 12 scored check ids are present exactly once, missingKeywords and imageAlt excluded', () => {
   const r = scoreMain(metrics(), metrics(), {});
   const ids = r.checks.map(c => c.id).sort();
   assert.deepEqual(ids, ['brokenImage', 'contentLength', 'contentOrder', 'deadDownloadLink',
-    'headings', 'imageAlt', 'links', 'meta', 'missingDownloadLink', 'missingImage',
+    'headings', 'links', 'meta', 'missingDownloadLink', 'missingImage',
     'missingText', 'template', 'visualLayout'].sort());
 });
 

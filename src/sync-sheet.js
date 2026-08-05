@@ -54,7 +54,6 @@ const CHECK_LABELS_TH = {
   missingKeywords: 'คำสำคัญหาย',
   missingImage: 'รูปหาย',
   brokenImage: 'รูปโหลดไม่ขึ้น',
-  imageAlt: 'Alt text รูปไม่ตรง',
   contentOrder: 'ลำดับเนื้อหาไม่ตรง',
   visualLayout: 'การจัดวาง layout ไม่ตรง',
   missingDownloadLink: 'ไฟล์ดาวน์โหลดหาย',

@@ -44,16 +44,14 @@ export function assetChecks(prod, aem) {
   if (aemImgs.length === 0) { bCheck.insufficient = true; bCheck.passed = false; bCheck.partial = 0; bCheck.detail = 'AEM has no images — nothing to check'; }
   checks.push(bCheck);
 
-  // imageAlt: fraction of prod alt texts present on AEM.
-  const prodAlts = new Set(prodImgs.map(i => (i.alt || '').toLowerCase()).filter(Boolean));
-  const aemAlts = new Set(aemImgs.map(i => (i.alt || '').toLowerCase()).filter(Boolean));
-  const altHit = prodAlts.size > 0 ? [...prodAlts].filter(a => aemAlts.has(a)).length / prodAlts.size : 0;
-  const aCheck = makeCheck('imageAlt', 'Image alt text (>50% match)', altHit > 0.5,
-    `alt match ${Math.round(altHit * 100)}%${scopeNote}`, altHit,
-    { altMatchPct: Math.round(altHit * 100), missingAlts: [...prodAlts].filter(a => !aemAlts.has(a)).slice(0, 20),
-      prodAltCount: prodAlts.size, scope: scoped ? 'main' : 'full-page' });
-  if (prodAlts.size === 0) { aCheck.insufficient = true; aCheck.passed = false; aCheck.partial = 0; aCheck.detail = 'prod has no image alt texts'; }
-  checks.push(aCheck);
+  // imageAlt was removed 2026-08-05: prod and AEM cannot be compared on alt
+  // text. Prod writes Thai alts, AEM writes English ("แนวทางการดำเนินธุรกิจ
+  // อย่างยั่งยืน" vs "guidelines-for-sustainable-business" — the same asset),
+  // so exact matching could never pass. Worse, prod serves its content imagery
+  // by some means extract.js cannot see: the Board-of-Directors page carries 7
+  // <img> in the ENTIRE document, all chrome, while AEM carries 20 in main
+  // with real director names. The check scored AEM at 0% for having better alt
+  // text than prod, and failed 9 of 14 priority pages identically.
 
   return checks;
 }

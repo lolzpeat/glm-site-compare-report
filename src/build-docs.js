@@ -29,7 +29,6 @@ function renderDoc() {
       meta:            ['Meta tags', 'ทั้งหมดตรง (partial credit)', 'เทียบ title, description, canonical, og:title, og:image, keywords — ให้ partial credit'],
       thaiBalance:     ['Thai/English balance', 'delta ≤ ' + Math.round(THAI_RATIO_DELTA * 100) + '%', 'สัดส่วนอักขระไทย vs อังกฤษต้องใกล้เคียงกัน'],
       brokenImage:         ['Broken image', 'ไม่มีรูปที่โหลดไม่ขึ้น', 'รูปบน AEM ที่แท็ก render แต่ไฟล์ไม่โหลด (naturalWidth 0) — ยกเว้น .svg และ data: URI'],
-      imageAlt:            ['Image alt text', 'alt match > 50%', 'alt text ของ prod ต้องพบใน AEM เกินครึ่ง'],
       contentOrder:        ['Content order', 'ลำดับตรง ≥ 90%', 'บล็อกข้อความที่มีทั้งสองฝั่งต้องเรียงลำดับเดียวกับ prod (LIS)'],
       visualLayout:        ['Visual layout', 'โปรไฟล์ตรง ≥ 85%', 'เทียบการกระจายเนื้อหาแนวนอนจาก screenshot (ไม่ขึ้นกับความสูงหน้า)'],
       missingDownloadLink: ['Download links present', 'ครบทุกไฟล์', 'ไฟล์ .pdf/.doc/.xls/.zip ของ prod ต้องมีบน AEM (เทียบชื่อไฟล์)'],

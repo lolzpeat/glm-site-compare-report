@@ -638,13 +638,6 @@ function renderDiffDetails(check, esc) {
         </div>
       </div>`;
 
-    case 'imageAlt':
-      // diff = { altMatchPct, missingAlts, prodAltCount }
-      return `<div class="diff-body"><div class="diff-section">
-        <div class="diff-title">alt ตรงกัน ${diff.altMatchPct ?? 0}% (จาก ${diff.prodAltCount ?? 0} alt บน prod)</div>
-        ${diff.missingAlts?.length ? `<div class="chip-list">${diff.missingAlts.map(a => `<span class="chip chip-missing">${esc(a)}</span>`).join('')}</div>` : ''}
-      </div></div>`;
-
     case 'brokenImage':
       // diff = { broken: [{src, alt}], candidateCount }
       if (!diff.broken?.length) return `<div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (${diff.candidateCount ?? 0} รูป)</div></div></div>`;

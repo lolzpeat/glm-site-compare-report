@@ -52,12 +52,12 @@ test('brokenImage is insufficient (not failed) when AEM has no images', () => {
   assert.equal(c.insufficient, true);
 });
 
-test('imageAlt: hit rate over prod alts; insufficient when prod has none', () => {
+test('imageAlt is not emitted — alt text is not comparable across the two CMSes', () => {
+  // Prod writes Thai alts and AEM writes English for the same asset, and prod
+  // does not expose its content imagery as <img> at all, so the check scored
+  // AEM at 0% for having the better alt text. Removed 2026-08-05.
   const prod = metrics({ images: [img({ alt: 'บัตรเดบิต' }), img({ alt: 'สาขา' })] });
   const aem = metrics({ images: [img({ alt: 'บัตรเดบิต' })] });
-  const c = byId(assetChecks(prod, aem), 'imageAlt');
-  assert.equal(c.passed, false);
-  assert.ok(Math.abs(c.partial - 0.5) < 1e-9);
-  const ins = byId(assetChecks(metrics({ images: [img()] }), aem), 'imageAlt');
-  assert.equal(ins.insufficient, true);
+  assert.equal(byId(assetChecks(prod, aem), 'imageAlt'), undefined);
+  assert.deepEqual(assetChecks(prod, aem).map(c => c.id), ['missingImage', 'brokenImage']);
 });

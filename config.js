@@ -182,9 +182,13 @@ export const WEIGHTS_MAIN_V2 = {
   contentLength:       0.13,
   missingText:         0.17,
   // Missing assets (25%)
-  missingImage:        0.10,  // count only (alt split out)
-  brokenImage:         0.11,  // tag renders but file never loads
-  imageAlt:            0.04,
+  // `imageAlt` was removed entirely (not demoted) 2026-08-05: prod writes Thai
+  // alt text and AEM writes English for the same asset, and prod's content
+  // imagery is not exposed as <img> at all, so no comparison was possible.
+  // Its 0.04 was split into the two remaining asset checks, keeping the group
+  // at 25%. See src/scoring/checks-assets.js for the evidence.
+  missingImage:        0.12,  // count only
+  brokenImage:         0.13,  // tag renders but file never loads
   // Content alignment (20%)
   contentOrder:        0.10,  // LIS over shared text blocks
   visualLayout:        0.10,  // screenshot column-profile match
@@ -200,7 +204,7 @@ export const WEIGHTS_MAIN_V2 = {
 
 export const CRITERIA_GROUPS_V2 = [
   { id: 'missing-content', label: 'Missing content',      weight: 0.30, checks: ['contentLength', 'missingText'] },
-  { id: 'missing-assets',  label: 'Missing assets',       weight: 0.25, checks: ['missingImage', 'brokenImage', 'imageAlt'] },
+  { id: 'missing-assets',  label: 'Missing assets',       weight: 0.25, checks: ['missingImage', 'brokenImage'] },
   { id: 'alignment',       label: 'Content alignment',    weight: 0.20, checks: ['contentOrder', 'visualLayout'] },
   { id: 'downloads',       label: 'Download links',       weight: 0.15, checks: ['missingDownloadLink', 'deadDownloadLink'] },
   { id: 'structure',       label: 'Structure & template', weight: 0.10, checks: ['headings', 'links', 'meta', 'template'] },
