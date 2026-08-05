@@ -22,7 +22,7 @@ import puppeteer from 'puppeteer-core';
 import {
   ROOT, DIR, VIEWPORT, NAV_TIMEOUT, NAV_WAIT_UNTIL, SETTLE_AFTER_LOAD, LAZY_WAIT_TIMEOUT, LAYOUT_WAIT_TIMEOUT, CONCURRENCY, REQUEST_PACING_MS,
   SCREENSHOT_FULLPAGE, SCREENSHOT_MAX_WIDTH, MIN_TEXT_LEN, SCROLL_STIMULATE_STEPS, SCROLL_STIMULATE_DELAY,
-  STIMULATE_STEP_TIMEOUT, RETRYABLE_HTTP_STATUS,
+  STIMULATE_STEP_TIMEOUT, RETRYABLE_HTTP_STATUS, SHARE_BROWSER_CONTEXT, BLOCK_ABORT_STREAK,
   WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
   THAI_RATIO_DELTA, MAX_LINK_CHECKS, LINK_CHECK_BATCH, LINK_CHECK_DELAY,
   CAPTURE_USER_AGENT, CAPTURE_ACCEPT_LANGUAGE, HEADER_FOOTER_WAIT_EXTRA, HEADER_FOOTER_POLL,
@@ -778,13 +778,12 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
   };
   const t0 = Date.now();
 
-  // A fresh, isolated context per pair (instead of pages on the shared browser)
-  // means no cookies/session persist across pairs. Akamai's WAF appears to flag
-  // the shared session as a bot after the first request or two and then block
-  // everything from that session regardless of request pacing (see AGENTS.md
-  // gotcha, 2026-07-09) — an isolated context makes each pair look like a fresh
-  // visitor again.
-  const context = await browser.createBrowserContext();
+  // Context reuse is the single biggest lever on ban risk — see
+  // SHARE_BROWSER_CONTEXT in config.js for the measurements. A fresh context
+  // has an empty cache, so it re-downloads the whole site shell on every page.
+  const context = SHARE_BROWSER_CONTEXT
+    ? browser.defaultBrowserContext()
+    : await browser.createBrowserContext();
   const [prodPage, aemPage] = await Promise.all([
     context.newPage().then(async p => { await p.setViewport(VIEWPORT); return p; }),
     context.newPage().then(async p => { await p.setViewport(VIEWPORT); return p; }),
@@ -865,8 +864,14 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
       }];
     }
   } finally {
-    // Closing the context disposes both pages and drops its cookies/session.
-    await context.close().catch(() => {});
+    // The default context must NOT be closed — it belongs to the browser and
+    // holds the cache every later pair depends on. Close just this pair's pages.
+    if (SHARE_BROWSER_CONTEXT) {
+      await Promise.all([prodPage.close().catch(() => {}), aemPage.close().catch(() => {})]);
+    } else {
+      // Closing an isolated context disposes both pages and its cookies/session.
+      await context.close().catch(() => {});
+    }
   }
 
   result.durationMs = Date.now() - t0;
@@ -885,12 +890,29 @@ async function runPool(browser, pairs, concurrency, existing, force, newsMode, p
   const results = new Array(pairs.length);
   let cursor = 0;
   let done = 0;
+  // Consecutive blocks across all workers. Once the WAF starts refusing us,
+  // every further request deepens the ban and writes a garbage 0% row, so the
+  // run stops rather than working through the rest of the scope. Reset by any
+  // page that comes back clean — an isolated block is not a ban.
+  let blockStreak = 0;
+  let aborted = false;
   const start = Date.now();
 
   async function worker() {
-    while (cursor < pairs.length) {
+    while (cursor < pairs.length && !aborted) {
       const i = cursor++;
       results[i] = await processPair(browser, pairs[i], i, pairs.length, existing, force, newsMode);
+      if (results[i]?.errorType === 'blocked') {
+        blockStreak++;
+        if (BLOCK_ABORT_STREAK > 0 && blockStreak >= BLOCK_ABORT_STREAK && !aborted) {
+          aborted = true;
+          console.log(`\n🛑 ABORT: ${blockStreak} pages blocked in a row — the IP looks banned.`);
+          console.log('   Everything captured so far is saved. Wait for the rate window to clear');
+          console.log('   (or switch IP), then re-run — completed pages are skipped without --force.');
+        }
+      } else {
+        blockStreak = 0;
+      }
       done++;
       if (done % 5 === 0 || done === pairs.length) {
         const elapsed = ((Date.now() - start) / 1000).toFixed(0);

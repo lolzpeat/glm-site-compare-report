@@ -55,11 +55,47 @@ export const LAYOUT_WAIT_TIMEOUT = 18000; // ms to wait for AEM client-render la
 // being flagged for re-capture. 404 is deliberately absent: it IS a finding.
 export const RETRYABLE_HTTP_STATUS = [408, 429, 500, 502, 503, 504];
 
-export const CONCURRENCY = 4;          // parallel URL-pair workers
-export const REQUEST_PACING_MS = 0;    // ms delay after each page in a worker (0 = off, default).
+// Reuse ONE browser context (and therefore Chrome's HTTP cache) across page
+// pairs instead of giving each pair a fresh, empty-cache context.
+//
+// This is the single biggest lever on ban risk, and it is about request COUNT,
+// not request timing. Measured on the AEM host 2026-08-05 over 4 pages, using
+// response.fromCache() (the `requestservedfromcache` EVENT does not fire for
+// disk-cache hits and reports a misleading zero):
+//
+//   fresh context per pair   131 + 132 + 143 + 136 = 542 network requests
+//   shared default context   131 +  21 +  27 +  18 = 197 network requests
+//
+// 64% fewer overall, ~85% fewer on every page after the first. One page load
+// fires ~131 requests, 128 of them at the target origin, because 80 of the 90
+// script/css/font URLs are the site shell — byte-identical between any two
+// pages. A fresh context has an empty cache, so it re-downloads all of them
+// every time. Over a 632-page run that is the difference between roughly 170k
+// and 30k origin requests.
+//
+// It is also more human-like: a real visitor reading 20 pages keeps their
+// cache, they do not re-download the whole site on every click.
+//
+// Set false to restore the per-pair isolated contexts introduced 2026-07-09 to
+// escape a ban. That experiment is not why this defaults to true — it recovered
+// only 5 of 87 pages, so its benefit was never established, while its cost is
+// now measured.
+export const SHARE_BROWSER_CONTEXT = true;
+
+// Stop the run after this many CONSECUTIVE blocked pages. Once the WAF starts
+// refusing us, every further request deepens the ban and writes a garbage 0%
+// row; there is nothing to gain by finishing the list. safe-run.js already
+// aborts a chunk at SAFE_BLOCK_ABORT_RATIO, but a plain `compare.js --ids=...`
+// had no such guard and would plough through the whole scope. 0 disables.
+export const BLOCK_ABORT_STREAK = 5;
+
+export const CONCURRENCY = 2;          // parallel URL-pair workers. AGENTS.md documents 4 as
+                                        // what gets IPs banned; the default should not be the
+                                        // value the docs warn against.
+export const REQUEST_PACING_MS = 2000; // ms delay after each page in a worker.
                                         // prod's WAF burst-rate-limits even at --concurrency=1 (2026-07-09:
                                         // 2 requests through, then every subsequent one got ERR_HTTP2_PROTOCOL_ERROR).
-                                        // Set via --pacing=N when retrying previously-blocked pages.
+                                        // Raise via --pacing=N when retrying previously-blocked pages.
 // ─── Safe chunked run (src/safe-run.js) ────────────────────────────────────
 // Empirical ban threshold: the WAF (Akamai) starts blocking after ~120-200
 // heavy page-loads within a ~15-20 min sliding window (see AGENTS.md gotchas,
