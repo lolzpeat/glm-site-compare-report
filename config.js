@@ -49,6 +49,23 @@ export const LAZY_WAIT_TIMEOUT = 3500; // ms to wait for client-rendered text to
 export const STIMULATE_STEP_TIMEOUT = 5000; // ms ceiling per stimulation evaluate
 export const LAYOUT_WAIT_TIMEOUT = 18000; // ms to wait for AEM client-render layout to settle (scrollHeight > viewport)
 
+// Consent/cookie banners are overlays painted on top of the page, so they
+// corrupt the screenshot-based visualLayout check. Prod's cookie bar covered
+// ~100px of page 1's holiday table while AEM's capture had none, and the check
+// read that difference as a layout mismatch on a page whose columns are
+// identical. Hidden immediately BEFORE the screenshot — after extraction, so
+// no text/component metric changes.
+//
+// Matching is deliberately narrow: an element must match one of these AND be
+// position fixed/sticky, i.e. actually be an overlay. A bare class match would
+// hide real content on the Privacy Notice page, which legitimately discusses
+// cookies and currently scores 100.
+export const OVERLAY_HIDE_SEL = [
+  '[class*="cookie" i]', '[id*="cookie" i]',
+  '[class*="consent" i]', '[id*="consent" i]',
+  '[aria-label*="cookie" i]', '#onetrust-banner-sdk', '#onetrust-consent-sdk',
+].join(', ');
+
 // HTTP statuses that mean "the server refused this attempt, try later" rather
 // than "this page is genuinely different". Such a response still loads a real
 // body, so without this the page scores as a 0%-parity failure instead of

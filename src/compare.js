@@ -22,7 +22,7 @@ import puppeteer from 'puppeteer-core';
 import {
   ROOT, DIR, VIEWPORT, NAV_TIMEOUT, NAV_WAIT_UNTIL, SETTLE_AFTER_LOAD, LAZY_WAIT_TIMEOUT, LAYOUT_WAIT_TIMEOUT, CONCURRENCY, REQUEST_PACING_MS,
   SCREENSHOT_FULLPAGE, SCREENSHOT_MAX_WIDTH, MIN_TEXT_LEN, SCROLL_STIMULATE_STEPS, SCROLL_STIMULATE_DELAY,
-  STIMULATE_STEP_TIMEOUT, RETRYABLE_HTTP_STATUS, SHARE_BROWSER_CONTEXT, BLOCK_ABORT_STREAK,
+  STIMULATE_STEP_TIMEOUT, RETRYABLE_HTTP_STATUS, SHARE_BROWSER_CONTEXT, BLOCK_ABORT_STREAK, OVERLAY_HIDE_SEL,
   WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
   THAI_RATIO_DELTA, MAX_LINK_CHECKS, LINK_CHECK_BATCH, LINK_CHECK_DELAY,
   CAPTURE_USER_AGENT, CAPTURE_ACCEPT_LANGUAGE, HEADER_FOOTER_WAIT_EXTRA, HEADER_FOOTER_POLL,
@@ -249,6 +249,27 @@ const evalCapped = (page, fn, arg, ms) => Promise.race([
   page.evaluate(fn, arg).catch(() => {}),
   new Promise(r => setTimeout(r, ms)),
 ]);
+
+// Hide consent overlays just before screenshotting. Only fixed/sticky elements
+// are touched — see OVERLAY_HIDE_SEL for why a bare class match is unsafe.
+// Returns how many were hidden so a run can show whether it is working.
+async function hideOverlays(page) {
+  let hidden = 0;
+  await Promise.race([
+    page.evaluate((sel) => {
+      let n = 0;
+      for (const el of document.querySelectorAll(sel)) {
+        const pos = getComputedStyle(el).position;
+        if (pos !== 'fixed' && pos !== 'sticky') continue;
+        el.style.setProperty('display', 'none', 'important');
+        n++;
+      }
+      return n;
+    }, OVERLAY_HIDE_SEL).then(n => { hidden = n || 0; }).catch(() => {}),
+    new Promise(r => setTimeout(r, STIMULATE_STEP_TIMEOUT)),
+  ]);
+  return hidden;
+}
 
 async function stimulateLazy(page) {
   for (let i = 0; i < SCROLL_STIMULATE_STEPS; i++) {
@@ -800,6 +821,15 @@ async function processPair(browser, pair, posInRun, total, existing, force, news
     // Each page gets its own subfolder so files don't pile up in one directory.
     const pageDir = `${SS_DIR}/${result.id}`;
     await mkdir(pageDir, { recursive: true }).catch(() => {});
+    // Both sides are de-overlaid before EITHER screenshot, so the pair stays
+    // symmetric — hiding a banner on one side only would trade one layout
+    // artifact for another.
+    const overlaysHidden = (await Promise.all([
+      prodRes.ok ? hideOverlays(prodPage) : 0,
+      aemRes.ok ? hideOverlays(aemPage) : 0,
+    ])).reduce((a, b) => a + b, 0);
+    if (overlaysHidden) result.overlaysHidden = overlaysHidden;
+
     if (prodRes.ok) {
       const buf = await prodPage.screenshot({ fullPage: SCREENSHOT_FULLPAGE, type: 'jpeg', quality: 80 }).catch(() => null);
       if (buf) {
