@@ -157,6 +157,18 @@ export const META_BLOCKED_RESOURCE_TYPES = ['image', 'font', 'stylesheet', 'medi
 // (trimmed, case-insensitive) are captured.
 export const PRIORITY_SHEET_TAB_NAME = 'Priority BBL Thai Manual Pages';
 export const PRIORITY_STATUS_FILTER = ['Done'];
+// "Done with Condition" rows are emitted AFTER every "Done" row and capped at
+// PRIORITY_CONDITIONAL_LIMIT. The ordering is not cosmetic: compare.js assigns
+// each page its id from its CSV row position (readPairs: `pairs.length + 1`),
+// so interleaving new rows among the existing ones — which is where the sheet
+// actually puts them — would renumber pages that already have captured results
+// and silently attach their scores to different URLs.
+// The sheet's actual label for "done, but with a caveat" is
+// "Done (with Known issue)" — there is no status literally named
+// "Done with Condition". Verified against the live tab 2026-08-05:
+// Done (with Known issue) 66 · Done 23 · Waiting Componant TH page 8 · Not Start 4.
+export const PRIORITY_CONDITIONAL_STATUS = ['Done (with Known issue)'];
+export const PRIORITY_CONDITIONAL_LIMIT = 5;
 export const PRIORITY_URLS_PATH = join(DIR.data, 'urls-priority.csv');
 
 export const SCREENSHOT_FULLPAGE = true;
