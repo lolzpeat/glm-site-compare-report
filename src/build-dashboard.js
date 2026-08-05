@@ -480,11 +480,9 @@ function renderPage(p, total, opts = {}) {
     metricRowFor(`Images (เนื้อหาหลัก${bgScoped ? ', รวม CSS background' : ', <img> เท่านั้น'})`,
       imgTotal(prod), imgTotal(aem), chk('missingImage')),
     metricRowFor(`Accordions${compScoped ? ' (เนื้อหาหลัก)' : ''}`, acc(prod), acc(aem), chk('template')),
+    // Page height was dropped: no check owns it, two renderings are never the
+    // same pixel height, and layout is already scored by visualLayout.
     metricRow('Empty accordions', prod.emptyAccordions, aem.emptyAccordions, 0, aem.emptyAccordions, true),
-    // Informational: no check owns page height, and it was comparing for exact
-    // equality — two renderings are never the same pixel height, so it showed
-    // ✗ on literally every page. Layout differences are scored by visualLayout.
-    metricRowFor('Page height (px)', prod.pageHeight, aem.pageHeight, null),
   ].join('') : '';
 
   // Render each parity check as a row (shared by grouped + fallback rendering).
