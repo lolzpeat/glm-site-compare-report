@@ -17,3 +17,10 @@ data/
 # Local tool state (ZCode memory/sessions, Claude state, etc.)
 .omc/
 .claude/
+
+# Leftover artifacts from earlier one-off experiments. output/ is the deployed
+# site and is otherwise committed on purpose, so these are named explicitly
+# rather than relying on anyone remembering not to `git add output/`.
+output/page-imgs/
+output/v2-screenshots/
+output/page-images-report.html
