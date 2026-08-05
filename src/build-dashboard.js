@@ -459,16 +459,32 @@ function renderPage(p, total, opts = {}) {
   const aemShot = toRelShot(p.aem?.screenshot);
 
   // Metric diff rows
+  // Every row must use the SAME basis its check scores on, or the table
+  // contradicts the score. Whole-page numbers did exactly that: page 9 read
+  // "Text length 72581 / 7763 ✗" — as if AEM had lost 89% of the content —
+  // while contentLength scored 100%, because in MAIN content the two sides are
+  // 4141 vs 4130. The gap is chrome plus prod's hidden inline modals.
+  const mainScoped = typeof prod.mainTextLength === 'number' && typeof aem.mainTextLength === 'number';
+  const imgTotal = (m) => (m.mainImages || []).length + (m.mainBgImages || []).length;
+  const bgScoped = Array.isArray(prod.mainBgImages) && Array.isArray(aem.mainBgImages);
+  const compScoped = !!(prod.mainComponentCounts && aem.mainComponentCounts);
+  const acc = (m) => (compScoped ? m.mainComponentCounts : m.componentCounts || {}).accordion ?? 0;
+
+  const chk = (id) => (p.checks || []).find(c => c.id === id);
   const diffRows = hasMetrics ? [
-    metricRow('Headings', prod.headingCount, aem.headingCount),
-    metricRow('Links', prod.linkCount, aem.linkCount),
-    metricRow('Text length', `${prod.textLength}`, `${aem.textLength}`, prod.textLength, aem.textLength),
-    metricRow('Images', prod.imageCount, aem.imageCount),
-    metricRow('Accordions', prod.accordionCount, aem.accordionCount),
+    metricRowFor('Headings', prod.headingCount, aem.headingCount, chk('headings')),
+    metricRowFor('Links', prod.linkCount, aem.linkCount, chk('links')),
+    mainScoped
+      ? metricRowFor('Text length (เนื้อหาหลัก)', prod.mainTextLength, aem.mainTextLength, chk('contentLength'))
+      : metricRowFor('Text length (ทั้งหน้า — capture เก่า)', prod.textLength, aem.textLength, chk('contentLength')),
+    metricRowFor(`Images (เนื้อหาหลัก${bgScoped ? ', รวม CSS background' : ', <img> เท่านั้น'})`,
+      imgTotal(prod), imgTotal(aem), chk('missingImage')),
+    metricRowFor(`Accordions${compScoped ? ' (เนื้อหาหลัก)' : ''}`, acc(prod), acc(aem), chk('template')),
     metricRow('Empty accordions', prod.emptyAccordions, aem.emptyAccordions, 0, aem.emptyAccordions, true),
-    metricRow('Header links', prod.headerLinkCount, aem.headerLinkCount),
-    metricRow('Footer links', prod.footerLinkCount, aem.footerLinkCount),
-    metricRow('Page height (px)', prod.pageHeight, aem.pageHeight),
+    // Informational: no check owns page height, and it was comparing for exact
+    // equality — two renderings are never the same pixel height, so it showed
+    // ✗ on literally every page. Layout differences are scored by visualLayout.
+    metricRowFor('Page height (px)', prod.pageHeight, aem.pageHeight, null),
   ].join('') : '';
 
   // Render each parity check as a row (shared by grouped + fallback rendering).
@@ -628,6 +644,19 @@ function metricRow(label, prodVal, aemVal, prodNum, aemNum, lowerIsBetter) {
     ok = String(prodVal) === String(aemVal);
   }
   return `<tr><td>${esc(label)}</td><td>${esc(prodVal)}</td><td>${esc(aemVal)}</td><td class="${ok ? 'ok' : 'bad'}">${ok ? '✓' : '✗'}</td></tr>`;
+}
+
+// Status taken from the CHECK that owns this metric, never re-derived here.
+// metricRow's own ±35% rule silently disagreed with the checks: images scored
+// "AEM has ≥80% of prod" (more is fine) while the row demanded symmetry, so a
+// complete page showed 2 vs 25 ✗ next to a passing missingImage check.
+// `–` marks a metric whose check was excluded from scoring for lack of data.
+function metricRowFor(label, prodVal, aemVal, check) {
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const mark = !check ? { cls: 'muted', sym: '·' }
+    : check.insufficient ? { cls: 'muted', sym: '–' }
+    : check.passed ? { cls: 'ok', sym: '✓' } : { cls: 'bad', sym: '✗' };
+  return `<tr><td>${esc(label)}</td><td>${esc(prodVal)}</td><td>${esc(aemVal)}</td><td class="${mark.cls}">${mark.sym}</td></tr>`;
 }
 
 // Render the "what's missing" detail for a check's diff object.
