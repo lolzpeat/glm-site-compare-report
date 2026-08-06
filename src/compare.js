@@ -15,7 +15,6 @@
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { glob } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { relative, join } from 'node:path';
 import puppeteer from 'puppeteer-core';
@@ -23,12 +22,13 @@ import {
   ROOT, DIR, VIEWPORT, NAV_TIMEOUT, NAV_WAIT_UNTIL, SETTLE_AFTER_LOAD, LAZY_WAIT_TIMEOUT, LAYOUT_WAIT_TIMEOUT, CONCURRENCY, REQUEST_PACING_MS,
   SCREENSHOT_FULLPAGE, SCREENSHOT_MAX_WIDTH, MIN_TEXT_LEN, SCROLL_STIMULATE_STEPS, SCROLL_STIMULATE_DELAY,
   STIMULATE_STEP_TIMEOUT, RETRYABLE_HTTP_STATUS, SHARE_BROWSER_CONTEXT, BLOCK_ABORT_STREAK, OVERLAY_HIDE_SEL,
-  WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE, CHROME_EXECUTABLE_PATH,
+  WEIGHTS_NEWS, WEIGHTS_MAIN, CRITERIA_GROUPS, TEXT_MATCH_TOLERANCE,
   THAI_RATIO_DELTA, MAX_LINK_CHECKS, LINK_CHECK_BATCH, LINK_CHECK_DELAY,
   CAPTURE_USER_AGENT, CAPTURE_ACCEPT_LANGUAGE, HEADER_FOOTER_WAIT_EXTRA, HEADER_FOOTER_POLL,
 } from '../config.js';
 import sharp from 'sharp';
 import { EXTRACT_FN } from './extract.js';
+import { resolveChrome } from './chrome.js';
 
 // ─── Text/image helpers (ported from site-compare-report) ──────────────────
 const THAI_MONTHS =
@@ -994,22 +994,6 @@ async function saveResults(results, start, preserveMap = null) {
   };
   await writeFile(OUTPUT_PATH, JSON.stringify(payload, null, 1), 'utf8');
   return { total: allPages.length, refreshed: results.filter(Boolean).length, preservedCount };
-}
-
-// ─── Chrome binary resolution ──────────────────────────────────────────────
-async function resolveChrome() {
-  if (process.env.PUPPETEER_EXECUTABLE_PATH && existsSync(process.env.PUPPETEER_EXECUTABLE_PATH)) {
-    return process.env.PUPPETEER_EXECUTABLE_PATH;
-  }
-  // Glob the puppeteer cache for the Chrome for Testing binary.
-  const pattern = CHROME_EXECUTABLE_PATH;
-  for await (const p of glob(pattern)) {
-    if (existsSync(p)) return p;
-  }
-  // Fallback: try agent-browser's Chrome.
-  const ab = '/Users/prapon.t/.agent-browser/browsers/chrome-148.0.7778.97/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
-  if (existsSync(ab)) return ab;
-  throw new Error('No Chrome binary found. Set PUPPETEER_EXECUTABLE_PATH or install Chrome.');
 }
 
 // ─── Main ──────────────────────────────────────────────────────────────────
