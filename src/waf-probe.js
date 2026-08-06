@@ -5,6 +5,7 @@
 // Spec: docs/superpowers/specs/2026-08-06-waf-block-trigger-design.md
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { execFile } from 'node:child_process';
 import puppeteer from 'puppeteer-core';
 import { pathToFileURL } from 'node:url';
 import { resolveChrome } from './chrome.js';
@@ -115,6 +116,35 @@ export async function waitUntilClear({ source = 'preflight' } = {}) {
   }
 }
 
+// macOS notification; best-effort (headless/SSH sessions just log).
+function notifyMac(message) {
+  execFile('osascript', ['-e',
+    `display notification ${JSON.stringify(message)} with title "BBL WAF"`,
+  ], () => {});
+}
+
+async function cliWatch() {
+  console.log(`🚀 watching WAF status (probe every ${WAF_WATCH_INTERVAL_MS.map(m => Math.round(m / 60000)).join('-')}m, jittered) — Ctrl-C to stop`);
+  let prev = readStatus(WAF_STATUS_PATH).current?.state ?? null;
+  for (;;) {
+    let e;
+    try {
+      e = await probeOnce({ source: 'watch' });
+    } catch (err) {
+      // A probe crash (Chrome missing, disk full) must not kill the watcher.
+      console.log(`❌ probe failed: ${err.message}`);
+      await sleep(jitter(WAF_WATCH_INTERVAL_MS));
+      continue;
+    }
+    console.log(`${mark(e.state)} ${e.at} ${e.state} · prod:${e.prod} aem:${e.aem}`);
+    if (prev !== null && e.state !== prev) {
+      notifyMac(e.state === 'ok' ? 'WAF ปลดบล็อกแล้ว — capture ได้' : `โดน WAF บล็อก (prod:${e.prod} aem:${e.aem})`);
+    }
+    prev = e.state;
+    await sleep(jitter(WAF_WATCH_INTERVAL_MS));
+  }
+}
+
 const mark = (s) => s === 'ok' ? '✅' : '🚫';
 
 async function cliOnce() {
@@ -130,8 +160,7 @@ async function cliOnce() {
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   if (process.argv.includes('--watch')) {
-    console.log('❌ --watch arrives in a later task');
-    process.exit(2);
+    cliWatch().catch(e => { console.error('❌', e.message); process.exit(2); });
   } else {
     cliOnce().catch(e => { console.error('❌', e.message); process.exit(2); });
   }
