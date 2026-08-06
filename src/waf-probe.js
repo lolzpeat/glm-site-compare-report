@@ -5,7 +5,14 @@
 // Spec: docs/superpowers/specs/2026-08-06-waf-block-trigger-design.md
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { RETRYABLE_HTTP_STATUS } from '../config.js';
+import puppeteer from 'puppeteer-core';
+import { pathToFileURL } from 'node:url';
+import { resolveChrome } from './chrome.js';
+import {
+  RETRYABLE_HTTP_STATUS, WAF_PROBE_URLS, WAF_STATUS_PATH, WAF_HISTORY_MAX,
+  WAF_STATUS_FRESH_MS, WAF_WATCH_INTERVAL_MS, WAF_PREFLIGHT_RETRY_MS,
+  WAF_PREFLIGHT_MAX_WAIT_MS, VIEWPORT, CAPTURE_USER_AGENT, NAV_WAIT_UNTIL, NAV_TIMEOUT,
+} from '../config.js';
 
 // Same denial signals scoreParity uses on captured pages (compare.js
 // isBlocked): Akamai serves the denial as a real HTTP 200 page, so the
@@ -41,4 +48,68 @@ export function appendStatus(path, entry, max) {
   const next = { current: entry, history: [...history, entry].slice(-max) };
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(next, null, 1));
+}
+
+async function probeHost(browser, url) {
+  // Isolated context per probe page — matches the pipeline's
+  // SHARE_BROWSER_CONTEXT=false behaviour (shared cookies let the WAF
+  // correlate requests into one bot session; see config.js).
+  const ctx = await browser.createBrowserContext();
+  try {
+    const page = await ctx.newPage();
+    await page.setViewport(VIEWPORT);
+    await page.setUserAgent(CAPTURE_USER_AGENT);
+    const resp = await page.goto(url, { waitUntil: NAV_WAIT_UNTIL, timeout: NAV_TIMEOUT });
+    const title = await page.title().catch(() => '');
+    const bodySample = await page.evaluate(() => document.body?.innerText?.slice(0, 300) ?? '').catch(() => '');
+    return classify({ status: resp ? resp.status() : 0, title, bodySample });
+  } catch (e) {
+    return classify({ navError: e.message || String(e) });
+  } finally {
+    await ctx.close().catch(() => {});
+  }
+}
+
+export async function probeOnce({ source = 'cli' } = {}) {
+  const t0 = Date.now();
+  const exe = await resolveChrome();
+  const browser = await puppeteer.launch({ executablePath: exe, headless: true, args: ['--no-sandbox'] });
+  let prod, aem;
+  try {
+    prod = await probeHost(browser, WAF_PROBE_URLS.prod);
+    aem = await probeHost(browser, WAF_PROBE_URLS.aem);
+  } finally {
+    await browser.close().catch(() => {});
+  }
+  const entry = {
+    state: prod === 'ok' && aem === 'ok' ? 'ok' : 'blocked',
+    prod, aem,
+    at: new Date().toISOString(),
+    durationMs: Date.now() - t0,
+    source,
+  };
+  appendStatus(WAF_STATUS_PATH, entry, WAF_HISTORY_MAX);
+  return entry;
+}
+
+const mark = (s) => s === 'ok' ? '✅' : '🚫';
+
+async function cliOnce() {
+  console.log('🚀 probing prod + AEM with the pipeline browser (never curl — see AGENTS.md)');
+  const e = await probeOnce({ source: 'cli' });
+  console.log(`${mark(e.state)} state: ${e.state} · prod: ${e.prod} · aem: ${e.aem} · ${e.durationMs}ms`);
+  const { history } = readStatus(WAF_STATUS_PATH);
+  for (const h of history.slice(-5)) {
+    console.log(`   ${h.at}  ${h.state.padEnd(7)} prod:${h.prod} aem:${h.aem} (${h.source})`);
+  }
+  process.exit(e.state === 'ok' ? 0 : 1);
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  if (process.argv.includes('--watch')) {
+    console.log('❌ --watch arrives in a later task');
+    process.exit(2);
+  } else {
+    cliOnce().catch(e => { console.error('❌', e.message); process.exit(2); });
+  }
 }
