@@ -72,6 +72,23 @@ export const OVERLAY_HIDE_SEL = [
 // being flagged for re-capture. 404 is deliberately absent: it IS a finding.
 export const RETRYABLE_HTTP_STATUS = [408, 429, 500, 502, 503, 504];
 
+// ─── WAF block-check trigger (src/waf-probe.js) ─────────────────────────────
+// One probe module, three consumers: `npm run probe` (on-demand), `--watch`
+// (periodic + macOS notify on state change), and compare.js's pre-flight.
+// All write data/waf-status.json so they can trust each other's recent
+// results instead of re-probing. Spec:
+// docs/superpowers/specs/2026-08-06-waf-block-trigger-design.md
+export const WAF_PROBE_URLS = {
+  prod: 'https://www.bangkokbank.com/th-TH/About-Us',
+  aem: 'https://main--site-prod--bangkok-bank.aem.live/th/about-us',
+};
+export const WAF_STATUS_PATH = join(DIR.data, 'waf-status.json');
+export const WAF_HISTORY_MAX = 200;      // history entries kept in the status file
+export const WAF_STATUS_FRESH_MS = 2 * 60 * 1000;   // trust a result this recent, skip probing
+export const WAF_WATCH_INTERVAL_MS = [10 * 60 * 1000, 20 * 60 * 1000];  // watcher jitter range
+export const WAF_PREFLIGHT_RETRY_MS = [5 * 60 * 1000, 20 * 60 * 1000];  // pre-flight wait jitter range
+export const WAF_PREFLIGHT_MAX_WAIT_MS = 6 * 60 * 60 * 1000; // give up: a nohup'd run must not hang forever
+
 // Reuse ONE browser context (and therefore Chrome's HTTP cache) across page
 // pairs instead of giving each pair a fresh, empty-cache context.
 //
