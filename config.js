@@ -204,6 +204,15 @@ export const PRIORITY_CONDITIONAL_LIMIT = Infinity;
 // data stays available — this only controls whether the panel is rendered.
 // Hidden 2026-08-05 per QA: not being used yet.
 export const SHOW_SITE_CHROME_PANEL = false;
+
+// Dashboard: choices in the page-detail table's "rows per page" dropdown, and
+// which one is selected on load. 'all' renders every filtered row at once —
+// fine for the priority set (~90 pages), heavier on the 632-page main set.
+// The default must be one of the options or the dropdown opens with no
+// selection while the table paginates by DASHBOARD_PAGE_SIZE_DEFAULT anyway.
+export const DASHBOARD_PAGE_SIZES = [25, 50, 100, 'all'];
+export const DASHBOARD_PAGE_SIZE_DEFAULT = 25;
+
 export const PRIORITY_URLS_PATH = join(DIR.data, 'urls-priority.csv');
 
 export const SCREENSHOT_FULLPAGE = true;

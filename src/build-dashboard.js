@@ -10,7 +10,10 @@
 import { readFile, writeFile, mkdir, copyFile, readdir, stat, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, relative, basename, isAbsolute } from 'node:path';
-import { ROOT, DIR, CRITERIA_GROUPS, CRITERIA_GROUPS_V2, SHOW_SITE_CHROME_PANEL } from '../config.js';
+import {
+  ROOT, DIR, CRITERIA_GROUPS, CRITERIA_GROUPS_V2, SHOW_SITE_CHROME_PANEL,
+  DASHBOARD_PAGE_SIZES, DASHBOARD_PAGE_SIZE_DEFAULT,
+} from '../config.js';
 import { scoreMenu } from './scoring/checks-structure.js';
 import { renderNav } from './nav.js';
 
@@ -290,6 +293,9 @@ ${chrome.length ? `
         <option value="structure">Structure</option>
       </select>
       <label class="cb"><input type="checkbox" id="gapsOnly" onchange="render()"> Gaps only</label>
+      <select id="pageSizeFilter" onchange="onPageSizeChange()" title="จำนวนแถวต่อหน้า">
+        ${DASHBOARD_PAGE_SIZES.map(s => `<option value="${s}"${s === DASHBOARD_PAGE_SIZE_DEFAULT ? ' selected' : ''}>${s === 'all' ? 'ทั้งหมด' : `${s} แถว`}</option>`).join('\n        ')}
+      </select>
     </div>
   </div>
   <table class="pages-table" id="pagesTable">
@@ -311,10 +317,25 @@ ${chrome.length ? `
 </div>
 <script>
 const ROWS = ${JSON.stringify(rowData)};
-const PAGE_SIZE = 25;
+// 'all' is stored as Infinity but never used in arithmetic — see effectivePageSize().
+let pageSize = ${DASHBOARD_PAGE_SIZE_DEFAULT};
+
+// Collapses 'all' to a real row count. Infinity must not reach the paging math:
+// (currentPage - 1) * Infinity is 0 * Infinity = NaN on page 1, and
+// slice(NaN, NaN) returns an empty array — i.e. "show all" would show nothing.
+function effectivePageSize() {
+  return pageSize === Infinity ? Math.max(filteredRows.length, 1) : pageSize;
+}
 let sortKey = 'id', sortDir = 1;
 let currentPage = 1;
 let filteredRows = [];
+
+function onPageSizeChange() {
+  const v = document.getElementById('pageSizeFilter').value;
+  pageSize = v === 'all' ? Infinity : parseInt(v, 10);
+  currentPage = 1;
+  render();
+}
 
 function statusBadge(s) { return {
   pass:'<span class="badge pass">PASS</span>',
@@ -390,10 +411,11 @@ function getFiltered() {
 
 function render() {
   filteredRows = getFiltered();
-  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+  const size = effectivePageSize();
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / size));
   if (currentPage > totalPages) currentPage = totalPages;
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const pageRows = filteredRows.slice(start, start + PAGE_SIZE);
+  const start = (currentPage - 1) * size;
+  const pageRows = filteredRows.slice(start, start + size);
 
   document.getElementById('rowsBody').innerHTML = pageRows.map(function(r) {
     const rowNum = start + pageRows.indexOf(r) + 1;
@@ -430,7 +452,7 @@ function renderPagination(totalPages) {
 }
 
 function goPage(n) {
-  const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / effectivePageSize()));
   currentPage = Math.max(1, Math.min(n, totalPages));
   render();
   document.querySelector('.pages-table').scrollIntoView({ behavior: 'smooth', block: 'start' });
