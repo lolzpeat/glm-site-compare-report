@@ -193,11 +193,15 @@ Options:
   --urls=PATH            ไฟล์ URL list input (default: data/urls.csv)
   --output=PATH          ไฟล์ผลลัพธ์ (default: data/results.json)
   --source=PATH          ไฟล์ resume source (default: เดียวกับ output)
+  --no-wait              ข้าม pre-flight ที่รอให้ WAF ปลดบล็อกก่อนเริ่ม capture
 ```
 
 `--ids`/`--retry-failed`/`--limit` เลือกได้ทีละอย่าง (ลำดับความสำคัญ: `--ids` > `--retry-failed` >
 `--limit`) หน้าที่อยู่นอก scope ของ run นั้นจะถูก **preserve** ไว้เหมือนเดิมเสมอ — ผลลัพธ์เก่าไม่มีวันหาย
 แม้ re-run บางส่วนซ้ำหลายรอบ
+
+ก่อนเริ่ม capture ทุกครั้ง `compare.js` จะรอ pre-flight ให้ WAF ปลดบล็อกก่อนโดยอัตโนมัติ (ข้ามได้ด้วย
+`--no-wait`) — เช็คสถานะทันทีด้วย `npm run probe` (exit 0 = ปกติ, 1 = โดนบล็อก)
 
 ## Sheet sync (เขียนผลกลับ Google Sheet)
 

@@ -29,6 +29,7 @@ import {
 import sharp from 'sharp';
 import { EXTRACT_FN } from './extract.js';
 import { resolveChrome } from './chrome.js';
+import { waitUntilClear } from './waf-probe.js';
 
 // ─── Text/image helpers (ported from site-compare-report) ──────────────────
 const THAI_MONTHS =
@@ -1067,6 +1068,13 @@ async function main() {
     console.log(`   Keeping last-known results as fallback: ${Object.keys(preserveMap).length} page(s)` +
       (outOfScope ? ` (${outOfScope} outside this run's scope)` : '') +
       ` — an interrupted run no longer drops unreached pages`);
+  }
+
+  // Pre-flight: don't start a capture into a WAF ban — it writes garbage 0%
+  // rows and deepens the ban. Waits (jittered) until a probe comes back
+  // clean; --no-wait skips the gate. See src/waf-probe.js.
+  if (!process.argv.includes('--no-wait')) {
+    await waitUntilClear({ source: 'preflight' });
   }
 
   const exe = await resolveChrome();

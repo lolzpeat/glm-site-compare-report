@@ -92,6 +92,29 @@ export async function probeOnce({ source = 'cli' } = {}) {
   return entry;
 }
 
+const jitter = ([lo, hi]) => lo + Math.floor(Math.random() * (hi - lo));
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+// Pre-flight gate. Trusts a fresh result from ANY source (watcher, another
+// pre-flight) before spending WAF budget on a new probe. Waits with jitter —
+// fixed retry intervals are a bot fingerprint. Hard cap so a nohup'd run
+// fails loudly instead of hanging invisibly forever.
+export async function waitUntilClear({ source = 'preflight' } = {}) {
+  const t0 = Date.now();
+  for (;;) {
+    const { current } = readStatus(WAF_STATUS_PATH);
+    const fresh = current && (Date.now() - Date.parse(current.at)) < WAF_STATUS_FRESH_MS;
+    const cur = fresh ? current : await probeOnce({ source });
+    if (cur.state === 'ok') return cur;
+    if (Date.now() - t0 > WAF_PREFLIGHT_MAX_WAIT_MS) {
+      throw new Error(`WAF still blocking after ${Math.round(WAF_PREFLIGHT_MAX_WAIT_MS / 3600000)}h (prod:${cur.prod} aem:${cur.aem}) — giving up`);
+    }
+    const nap = jitter(WAF_PREFLIGHT_RETRY_MS);
+    console.log(`⏳ WAF blocked (prod:${cur.prod} aem:${cur.aem}) — retrying in ${Math.round(nap / 60000)}m`);
+    await sleep(nap);
+  }
+}
+
 const mark = (s) => s === 'ok' ? '✅' : '🚫';
 
 async function cliOnce() {
