@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สเปก Sync Category + Sub-Category ลง Dashboard — BBL Migration Parity Checker</title>
+<style>
+  :root {
+    --ink: #1a1a1a; --muted: #666; --line: #e2e2e2; --bg: #fafafa;
+    --accent: #0a4da3; --warn: #b45309; --ok: #15803d; --bad: #b91c1c; --card: #fff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Sarabun', 'Noto Sans Thai', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.75; font-size: 16px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+  header.doc { border-bottom: 3px solid var(--accent); padding-bottom: 20px; margin-bottom: 28px; }
+  h1 { font-size: 1.6em; margin: 0 0 8px; line-height: 1.4; }
+  .meta-line { color: var(--muted); font-size: .9em; }
+  .meta-line b { color: var(--ink); }
+  h2 { font-size: 1.25em; margin: 40px 0 12px; padding-left: 12px; border-left: 5px solid var(--accent); }
+  h3 { font-size: 1.05em; margin: 24px 0 8px; }
+  p { margin: 10px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; background: var(--card); font-size: .92em; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f0f4fa; font-weight: 700; }
+  code { background: #eef1f5; padding: 1px 6px; border-radius: 4px; font-size: .88em; font-family: 'SF Mono', Menlo, Consolas, monospace; }
+  pre { background: #21252b; color: #d7dae0; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: .82em; line-height: 1.6; }
+  pre code { background: none; color: inherit; padding: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+  .card.warn { border-left: 5px solid var(--warn); }
+  .card.ok { border-left: 5px solid var(--ok); }
+  .card.info { border-left: 5px solid var(--accent); }
+  .card.bad { border-left: 5px solid var(--bad); }
+  .card h4 { margin: 0 0 6px; font-size: 1em; }
+  .badge { display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: .78em; font-weight: 700; vertical-align: middle; }
+  .badge.w { background: #fef3c7; color: #92400e; }
+  .badge.g { background: #dcfce7; color: #166534; }
+  .badge.b { background: #dbeafe; color: #1e40af; }
+  .badge.r { background: #fee2e2; color: #991b1b; }
+  .badge.gray { background: #e5e7eb; color: #374151; }
+  ul, ol { margin: 8px 0; padding-left: 26px; }
+  li { margin: 5px 0; }
+  .small { font-size: .88em; color: var(--muted); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .flow { background: var(--card); border: 1px solid var(--line); border-radius: 10px; margin: 16px 0; overflow-x: auto; }
+  .flow pre { background: none; color: var(--ink); font-size: .82em; margin: 0; padding: 14px 18px; }
+  hr.sep { border: 0; border-top: 1px dashed var(--line); margin: 34px 0; }
+  .strike { color: var(--muted); text-decoration: line-through; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>สเปก: Sync Category + Sub-Category จาก QA Sheet ลง Dashboard</h1>
+  <div class="meta-line">
+    <b>โปรเจกต์:</b> BBL Migration Parity Checker &nbsp;·&nbsp;
+    <b>วันที่:</b> 6 สิงหาคม 2026 &nbsp;·&nbsp;
+    <b>สถานะ:</b> <span class="badge b">รอ review</span> &nbsp;·&nbsp;
+    <b>Branch:</b> <code>feat/criteria-v2</code>
+  </div>
+</header>
+
+<div class="card ok">
+  <h4>สรุปย่อ</h4>
+  <p style="margin:0">Filter category + sub-category บน dashboard <b>มีอยู่แล้วและทำงานถูกต้อง</b> — ที่ขาดคือข้อมูล เพราะตอน fetch รอบก่อน คอลัมน์ Category / Sub-Category ใน sheet ยังว่าง ตอนนี้ QA กรอกแล้ว งานนี้จึงเป็นแค่การ<b>พาข้อมูลจาก sheet ลงมาถึง dashboard</b> = เพิ่มสคริปต์ใหม่ 1 ไฟล์ <b>ไม่แก้ไฟล์เดิมสักไฟล์</b></p>
+</div>
+
+<hr class="sep">
+
+<h2>1. ทำไมต้องมีสคริปต์ใหม่ ทั้งที่ pipeline มีอยู่แล้ว</h2>
+
+<p>เส้นทางข้อมูลปกติคือ <code>sheet → CSV → results.json → dashboard</code> ตอนนี้ขาดช่วงกลาง:</p>
+
+<div class="flow">
+<pre>  sheet (มี category แล้ว ✓)
+     │  npm run fetch:priority
+     ▼
+  data/urls-priority.csv  ─────────────  category ว่างทั้ง 88 แถว  ✗
+     │  ???  ← ช่วงที่ขาด
+     ▼
+  data/results-priority.json  ─────────  category ว่างทั้ง 65 หน้า  ✗
+     │  npm run dashboard
+     ▼
+  dashboard  ──────────────────────────  dropdown โล่ง</pre>
+</div>
+
+<p>ขั้น <code>fetch</code> แก้ได้เองแค่รันใหม่ (column mapping ใน <code>fetch-priority-urls.js</code> ถูกอยู่แล้ว — <code>row[3]=Category</code>, <code>row[4]=Sub-Category</code>) แต่ขั้นถัดไปไม่มีทางลัด:</p>
+
+<table>
+  <thead><tr><th>วิธีที่มีอยู่</th><th>ทำไมใช้ไม่ได้</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>compare.js</code> (ไม่ <code>--force</code>)</td>
+      <td>มัน sync category จาก CSV ให้อยู่แล้ว (บรรทัด 779–781) แต่<b>เฉพาะหน้าที่มันวิ่งผ่าน</b> — และมันจะพยายาม capture 23 หน้าที่ยังไม่เคยเก็บ <span class="badge r">เสี่ยง WAF</span></td>
+    </tr>
+    <tr>
+      <td><code>rescore.js</code></td>
+      <td>อ่านแค่ results JSON ไม่รู้จัก CSV เลย — ไม่มี category ให้ sync</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>จึงต้องมีสคริปต์เล็กๆ ที่ทำหน้าที่ตรงนี้อย่างเดียว: อ่าน CSV แล้วแปะ 2 ฟิลด์ลง results JSON <b>ไม่เปิด browser ไม่แตะ network</b></p>
+
+<hr class="sep">
+
+<h2>2. สคริปต์: <code>src/sync-meta.js</code></h2>
+
+<pre><code>node src/sync-meta.js --urls=data/urls-priority.csv \
+                      --source=data/results-priority.json [--dry-run]</code></pre>
+
+<h3>ทำอะไร</h3>
+<ul>
+  <li>อ่าน CSV → map <code>id → { category, subCategory }</code> (id = ตำแหน่งแถว ตรงกับที่ <code>compare.js</code> ใช้)</li>
+  <li>แปะลงแต่ละหน้าใน results JSON แบบสร้าง object ใหม่ <code>{ ...page, category, subCategory }</code></li>
+  <li>เขียนไฟล์กลับ พร้อม backup ก่อนแบบเดียวกับ <code>rescore.js</code></li>
+</ul>
+
+<h3>ไม่แตะอะไร</h3>
+<p><code>prodUrl</code>, <code>aemUrl</code>, <code>prod</code>, <code>aem</code>, <code>parity</code>, <code>checks</code>, <code>gaps</code>, screenshot paths — คะแนนทุกหน้าคงเดิมเป๊ะ ไม่ต้องรัน <code>rescore.js</code> ตาม</p>
+
+<h3>กติกาการแปลงค่า — มีข้อเดียว</h3>
+<div class="card info">
+  <p style="margin:0"><code>subCategory</code> ที่เป็น <code>"-"</code> (41 แถว) แปลว่า "ไม่มี sub-category" ไม่ใช่ชื่อหมวด → แปลงเป็นค่าว่าง มิฉะนั้น dropdown จะมีตัวเลือกชื่อ <code>-</code> โผล่มา<br>
+  <span class="small">หน้าเหล่านี้ยังหาเจอผ่าน filter category ได้ตามปกติ</span></p>
+</div>
+<p class="small">นอกจากนี้ <b>sync ตามที่ sheet เขียนมาทุกอย่าง</b> — รวมถึง <code>"Save andI nvest"</code> (5 แถว) ที่พิมพ์ผิดจาก <code>"Save and Invest"</code> (6 แถว) จะโผล่เป็น 2 ตัวเลือกใน dropdown ตามข้อมูลจริง ถือเป็นสัญญาณให้ทีม QA ไปแก้ที่ sheet ต้นทาง</p>
+
+<h3>Guard: ตรวจ id drift ก่อนเขียน <span class="badge b">สำคัญ</span></h3>
+
+<p>จับคู่ด้วย <code>id</code> แล้ว verify ว่า <code>prodUrl</code> ตรงกัน ถ้าไม่ตรง = abort ไม่เขียนอะไรเลย</p>
+
+<pre><code>if (row.prodUrl !== page.prodUrl) drift.push({ id: page.id, ... });
+...
+if (drift.length) {
+  console.error(`❌ id drift — ${drift.length} page(s) mismatch. NOTHING written.`);
+  process.exit(1);
+}</code></pre>
+
+<div class="card warn">
+  <p style="margin:0"><b>ทำไมต้องมี:</b> เคสจริงที่บันทึกไว้ใน <code>fetch-priority-urls.js</code> — วันที่ 5 ส.ค. 2026 มีการแทรกแถว "Web-Forms" ใกล้ต้น sheet ทำให้ id 9–15 เลื่อน และคะแนนของ About-Us เกือบไปผูกกับ Web-Forms<br><br>
+  สคริปต์นี้แตะทุกหน้าพร้อมกัน ถ้า id เลื่อนแล้วเขียนเงียบๆ จะได้ category ผิดยกชุดโดยไม่มีใครรู้ — 3 บรรทัดนี้ทำให้มันเป็น drift detector ไปในตัว</p>
+</div>
+
+<h3>Output ที่คาดหวัง</h3>
+<pre><code>🚀 sync-meta data/urls-priority.csv → data/results-priority.json
+📦 backed up → data/results-priority.json.backup-2026-08-06T...
+✅ 65 pages updated · 23 csv rows not yet captured
+📊 category: Personal 41 · About Us 9 · Investor Relations 5 · … · (blank) 3
+📊 subCategory: (none) 28 · My Family and Me 11 · Save and Invest 5 · Save andI nvest 3 · …</code></pre>
+
+<h3>คุณสมบัติ</h3>
+<ul>
+  <li><b>Idempotent</b> — รันซ้ำได้ ผลเหมือนเดิม</li>
+  <li><b>--dry-run</b> — พิมพ์สรุปอย่างเดียว ไม่เขียนไฟล์ (ตามธรรมเนียม <code>sync-sheet.js</code>)</li>
+  <li><b>ใช้ได้กับทุก pipeline</b> — ไม่ผูกกับ priority เพราะรับ path ทาง flag</li>
+</ul>
+
+<hr class="sep">
+
+<h2>3. ลำดับการรัน</h2>
+
+<div class="flow">
+<pre>  npm run fetch:priority
+        │   sheet → CSV พร้อม category (แถวเดิมคง id เดิม แถวใหม่ต่อท้าย)
+        │   ทำได้ทันที ไม่ต้องรอ loop
+        ▼
+  ⏳ รอให้ chunk ที่กำลังวิ่งจบ (~1-2 นาที) — ไม่ต้องรอ loop ทั้งหมด
+        │   เช็คด้วย: pgrep -f "compare.js"
+        ▼
+  node src/sync-meta.js --urls=data/urls-priority.csv \
+                        --source=data/results-priority.json --dry-run
+  node src/sync-meta.js --urls=data/urls-priority.csv \
+                        --source=data/results-priority.json
+        │
+        ▼
+  node src/build-dashboard.js --source=data/results-priority.json \
+                              --prefix=priority --criteria=v2
+        │   ← category ขึ้น dashboard ตั้งแต่ตอนนี้ สำหรับหน้าที่ capture แล้ว
+        ▼
+  loop วิ่งต่อในพื้นหลัง — หน้าที่เก็บเพิ่มได้ category จาก CSV เอง
+  ไม่ต้อง sync ซ้ำ (แต่รันซ้ำได้ ไม่มีผลเสีย)</pre>
+</div>
+
+<div class="card warn">
+  <h4>ข้อควรระวัง 1 — sync ได้ระหว่าง cooldown แต่ห้ามชน chunk ที่กำลังวิ่ง</h4>
+  <p style="margin:0"><code>compare.js</code> โหลดไฟล์ results <b>ตอนเริ่ม process</b> (บรรทัด 1022) แล้ว <code>mergePreserved</code> เก็บหน้านอก chunk ไว้ verbatim จากสำเนานั้น และ capture loop <b>spawn process ใหม่ทุก chunk</b> → หน้าต่างที่ sync แล้วโดนทับมีแค่ <b>~1–2 นาทีที่ chunk กำลังวิ่ง</b> ไม่ใช่ตลอด cooldown 45–75 นาที<br><br>
+  ยิ่งกว่านั้น <code>processPair</code> กระจาย <code>...pair</code> ซึ่งพก <code>category</code> จาก CSV มาด้วย ดังนั้นเมื่อ CSV มี category แล้ว compare.js จะ<b>เขียน category ให้เองสำหรับหน้าที่มันเก็บ</b> — ค่าที่ได้ตรงกับ sync-meta.js เพราะอ่าน CSV ตัวเดียวกัน<br><br>
+  <b>วิธีปฏิบัติ:</b> ก่อน sync ให้เช็คว่าไม่มี compare.js วิ่งอยู่ แล้วค่อยรัน — ไม่ต้องรอ loop จบทั้งหมด</p>
+  <pre style="margin:12px 0 0"><code>pgrep -f "compare.js" &amp;&amp; echo "chunk กำลังวิ่ง — รอสักครู่" || node src/sync-meta.js …</code></pre>
+</div>
+
+<div class="card info">
+  <h4>ข้อควรระวัง 2 — re-fetch จะทำให้ capture loop ยาวขึ้น ~10 ชม.</h4>
+  <p style="margin:0">sheet มี 101 แถว vs CSV 88 → fetch จะเพิ่มราว 13 แถวเป็น id 89+<br><br>
+  <code>remaining()</code> ใน capture loop อ่านจำนวนแถวรวมจาก CSV <b>ใหม่ทุกรอบ</b> (<code>total = อ่าน urls-priority.csv ... .length - 1</code>) ไม่ได้ snapshot ไว้ตอนเริ่ม ดังนั้นแถวใหม่จะ<b>เข้าคิว fresh อัตโนมัติ</b>ทันทีที่ CSV โต — ไม่ต้องสั่ง capture รอบใหม่แยก แต่ loop จะยาวขึ้นราว 13 หน้า ≈ 10 ชั่วโมง ตามจังหวะ cooldown<br><br>
+  ผลข้างเคียงที่ต้องรู้: การ sync category จะต้องเลื่อนไปรอ loop ที่ยาวขึ้นนี้จบด้วย ถ้าอยากได้ category บน dashboard เร็วกว่านั้น ให้ re-fetch <b>หลัง</b> loop ปัจจุบันจบแทน</p>
+</div>
+
+<hr class="sep">
+
+<h2>4. การตรวจสอบ</h2>
+
+<table>
+  <thead><tr><th>#</th><th>ตรวจอะไร</th><th>เกณฑ์ผ่าน</th></tr></thead>
+  <tbody>
+    <tr><td class="num">1</td><td>CSV หลัง fetch</td><td>คอลัมน์ 3–4 มีค่าแล้ว</td></tr>
+    <tr><td class="num">2</td><td>id stability</td><td>88 แถวแรกของคอลัมน์แรก ตรงกับ CSV เดิมทุกบรรทัด</td></tr>
+    <tr><td class="num">3</td><td><code>--dry-run</code></td><td>drift = 0 และจำนวนหน้าที่จะอัปเดตสมเหตุสมผล</td></tr>
+    <tr><td class="num">4</td><td>results JSON หลัง sync</td><td>หน้าที่มี category &gt; 0 · <code>parity</code> ทุกหน้าเท่าเดิมกับ backup</td></tr>
+    <tr><td class="num">5</td><td>รัน sync ซ้ำ</td><td>ผลเหมือนเดิม (idempotent)</td></tr>
+    <tr><td class="num">6</td><td>Dashboard</td><td>dropdown มีตัวเลือกครบ · cascade ทำงาน · ไม่มีตัวเลือกชื่อ <code>-</code> · ผลรวมทุกหมวด = จำนวนหน้าทั้งหมด</td></tr>
+  </tbody>
+</table>
+
+<hr class="sep">
+
+<h2>5. ขอบเขต</h2>
+
+<table>
+  <thead><tr><th>ไฟล์</th><th>ประเภท</th><th>สาระ</th></tr></thead>
+  <tbody>
+    <tr><td><code>src/sync-meta.js</code></td><td><span class="badge g">ใหม่</span></td><td>~70 บรรทัด — ทั้งหมดของงานนี้</td></tr>
+    <tr><td><code>package.json</code></td><td><span class="badge b">แก้</span></td><td>1 บรรทัด — script <code>sync-meta</code> <span class="small">(ไม่จำเป็น ตัดได้)</span></td></tr>
+    <tr><td><code>CLAUDE.md</code></td><td><span class="badge b">แก้</span></td><td>1 บรรทัด — เพิ่ม <code>sync-meta</code> เข้าลำดับ priority pipeline</td></tr>
+  </tbody>
+</table>
+
+<h3>นอกขอบเขต</h3>
+<ul>
+  <li>ไม่ recapture หน้าใดๆ — ไม่แตะ browser ไม่แตะ prod/AEM</li>
+  <li>ไม่แก้คะแนน — ไม่ต้องรัน <code>rescore.js</code></li>
+  <li>ไม่แก้ <code>build-dashboard.js</code> — filter UI ใช้ได้อยู่แล้ว</li>
+  <li>ไม่แก้ <code>fetch-priority-urls.js</code> / <code>fetch-urls.js</code> — column mapping ถูกอยู่แล้ว</li>
+  <li>ไม่แก้ typo <code>"Save andI nvest"</code> — เป็นข้อมูลจริงจาก sheet ให้ทีม QA แก้ที่ต้นทาง</li>
+  <li>ไม่แตะ <code>sync-sheet.js</code> — มันเขียนแค่คอลัมน์ F/G</li>
+  <li>ไม่ capture แถวใหม่ 13 แถว — งานรอบถัดไป</li>
+</ul>
+
+<hr class="sep">
+
+<h2 class="small" style="border-left-color:var(--muted); color:var(--muted)">ภาคผนวก — ข้อมูลใน sheet วันนี้</h2>
+
+<p class="small">ดึงสดจาก tab <code>Priority BBL Thai Manual Pages</code> ผ่าน service account — 101 แถว</p>
+
+<div style="display:flex; gap:16px; flex-wrap:wrap">
+<div style="flex:1; min-width:270px">
+<table>
+  <thead><tr><th>Category (18 ค่า)</th><th class="num">แถว</th></tr></thead>
+  <tbody>
+    <tr><td>Personal</td><td class="num">53</td></tr>
+    <tr><td>About Us</td><td class="num">12</td></tr>
+    <tr><td>Investor Relations</td><td class="num">7</td></tr>
+    <tr><td>International Banking</td><td class="num">4</td></tr>
+    <tr><td>Wealth</td><td class="num">4</td></tr>
+    <tr><td>Form Register</td><td class="num">3</td></tr>
+    <tr><td>Private Bank</td><td class="num">2</td></tr>
+    <tr><td>Property for Sale</td><td class="num">2</td></tr>
+    <tr><td class="small">Home, Bank Announcements, Cookies Policy, Locate Us, Privacy Notice, Relief Measures Register, Sla Service Reports, Search, Web Forms, Contact Us</td><td class="num">อย่างละ 1</td></tr>
+    <tr><td class="small">(ว่าง)</td><td class="num">4</td></tr>
+  </tbody>
+</table>
+</div>
+<div style="flex:1; min-width:270px">
+<table>
+  <thead><tr><th>Sub-Category (15 ค่า)</th><th class="num">แถว</th></tr></thead>
+  <tbody>
+    <tr><td><code>-</code> → ว่าง</td><td class="num">41</td></tr>
+    <tr><td>My Family and Me</td><td class="num">14</td></tr>
+    <tr><td>Other Services</td><td class="num">8</td></tr>
+    <tr><td>Save and Invest</td><td class="num">6</td></tr>
+    <tr><td>My Home</td><td class="num">6</td></tr>
+    <tr><td>Save andI nvest <span class="badge w">typo</span></td><td class="num">5</td></tr>
+    <tr><td>Cards</td><td class="num">5</td></tr>
+    <tr><td>Board Directors</td><td class="num">3</td></tr>
+    <tr><td>Digital Banking, Work Cafe</td><td class="num">อย่างละ 2</td></tr>
+    <tr><td class="small">East Asia, Bualuang Payroll, Corporate Social Responsibility, Adean, Grow Club</td><td class="num">อย่างละ 1</td></tr>
+    <tr><td class="small">(ว่าง)</td><td class="num">4</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+<p class="small" style="margin-top:30px; border-top:1px solid var(--line); padding-top:14px">
+เอกสารนี้เป็นสเปกออกแบบ ยังไม่ได้ลงมือแก้โค้ด — รอ review ก่อนเขียน implementation plan
+</p>
+
+</div>
+</body>
+</html>
