@@ -85,7 +85,12 @@ function chunkStatus(resultsPath, minId, maxId) {
 // from results.json afterwards (chunkStatus) rather than relying on exit code.
 function runChunk(idsArg) {
   const comparePath = fileURLToPath(new URL('./compare.js', import.meta.url));
-  const args = [comparePath, `--ids=${idsArg}`, `--concurrency=${concurrency}`];
+  // --no-wait: safe-run's own chunk pauses + SAFE_BLOCK_ABORT_RATIO ARE the
+  // WAF strategy here. Without this, a banned IP makes compare.js's pre-flight
+  // (waitUntilClear) sit for up to WAF_PREFLIGHT_MAX_WAIT_MS (6h) per chunk,
+  // capturing nothing — and the abort ratio, which counts blocked results,
+  // never fires because no chunk ever finishes.
+  const args = [comparePath, `--ids=${idsArg}`, `--concurrency=${concurrency}`, '--no-wait'];
   if (pacingMs > 0) args.push(`--pacing=${pacingMs}`);
   if (forceAll) args.push('--force');
   // compare.js defaults --urls/--output to data/urls.csv + data/results.json,

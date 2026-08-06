@@ -201,7 +201,8 @@ Options:
 แม้ re-run บางส่วนซ้ำหลายรอบ
 
 ก่อนเริ่ม capture ทุกครั้ง `compare.js` จะรอ pre-flight ให้ WAF ปลดบล็อกก่อนโดยอัตโนมัติ (ข้ามได้ด้วย
-`--no-wait`) — เช็คสถานะทันทีด้วย `npm run probe` (exit 0 = ปกติ, 1 = โดนบล็อก)
+`--no-wait`) — เช็คสถานะทันทีด้วย `npm run probe` (exit 0 = ปกติ, 1 = โดนบล็อก) หรือเฝ้าดูต่อเนื่องพร้อม
+แจ้งเตือน macOS เมื่อสถานะเปลี่ยนด้วย `npm run probe:watch`
 
 ## Sheet sync (เขียนผลกลับ Google Sheet)
 

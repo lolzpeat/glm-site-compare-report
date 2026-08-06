@@ -17,6 +17,8 @@ npm run fetch:news               # news URL list (gid 1728025962)
 npm run compare                  # main pipeline, concurrency 4
 npm run compare:news             # news pipeline (concurrency 1 — see WAF gotcha)
 npm run safe-run                 # chunked recapture (50 pages/chunk, pause 20m) — avoids the WAF ban
+npm run probe                    # เช็คว่าโดน WAF บล็อกไหม — exit 0/1
+npm run probe:watch              # เฝ้าต่อเนื่อง + แจ้งเตือน macOS
 npm run dashboard                # builds BOTH main + news dashboards
 npm run docs                     # rebuilds output/criteria.html
 npm run sync-sheet               # write results back to the QA Google Sheet (see below)

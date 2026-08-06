@@ -3,7 +3,7 @@
 // pre-flight. Never probe with curl: Akamai rejects curl's TLS fingerprint
 // outright, indistinguishable from an IP ban (AGENTS.md, 2026-08-05).
 // Spec: docs/superpowers/specs/2026-08-06-waf-block-trigger-design.md
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { execFile } from 'node:child_process';
 import puppeteer from 'puppeteer-core';
@@ -48,7 +48,12 @@ export function appendStatus(path, entry, max) {
   const { history } = readStatus(path);
   const next = { current: entry, history: [...history, entry].slice(-max) };
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, JSON.stringify(next, null, 1));
+  // Atomic write: write to a temp file then rename over the target. A torn
+  // read during a concurrent write (watcher + a pre-flight probe both firing)
+  // must not wipe the history — rename is atomic on the same filesystem.
+  const tmp = `${path}.tmp`;
+  writeFileSync(tmp, JSON.stringify(next, null, 1));
+  renameSync(tmp, path);
 }
 
 async function probeHost(browser, url) {
@@ -104,7 +109,11 @@ export async function waitUntilClear({ source = 'preflight' } = {}) {
   const t0 = Date.now();
   for (;;) {
     const { current } = readStatus(WAF_STATUS_PATH);
-    const fresh = current && (Date.now() - Date.parse(current.at)) < WAF_STATUS_FRESH_MS;
+    // Guard against a future-dated file from clock skew: a negative age would
+    // otherwise satisfy `age < WAF_STATUS_FRESH_MS` and be trusted as fresh.
+    // NaN (unparseable `at`) must also stay not-fresh — `NaN >= 0` is false.
+    const age = current ? Date.now() - Date.parse(current.at) : Infinity;
+    const fresh = current && age >= 0 && age < WAF_STATUS_FRESH_MS;
     const cur = fresh ? current : await probeOnce({ source });
     if (cur.state === 'ok') return cur;
     if (Date.now() - t0 > WAF_PREFLIGHT_MAX_WAIT_MS) {
@@ -125,7 +134,13 @@ function notifyMac(message) {
 
 async function cliWatch() {
   console.log(`🚀 watching WAF status (probe every ${WAF_WATCH_INTERVAL_MS.map(m => Math.round(m / 60000)).join('-')}m, jittered) — Ctrl-C to stop`);
-  let prev = readStatus(WAF_STATUS_PATH).current?.state ?? null;
+  // Only trust a stored status as the seed for change-detection if it's
+  // recent (within one watch-interval upper bound and not future-dated). A
+  // days-old 'blocked' entry left over from a previous session must not fire
+  // a phantom "ปลดบล็อกแล้ว" (unblocked) notification on the very first probe.
+  const stored = readStatus(WAF_STATUS_PATH).current;
+  const recent = stored && (Date.now() - Date.parse(stored.at)) < WAF_WATCH_INTERVAL_MS[1] && (Date.now() - Date.parse(stored.at)) >= 0;
+  let prev = recent ? stored.state : null;
   for (;;) {
     let e;
     try {
@@ -155,13 +170,15 @@ async function cliOnce() {
   for (const h of history.slice(-5)) {
     console.log(`   ${h.at}  ${h.state.padEnd(7)} prod:${h.prod} aem:${h.aem} (${h.source})`);
   }
-  process.exit(e.state === 'ok' ? 0 : 1);
+  // process.exitCode (not process.exit()) lets stdout/stderr flush fully
+  // before the process ends — process.exit() can truncate piped output.
+  process.exitCode = e.state === 'ok' ? 0 : 1;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   if (process.argv.includes('--watch')) {
-    cliWatch().catch(e => { console.error('❌', e.message); process.exit(2); });
+    cliWatch().catch(e => { console.error('❌', e.message); process.exitCode = 2; });
   } else {
-    cliOnce().catch(e => { console.error('❌', e.message); process.exit(2); });
+    cliOnce().catch(e => { console.error('❌', e.message); process.exitCode = 2; });
   }
 }
