@@ -293,9 +293,6 @@ ${chrome.length ? `
         <option value="structure">Structure</option>
       </select>
       <label class="cb"><input type="checkbox" id="gapsOnly" onchange="render()"> Gaps only</label>
-      <select id="pageSizeFilter" onchange="onPageSizeChange()" title="จำนวนแถวต่อหน้า">
-        ${DASHBOARD_PAGE_SIZES.map(s => `<option value="${s}"${s === DASHBOARD_PAGE_SIZE_DEFAULT ? ' selected' : ''}>${s === 'all' ? 'ทั้งหมด' : `${s} แถว`}</option>`).join('\n        ')}
-      </select>
     </div>
   </div>
   <table class="pages-table" id="pagesTable">
@@ -310,7 +307,18 @@ ${chrome.length ? `
     </tr></thead>
     <tbody id="rowsBody"></tbody>
   </table>
-  <div class="pagination" id="pagination"></div>
+  <div class="pagination-bar">
+    <label class="page-size">
+      แสดง
+      <select id="pageSizeFilter" onchange="onPageSizeChange()">
+        ${DASHBOARD_PAGE_SIZES.map(s => `<option value="${s}"${s === DASHBOARD_PAGE_SIZE_DEFAULT ? ' selected' : ''}>${s === 'all' ? 'ทั้งหมด' : s}</option>`).join('\n        ')}
+      </select>
+      แถว
+    </label>
+    <!-- renderPagination() replaces this element's innerHTML on every render,
+         so the page-size control must stay OUTSIDE it. -->
+    <div class="pagination" id="pagination"></div>
+  </div>
 </section>
 
 <footer class="foot">Production = source of truth · AEM = target to fix · Click any row to drill down</footer>
@@ -1192,7 +1200,14 @@ const DASHBOARD_CSS = SHARED + `
 .badge.prod404 { background:#6366f1; } .badge.aem404 { background:#ea580c; } .badge.both404 { background:#1f2937; }
 .badge.blocked { background:#7c3aed; }
 .row-num { color:#aaa; font-size:11px; text-align:center; width:32px; }
-.pagination { display:flex; align-items:center; gap:4px; justify-content:center; margin-top:12px; padding-top:10px; border-top:1px solid #eee; flex-wrap:wrap; }
+/* The bar owns the divider + spacing so the page-size control and the pager
+   share one rule instead of stacking two borders. */
+.pagination-bar { display:flex; align-items:center; gap:12px; margin-top:12px; padding-top:10px; border-top:1px solid #eee; flex-wrap:wrap; }
+.page-size { display:flex; align-items:center; gap:6px; font-size:12px; color:#888; white-space:nowrap; }
+.page-size select { padding:4px 8px; border:1px solid #ddd; border-radius:4px; font-size:12px; color:#333; cursor:pointer; }
+/* flex:1 lets the pager centre itself in the space left over, so it stays put
+   as the page-size label changes width. */
+.pagination { display:flex; align-items:center; gap:4px; justify-content:center; flex:1; flex-wrap:wrap; }
 .page-info { font-size:12px; color:#888; margin-right:8px; }
 .page-btn { padding:4px 9px; border:1px solid #ddd; border-radius:4px; background:#fff; cursor:pointer; font-size:12px; min-width:30px; }
 .page-btn:hover:not(:disabled) { background:#1a2b5c; color:#fff; border-color:#1a2b5c; }
