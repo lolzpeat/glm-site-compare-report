@@ -3,6 +3,8 @@
 // pre-flight. Never probe with curl: Akamai rejects curl's TLS fingerprint
 // outright, indistinguishable from an IP ban (AGENTS.md, 2026-08-05).
 // Spec: docs/superpowers/specs/2026-08-06-waf-block-trigger-design.md
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { RETRYABLE_HTTP_STATUS } from '../config.js';
 
 // Same denial signals scoreParity uses on captured pages (compare.js
@@ -20,4 +22,23 @@ export function classify({ status, title, bodySample, navError } = {}) {
   if (RETRYABLE_HTTP_STATUS.includes(status)) return 'denied';
   if (status !== 200) return 'denied';
   return 'ok';
+}
+
+// Plain synchronous writes: the file is tiny and advisory. Concurrent
+// writers (watcher + a pre-flight) are last-writer-wins by design.
+export function readStatus(path) {
+  if (!existsSync(path)) return { current: null, history: [] };
+  try {
+    const d = JSON.parse(readFileSync(path, 'utf8'));
+    return { current: d.current ?? null, history: Array.isArray(d.history) ? d.history : [] };
+  } catch {
+    return { current: null, history: [] };
+  }
+}
+
+export function appendStatus(path, entry, max) {
+  const { history } = readStatus(path);
+  const next = { current: entry, history: [...history, entry].slice(-max) };
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(next, null, 1));
 }
