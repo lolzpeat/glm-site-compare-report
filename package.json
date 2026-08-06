@@ -23,6 +23,7 @@
     "check-downloads": "node src/check-downloads.js",
     "rescore": "node src/rescore.js",
     "safe-run": "node src/safe-run.js",
+    "sync-meta": "node src/sync-meta.js",
     "sync-sheet": "node src/sync-sheet.js",
     "all": "node src/fetch-urls.js && node src/compare.js && node src/build-dashboard.js && node src/build-docs.js"
   },
