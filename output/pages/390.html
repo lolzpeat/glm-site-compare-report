@@ -131,21 +131,11 @@ table.mini td { padding:2px 8px; font-size:12px; }
 .links-table th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
 .lhref-cell { font-family:monospace; font-size:11px; word-break:break-all; }
 
-/* Image issue cards with preview */
-.img-issue-list { list-style:none; }
-.img-issue { background:#f8f9fb; border:1px solid #e8eaed; border-radius:8px; padding:12px 14px; margin:10px 0; }
-.img-issue-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; }
-.img-issue-head .muted { font-size:12px; }
-.sev-ratio { background:#ea580c; } .sev-distortion { background:#dc2626; } .sev-missing { background:#6366f1; }
-.img-preview-grid { display:flex; gap:12px; margin-top:10px; }
-.img-preview-cell { flex:1; }
-.img-preview-label { font-size:10px; font-weight:700; color:#666; margin-bottom:4px; text-transform:uppercase; }
-.img-thumb { max-width:200px; max-height:120px; border:1px solid #ddd; border-radius:4px; display:block; }
 .noimg { padding:40px; text-align:center; color:#aaa; border:1px solid #ddd; border-top:none; }
 @media print { .sxs{break-inside:avoid;} }
 </style></head><body>
 <nav class="topnav">
-  <a href="../dashboard.html">📊 Dashboard หลัก</a>
+  <a href="../priority-dashboard.html">⭐ Priority BBL Thai Manual Pages</a>
   <a href="../news-dashboard.html">📰 News & Media</a>
   <a href="../criteria.html">📋 เกณฑ์ตรวจจับ</a>
 </nav>
@@ -184,7 +174,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 <section class="panel"><h2>Metric Comparison</h2>
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
-<tbody><tr><td>Headings</td><td>35</td><td>4</td><td class="bad">✗</td></tr><tr><td>Links</td><td>202</td><td>6</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>21889</td><td>549</td><td class="bad">✗</td></tr><tr><td>Images</td><td>9</td><td>1</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>8</td><td>0</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>3</td><td>0</td><td class="ok">✓</td></tr><tr><td>Header links</td><td>148</td><td>0</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>32</td><td>0</td><td class="bad">✗</td></tr><tr><td>Page height (px)</td><td>2189</td><td>1531</td><td class="bad">✗</td></tr></tbody></table></section>
+<tbody><tr><td>Headings</td><td>35</td><td>4</td><td class="bad">✗</td></tr><tr><td>Links</td><td>202</td><td>6</td><td class="bad">✗</td></tr><tr><td>Text length (ทั้งหน้า — capture เก่า)</td><td>21889</td><td>549</td><td class="bad">✗</td></tr><tr><td>Images (เนื้อหาหลัก, &lt;img&gt; เท่านั้น)</td><td>0</td><td>0</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>8</td><td>0</td><td class="muted">·</td></tr><tr><td>Empty accordions</td><td>3</td><td>0</td><td class="ok">✓</td></tr></tbody></table></section>
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
@@ -569,27 +559,6 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 <section class="panel"><h2>Broken Links on AEM (6)</h2>
 <table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">unreachable</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th/personal/save-and-invest</td></tr><tr><td class="bad">unreachable</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th/personal/digital-banking/bualuang-mbanking/h</td></tr><tr><td class="bad">unreachable</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th/personal/save-and-invest/save/e-savings-acco</td></tr><tr><td class="bad">unreachable</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th-TH/Contact-Us</td></tr><tr><td class="bad">unreachable</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th/locate-us</td></tr><tr><td class="bad">unreachable</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/th/web-forms</td></tr></tbody></table></section>
-
-<section class="panel"><h2>Image Distortion / Ratio Issues (2)</h2>
-<ul class="img-issue-list"><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1a6225d7869b40f4c074ee0a6b5a736e7dfc5d8b</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 2.86</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 21×21</div><img src="https://www.bangkokbank.com/-/media/feature/common/bbl-corporate/language-icons/flag-us.png" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 1440×504</div><img src="https://prod-aem.bangkokbank.com/th/personal/other-services/banking-agent/media_1a6225d7869b40f4c074ee0a6b5a736e7dfc5d8b" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-missing">missing</span>
-        <b>(page-wide)</b>
-        <span class="muted">AEM renders 1 images vs 9 on prod</span>
-      </div>
-      
-    </li></ul></section>
 
 <footer class="foot"><a href="../dashboard.html">← Back to dashboard</a></footer>
 </div>

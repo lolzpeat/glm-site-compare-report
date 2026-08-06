@@ -1,0 +1,677 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="utf-8">
+<title>Page 44 — Health-BT-Health-Saver</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,"Segoe UI","Sukhumvit Set",Roboto,sans-serif; color:#1a1a1a; background:#f4f5f7; line-height:1.5; }
+.topnav { display:flex; gap:4px; background:#1a2b5c; padding:0 40px; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+.topnav a { color:rgba(255,255,255,.7); text-decoration:none; padding:12px 18px; font-size:14px; font-weight:500; border-bottom:3px solid transparent; transition:all .15s; }
+.topnav a:hover { color:#fff; background:rgba(255,255,255,.1); }
+.topnav a.active { color:#fff; border-bottom-color:#4dabf7; font-weight:600; }
+.wrap { max-width:1200px; margin:0 auto; padding:32px 40px; }
+h1 { font-size:22px; color:#1a2b5c; }
+h2 { font-size:16px; color:#1a2b5c; margin-bottom:12px; }
+.meta { color:#777; font-size:12px; margin-top:3px; }
+.panel { background:#fff; border-radius:10px; padding:18px 20px; margin:14px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.foot { margin-top:30px; padding-top:14px; border-top:1px solid #e0e0e0; color:#999; font-size:11px; text-align:center; }
+.muted { color:#aaa; }
+.err { color:#c00; font-weight:600; }
+.parity-good { color:#1a6b3c; } .parity-mid { color:#b8860b; } .parity-bad { color:#c00; }
+.tag { padding:2px 7px; border-radius:4px; font-size:10px; font-weight:700; color:#fff; margin-right:5px; }
+.tag.src { background:#1a2b5c; } .tag.tgt { background:#8a5a00; }
+.bad { color:#c00; font-weight:700; }
+.ok { color:#1a6b3c; font-weight:700; }
+
+/* Parity check expandable blocks */
+.checks-list { display:flex; flex-direction:column; gap:6px; }
+.check-block { border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; }
+.check-block.failed { border-color:#f5c2c2; background:#fffafa; }
+.check-block.passed { border-color:#c3e6cb; background:#f8fff9; }
+.check-block summary { cursor:pointer; padding:10px 14px; display:flex; align-items:center; gap:10px; font-size:13px; list-style:none; }
+.check-block summary::-webkit-details-marker { display:none; }
+.check-status { font-weight:700; width:18px; text-align:center; }
+.check-status.ok { color:#1a6b3c; } .check-status.bad { color:#c00; }
+.check-label { font-weight:600; min-width:130px; }
+.check-weight { background:#1a2b5c; color:#fff; font-size:10px; padding:1px 6px; border-radius:3px; }
+.check-detail { color:#666; font-size:12px; flex:1; }
+.expand-hint { color:#1a2b5c; font-size:11px; font-weight:600; white-space:nowrap; }
+.diff-body { padding:0 14px 12px; border-top:1px solid #f0f0f0; }
+.diff-section { padding:8px 0; }
+.diff-title { font-size:12px; font-weight:600; margin-bottom:6px; }
+.diff-title.bad { color:#c00; } .diff-title.ok { color:#1a6b3c; }
+.chip-list { display:flex; flex-wrap:wrap; gap:5px; }
+.chip { font-size:11px; padding:3px 8px; border-radius:4px; background:#f0f1f3; color:#555; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chip-missing { background:#fde8e8; color:#c00; }
+.chip-extra { background:#e6f4ea; color:#1a6b3c; }
+.chip-empty { background:#fff4e0; color:#8a5a00; }
+
+/* Heading outline side-by-side */
+.outline-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.outline-col { border:1px solid #e0e0e0; border-radius:6px; overflow:hidden; }
+.outline-head { padding:7px 10px; font-size:11px; font-weight:700; color:#fff; }
+.outline-head.src { background:#1a2b5c; } .outline-head.tgt { background:#8a5a00; }
+.outline-body { padding:6px 4px; max-height:500px; overflow-y:auto; }
+.outline-empty { padding:16px; color:#aaa; text-align:center; font-size:12px; }
+.hrow { display:flex; align-items:center; gap:5px; padding:2px 6px; font-size:12px; border-radius:3px; }
+.hrow-matched { background:transparent; }
+.hrow-missing { background:#fde8e8; }
+.htag { font-size:9px; font-weight:700; padding:1px 4px; border-radius:2px; min-width:22px; text-align:center; color:#fff; }
+.htag-H1 { background:#1a2b5c; } .htag-H2 { background:#2d4a8a; } .htag-H3 { background:#5b7bb5; } .htag-H4 { background:#8aa0c8; color:#1a2b5c; }
+.hicon { font-weight:700; width:14px; text-align:center; }
+.hrow-matched .hicon { color:#1a6b3c; } .hrow-missing .hicon { color:#c00; }
+.htext { flex:1; word-break:break-word; }
+.outline-legend { margin-top:8px; font-size:11px; color:#666; }
+
+/* Link rows */
+.lrow { display:flex; align-items:center; gap:5px; padding:2px 6px; font-size:12px; border-radius:3px; }
+.lrow-matched { background:transparent; }
+.lrow-missing { background:#fde8e8; }
+.ltext { flex:1; word-break:break-word; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lhref { font-size:10px; color:#5b7bb5; font-family:monospace; text-decoration:none; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lhref:hover { text-decoration:underline; }
+
+/* Content text sample + keywords */
+.text-sample { padding:10px; font-size:11px; line-height:1.5; white-space:pre-wrap; word-break:break-word; background:#fafbfc; max-height:250px; overflow-y:auto; color:#444; }
+.kw-body { padding:8px; max-height:250px; overflow-y:auto; }
+.kw { display:inline-block; font-size:11px; padding:2px 7px; border-radius:3px; margin:2px; }
+.kw em { font-style:normal; font-weight:700; font-size:10px; opacity:.7; }
+.kw-shared { background:#e6f4ea; color:#1a6b3c; }
+.kw-missing { background:#fde8e8; color:#c00; }
+.meta-diff { width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
+.meta-diff th, .meta-diff td { padding:5px 8px; border:1px solid #eee; text-align:left; vertical-align:top; }
+.meta-diff th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
+.meta-diff code { font-size:11px; }
+
+/* Grouped check sections (Template / Content / Structure + Other fallback) */
+.groups { display:flex; flex-direction:column; gap:10px; }
+.group-block { border:1px solid #e0e0e0; border-radius:8px; margin-bottom:0; overflow:hidden; }
+.group-head { padding:8px 12px; font-size:13px; font-weight:700; display:flex; justify-content:space-between; align-items:center; }
+.group-head.template { background:#eef2ff; color:#1a2b5c; }
+.group-head.content { background:#f0f7e6; color:#1a6b3c; }
+.group-head.structure { background:#fdf0e6; color:#8a5a00; }
+.group-head.other { background:#f0f1f3; color:#555; }
+/* v2 (defect-aligned) group ids. Note: v2's own "structure" group shares the
+   id (and thus the rule above) with the old CRITERIA_GROUPS "structure" —
+   intentionally not redeclared here to avoid a cascade override that would
+   change the live default dashboard's colors. */
+.group-head.missing-content { background:#eef2ff; color:#1a2b5c; }
+.group-head.missing-assets { background:#f0f7e6; color:#1a6b3c; }
+.group-head.alignment { background:#fff7e0; color:#7a5200; }
+.group-head.downloads { background:#fdf0e6; color:#8a5a00; }
+table.mini td { padding:2px 8px; font-size:12px; }
+.group-pct { font-size:12px; opacity:.8; font-weight:600; }
+.group-block .checks-list { padding:4px; }
+.group-block .check-block { margin:2px; border:none; border-radius:4px; }
+.group-block .check-block summary.check-row { padding:7px 12px; gap:10px; font-size:12px; }
+.group-block .check-status.ins { color:#aaa; }
+.ins-tag { background:#eee; color:#888; font-size:9px; padding:1px 5px; border-radius:3px; margin-left:6px; text-transform:uppercase; font-weight:700; }
+.back { display:inline-block; font-size:12px; color:#1a2b5c; text-decoration:none; margin-bottom:8px; }
+.score-row { display:flex; gap:18px; align-items:center; background:#fff; border-radius:10px; padding:16px 20px; margin:14px 0; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.score { text-align:center; min-width:90px; }
+.score .big { font-size:42px; font-weight:800; } .score .pct { font-size:18px; }
+.score .lbl { font-size:11px; color:#888; }
+.urls { flex:1; font-size:12px; word-break:break-all; }
+.urls a { color:#1a2b5c; }
+.diff, .checks { width:100%; border-collapse:collapse; font-size:13px; }
+.diff th, .diff td, .checks th, .checks td { padding:7px 10px; border:1px solid #eee; text-align:left; }
+.diff th, .checks th { background:#f7f8fa; font-size:11px; text-transform:uppercase; color:#888; }
+.gap-list { list-style:none; }
+.gap-list li { padding:8px 0; border-bottom:1px solid #f0f0f0; font-size:13px; }
+.gap-list .sev { display:inline-block; padding:1px 6px; border-radius:3px; font-size:10px; font-weight:700; color:#fff; margin-right:6px; }
+.gap.critical .sev { background:#c00; } .gap.high .sev { background:#d97706; } .gap.medium .sev { background:#f0ad4e; }
+.sxs { display:flex; gap:14px; }
+.sxs figure { flex:1; display:flex; flex-direction:column; }
+.sxs figcaption { font-size:12px; font-weight:700; color:#fff; padding:7px 10px; }
+.pcap { background:#1a2b5c; } .acap { background:#8a5a00; }
+.sxs img { width:100%; border:1px solid #ddd; border-top:none; display:block; }
+/* Synced-scroll panes — fixed height, internal scroll. */
+.shot-pane { max-height:600px; overflow-y:auto; border:1px solid #ddd; border-top:none; }
+.shot-pane img { border:none; }
+.links-table { width:100%; border-collapse:collapse; font-size:12px; }
+.links-table th, .links-table td { padding:5px 8px; border:1px solid #eee; text-align:left; }
+.links-table th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
+.lhref-cell { font-family:monospace; font-size:11px; word-break:break-all; }
+
+.noimg { padding:40px; text-align:center; color:#aaa; border:1px solid #ddd; border-top:none; }
+@media print { .sxs{break-inside:avoid;} }
+</style></head><body>
+<nav class="topnav">
+  <a href="../priority-dashboard.html">⭐ Priority BBL Thai Manual Pages</a>
+  <a href="../news-dashboard.html">📰 News & Media</a>
+  <a href="../criteria.html">📋 เกณฑ์ตรวจจับ</a>
+</nav>
+<div class="wrap">
+<a href="../priority-dashboard.html" class="back">← Back to dashboard</a>
+<header>
+  <h1>/th-TH/Personal/My-Family-and-Me/Bancassurance/AIA/Health-BT-Health-Saver</h1>
+  <p class="meta">Personal · My Family and Me · Page 44 of 86</p>
+</header>
+
+<section class="score-row">
+  <div class="score parity-good"><span class="big">93</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="urls">
+    <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Bancassurance/AIA/Health-BT-Health-Saver" target="_blank">https://www.bangkokbank.com/th-TH/Personal/My-Family-and-Me/Bancassurance/AIA/Health-BT-Health-Saver</a></div>
+    <div><b class="tag tgt">AEM</b> <a href="https://main--site-prod--bangkok-bank.aem.live/th/personal/my-family-and-me/bancassurance/aia/health-bt-health-saver" target="_blank">https://main--site-prod--bangkok-bank.aem.live/th/personal/my-family-and-me/bancassurance/aia/health-bt-health-saver</a></div>
+    
+  </div>
+</section>
+
+<section class="panel sxs-panel"><h2>Visual Comparison (full-page screenshot) <span class="muted" style="font-weight:400;font-size:12px">— เลื่อนรูปข้างนึง อีกข้างเลื่อนตาม</span></h2>
+<div class="sxs sync-scroll">
+  <figure>
+    <figcaption class="pcap">PRODUCTION (ต้นฉบับ)</figcaption>
+    <div class="shot-pane"><img src="../priority-screenshots/44/prod.jpg" loading="lazy" alt="production"></div>
+  </figure>
+  <figure>
+    <figcaption class="acap">AEM (ต้องแก้ให้เหมือนซ้าย)</figcaption>
+    <div class="shot-pane"><img src="../priority-screenshots/44/aem.jpg" loading="lazy" alt="aem"></div>
+  </figure>
+</div></section>
+
+
+<section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
+<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Missing text (sentences)</b> 4/12 prod sentence(s) missing · main content only</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 3 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap medium"><span class="sev">medium</span> <b>Missing social icons</b> facebook, line, twitter</li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 6 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 2 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 13/30 prod keywords missing</li></ul></section>
+
+
+<section class="panel"><h2>Metric Comparison</h2>
+<table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
+<tbody><tr><td>Headings</td><td>36</td><td>28</td><td class="ok">✓</td></tr><tr><td>Links</td><td>191</td><td>168</td><td class="ok">✓</td></tr><tr><td>Text length (เนื้อหาหลัก)</td><td>826</td><td>702</td><td class="ok">✓</td></tr><tr><td>Images (เนื้อหาหลัก, รวม CSS background)</td><td>1</td><td>1</td><td class="ok">✓</td></tr><tr><td>Accordions (เนื้อหาหลัก)</td><td>0</td><td>0</td><td class="ok">✓</td></tr><tr><td>Empty accordions</td><td>2</td><td>0</td><td class="ok">✓</td></tr></tbody></table></section>
+
+
+<section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
+<div class="groups"><div class="group-block">
+        <div class="group-head missing-content">
+          <span>Missing content</span>
+          <span class="group-pct">24/30 · 81%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Content length (±30%)</span>
+        <span class="check-detail">702/826 chars (85%) · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">เทียบเนื้อหา (text sample · ratio 85%)</div>
+          <div class="outline-grid">
+            <div class="outline-col">
+              <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
+              <div class="text-sample">เช็กค่าเบี้ยประกันชีวิตเบื้องต้นได้ง่ายๆ ใน 2 นาที ค้นหาประกันชีวิตที่เหมาะกับคุณได้ง่ายๆ เพียงเลือกตามความต้องการของคุณ ประกันชีวิตเพื่อคุ้มครองสุขภาพ 1 เริ่มตอบข้อมูลของคุณ 2 ผลิตภัณฑ์ที่เหมาะกับคุณ 3 สรุปแผนประกันของคุณ คุณเป็น ผู้ชาย ผู้หญิง กรุณาเลือกเพศ ปัจจุบันคุณอายุเท่าไหร่ อายุ เลือกความคุ้มครองค่ารักษาพยาบาลที่คุณต้องการ ความคุ้มครองที่แนะนำ แผน 4: คุ้มครองค่ารักษา 500,000 บาท (ค่าห้อง* 4,000 บาท/วัน) แผน 1 : คุ้มครองค่ารักษา 200,000 บาท (ค่าห้อง* 1,500 บาท/วัน) แผน 2 : คุ้มครองค่ารักษา 300,000 บาท (ค่าห้อง* 2,000 บาท/วัน) แผน 3 : คุ้มครองค่ารักษา 400,000 บาท (ค่าห้อง* 3,000 บาท/วัน</div>
+            </div>
+            <div class="outline-col">
+              <div class="outline-head tgt">AEM (migrate)</div>
+              <div class="text-sample">เช็กค่าเบี้ยประกันชีวิตเบื้องต้นได้ง่ายๆ ใน 2 นาที ค้นหาประกันชีวิตที่เหมาะกับคุณได้ง่ายๆ เพียงเลือกตามความต้องการของคุณ ประกันชีวิตเพื่อคุ้มครองสุขภาพ คุณเป็น ผู้ชาย ผู้หญิง ปัจจุบันคุณอายุเท่าไหร่ เลือกความคุ้มครองค่ารักษาพยาบาลที่คุณต้องการ ความคุ้มครองที่แนะนำ แผน 4: คุ้มครองค่ารักษา 500,000 บาท (ค่าห้อง* 4,000 บาท/วัน) แผน 1 : คุ้มครองค่ารักษา 200,000 บาท (ค่าห้อง* 1,500 บาท/วัน) แผน 2 : คุ้มครองค่ารักษา 300,000 บาท (ค่าห้อง* 2,000 บาท/วัน) แผน 3 : คุ้มครองค่ารักษา 400,000 บาท (ค่าห้อง* 3,000 บาท/วัน) แผน 4 : คุ้มครองค่ารักษา 500,000 บาท (ค่าห้อง* 4,000 บาท/วัน) *ค่าห้อง หมายความรวมถึงค่า</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing text (sentences)</span>
+        <span class="check-detail">4/12 prod sentence(s) missing · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (4/12)</div>
+          <div class="chip-list"><span class="chip chip-missing">1 เริ่มตอบข้อมูลของคุณ 2 ผลิตภัณฑ์ที่เหมาะกับคุณ 3 สรุปแผนประกันของคุณ</span><span class="chip chip-missing">คุณเป็น ผู้ชาย ผู้หญิง กรุณาเลือกเพศ ปัจจุบันคุณอายุเท่าไหร่</span><span class="chip chip-missing">อายุ เลือกความคุ้มครองค่ารักษาพยาบาลที่คุณต้องการ ความคุ้มครองที่แนะนำ</span><span class="chip chip-missing">กรุณาเลือกแผนความคุ้มครองค่ารักษา *ค่าห้อง หมายความรวมถึงค่าอาหาร</span></div>
+          
+        </div>
+      </div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head missing-assets">
+          <span>Missing assets</span>
+          <span class="group-pct">25/25 · 100%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Missing image (count ≥80%)</span>
+        <span class="check-detail">1/1 images · main content only (0 img + 1 css / 1 img + 0 css)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">AEM 1 / Production 1 รูป</div>
+        
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Broken image (fails to load on AEM)</span>
+        <span class="check-detail">0/1 AEM image(s) fail to load · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (1 รูป)</div></div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head alignment">
+          <span>Content alignment</span>
+          <span class="group-pct">20/20 · 100%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Content order (sequence)</span>
+        <span class="check-detail">111/114 shared block(s) in prod order (97%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">111/114 block ตามลำดับ prod</div>
+        <div class="diff-title bad">Block ที่ย้ายตำแหน่ง (3)</div>
+        <div class="chip-list"><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">ประกันชีวิตเพื่อคุ้มครองสุขภาพ</span></div>
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Visual layout (column profile)</span>
+        <span class="check-detail">profile match 93%</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">การกระจายเนื้อหาแนวนอน — ตรงกัน 93%</div>
+        <div class="outline-grid">
+          <div class="outline-col"><div class="outline-head src">PRODUCTION</div><svg width="280" height="44" viewBox="0 0 280 44" style="display:block"><polyline points="0.0,40.5 4.4,40.8 8.9,40.5 13.3,37.6 17.8,26.4 22.2,30.1 26.7,29.9 31.1,33.5 35.6,34.7 40.0,36.3 44.4,35.8 48.9,39.2 53.3,38.5 57.8,31.8 62.2,31.8 66.7,31.8 71.1,32.6 75.6,34.3 80.0,30.3 84.4,30.5 88.9,26.3 93.3,28.1 97.8,26.3 102.2,28.2 106.7,29.7 111.1,22.0 115.6,20.6 120.0,22.9 124.4,19.3 128.9,17.9 133.3,17.3 137.8,21.2 142.2,18.1 146.7,23.0 151.1,21.7 155.6,27.5 160.0,29.8 164.4,31.1 168.9,33.9 173.3,32.6 177.8,25.1 182.2,17.0 186.7,1.0 191.1,5.9 195.6,2.4 200.0,9.3 204.4,21.1 208.9,28.0 213.3,24.7 217.8,22.8 222.2,22.1 226.7,27.2 231.1,17.4 235.6,21.3 240.0,21.5 244.4,16.1 248.9,0.5 253.3,0.0 257.8,1.2 262.2,5.8 266.7,13.8 271.1,25.0 275.6,35.1 280.0,39.8" fill="none" stroke="#2563eb" stroke-width="1.5"/></svg></div>
+          <div class="outline-col"><div class="outline-head tgt">AEM</div><svg width="280" height="44" viewBox="0 0 280 44" style="display:block"><polyline points="0.0,40.1 4.4,40.4 8.9,40.0 13.3,37.0 17.8,25.5 22.2,29.2 26.7,29.7 31.1,33.7 35.6,34.4 40.0,35.6 44.4,34.6 48.9,38.2 53.3,33.7 57.8,33.2 62.2,33.6 66.7,29.6 71.1,23.6 75.6,25.4 80.0,26.2 84.4,30.1 88.9,31.1 93.3,30.4 97.8,28.1 102.2,30.7 106.7,30.0 111.1,30.1 115.6,21.1 120.0,15.5 124.4,13.8 128.9,16.0 133.3,13.0 137.8,24.8 142.2,22.8 146.7,27.7 151.1,31.0 155.6,34.1 160.0,33.3 164.4,33.3 168.9,33.8 173.3,31.5 177.8,29.1 182.2,18.2 186.7,2.2 191.1,6.9 195.6,3.2 200.0,8.6 204.4,20.2 208.9,28.4 213.3,22.8 217.8,21.0 222.2,12.3 226.7,15.2 231.1,19.1 235.6,24.9 240.0,20.7 244.4,16.7 248.9,3.0 253.3,1.4 257.8,0.0 262.2,4.2 266.7,10.7 271.1,23.4 275.6,34.2 280.0,39.3" fill="none" stroke="#d97706" stroke-width="1.5"/></svg></div>
+        </div>
+      </div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head downloads">
+          <span>Download links</span>
+          <span class="group-pct">0/0 · 0%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Download links present<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">prod has no download links</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">ไฟล์ดาวน์โหลดครบ ✓ (0 ไฟล์)</div></div></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Download links alive<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">AEM has no download links</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">ลิงก์ดาวน์โหลดทำงานทั้งหมด ✓ (0 ลิงก์)</div></div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head structure">
+          <span>Structure &amp; template</span>
+          <span class="group-pct">10/10 · 100%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Headings (Jaccard)</span>
+        <span class="check-detail">28/36 headings (Jaccard 73%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+      <div class="diff-section">
+        <div class="diff-title">เทียบ heading outline ทั้งสองฝั่ง — <b class="ok">28 ✓</b> / <b class="bad">8 ✗ ขาด</b> (จาก 36 ใน Production)</div>
+        <div class="outline-grid">
+          <div class="outline-col">
+            <div class="outline-head src">PRODUCTION (ต้นฉบับ) · 36 headings</div>
+            <div class="outline-body"><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หน้าแรกลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออมและการลงทุน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์บัตร</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์เพื่อครอบครัว</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บ้านและที่อยู่อาศัย</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการอื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หน้าแรกลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บริหารธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การเงินเพื่อธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการการค้าระหว่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">คุ้มครองธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการด้านหลักทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วานิชธนกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">เปลี่ยนภาษา</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Online Banking</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เช็กค่าเบี้ยประกันชีวิตเบื้องต้นได้ง่ายๆ ใน 2 นาที</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เช็กค่าเบี้ยประกันชีวิตเบื้องต้นได้ง่ายๆ ใน 2 นาที</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บี ทูเกตเทอร์ เฮลธ์ เซฟเวอร์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ความคุ้มครอง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เบิ้ล! ความคุ้มครองโรคร้ายแรงและมีค่ารักษาพยาบาล OPD</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ค่าเบี้ยเข้าถึงได้</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">มีวงเงินค่าบำบัดรักษา ต่อรอบปีกรมธรรม์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ประกันชีวิตเพื่อคุ้มครองสุขภาพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เกี่ยวกับธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กิจการธนาคารต่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุกกี้ประเภทการวิเคราะห์</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุกกี้ประเภทการโฆษณา</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุณกำลังจะออกจากเว็บไซต์ธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หนังสือแจ้งการคุ้มครองข้อมูลส่วนบุคคล (Privacy Notice) สำหรับบุคลากรของธนาคารกรุงเทพ จำกัด (มหาชน)</span>
+        </div></div>
+          </div>
+          <div class="outline-col">
+            <div class="outline-head tgt">AEM (migrate) · 28 headings</div>
+            <div class="outline-body"><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออมและการลงทุน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์บัตร</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์เพื่อครอบครัว</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บ้านและที่อยู่อาศัย</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการอื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">Manage Myบริหารธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การเงินเพื่อธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการการค้าระหว่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">คุ้มครองธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการด้านหลักทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วานิชธนกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Online Banking</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:0px">
+          <span class="htag htag-H1">H1</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เช็กค่าเบี้ยประกันชีวิตเบื้องต้นได้ง่ายๆ ใน 2 นาที</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ประกันชีวิตเพื่อคุ้มครองสุขภาพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บี ทูเกตเทอร์ เฮลธ์ เซฟเวอร์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ความคุ้มครอง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เบิ้ล! ความคุ้มครองโรคร้ายแรงและมีค่ารักษาพยาบาล OPD</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ค่าเบี้ยเข้าถึงได้</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">มีวงเงินค่าบำบัดรักษา ต่อรอบปีกรมธรรม์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เกี่ยวกับธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กิจการธนาคารต่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อื่นๆ</span>
+        </div></div>
+          </div>
+        </div>
+        <div class="outline-legend">
+          <span class="hrow hrow-matched" style="display:inline-flex;margin-right:12px"><span class="hicon">✓</span> มีในทั้งคู่</span>
+          <span class="hrow hrow-missing" style="display:inline-flex"><span class="hicon">✗</span> มีฝั่งเดียว (อีกฝั่งขาด)</span>
+        </div>
+      </div>
+    </div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Links match</span>
+        <span class="check-detail">168/191 links (90% of prod link-texts found)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">112 prod link-text <b class="ok">✓ พบใน AEM</b></div>
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Meta tags</span>
+        <span class="check-detail">4/4 matched · (not scored) keywords: prod ✓ / AEM ✗</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><table class="meta-diff"><thead><tr><th>Meta</th><th>Production</th><th>AEM</th><th>Status</th></tr></thead><tbody>
+      <tr>
+        <td><code>title</code></td>
+        <td class="ok">ประกันชีวิตเพื่อคุ้มครองสุขภาพ</td>
+        <td class="ok">ประกันชีวิตเพื่อคุ้มครองสุขภาพ</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>description</code></td>
+        <td class="ok">เช็กค่าเบี้ยประกันชีวิตเบื้องต้นได้ง่ายๆ ใน 2 นาที เพียงเลือกตามความต้องการของคุณ</td>
+        <td class="ok">เช็กค่าเบี้ยประกันชีวิตเบื้องต้นได้ง่ายๆ ใน 2 นาที เพียงเลือกตามความต้องการของคุณ</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>ogTitle</code></td>
+        <td class="ok">ประกันชีวิตเพื่อคุ้มครองสุขภาพ</td>
+        <td class="ok">ประกันชีวิตเพื่อคุ้มครองสุขภาพ</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>ogImage</code></td>
+        <td class="ok">https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/productservice/mbi/insurance/a3/getprice/get-price-banner-sharetofacebookog-1200x630-no-lock-space.jpg</td>
+        <td class="ok">https://main--site-prod--bangkok-bank.aem.live/content/dam/feature/page-content/bbl-corporate/productservice/mbi/insurance/a3/getprice/get-price-banner-sharetofacebookog-1200x630-no-lock-space.jpg</td>
+        <td class="ok">✓</td>
+      </tr></tbody></table></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Template (page components)</span>
+        <span class="check-detail">accordion 0/0 · table 0/0 · form 1/1 · video 0/0</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title">Components</div>
+           <table class="mini"><tr><td>accordion</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>1/1</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div><div class="diff-section"><div class="diff-title muted">header/footer เทียบระดับเว็บ — ดูที่ Site chrome บนหน้า dashboard</div></div></div>
+    </details></div>
+      </div></div></section>
+
+
+<section class="panel"><h2>Broken Links on AEM (2)</h2>
+<table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">404</td><td class="lhref-cell">https://main--site-prod--bangkok-bank.aem.live/en/mutual-fund</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://main--site-prod--bangkok-bank.aem.live/en/personal/my-family-and-me/banc</td></tr></tbody></table></section>
+
+<footer class="foot"><a href="../priority-dashboard.html">← Back to dashboard</a></footer>
+</div>
+<script>
+// Synced scroll: scrolling one screenshot pane scrolls the other proportionally.
+(function(){
+  var panes = document.querySelectorAll('.sync-scroll .shot-pane');
+  if (panes.length < 2) return;
+  var a = panes[0], b = panes[1], lock = false;
+  var sync = function(src, dst){ return function(){
+    if (lock) return; lock = true;
+    var sr = src.scrollHeight - src.clientHeight || 1;
+    dst.scrollTop = src.scrollTop / sr * (dst.scrollHeight - dst.clientHeight || 0);
+    requestAnimationFrame(function(){ lock = false; });
+  }; };
+  a.addEventListener('scroll', sync(a,b));
+  b.addEventListener('scroll', sync(b,a));
+})();
+</script>
+</body></html>

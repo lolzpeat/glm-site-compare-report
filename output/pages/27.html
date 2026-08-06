@@ -131,21 +131,11 @@ table.mini td { padding:2px 8px; font-size:12px; }
 .links-table th { background:#f7f8fa; color:#888; font-size:10px; text-transform:uppercase; }
 .lhref-cell { font-family:monospace; font-size:11px; word-break:break-all; }
 
-/* Image issue cards with preview */
-.img-issue-list { list-style:none; }
-.img-issue { background:#f8f9fb; border:1px solid #e8eaed; border-radius:8px; padding:12px 14px; margin:10px 0; }
-.img-issue-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; }
-.img-issue-head .muted { font-size:12px; }
-.sev-ratio { background:#ea580c; } .sev-distortion { background:#dc2626; } .sev-missing { background:#6366f1; }
-.img-preview-grid { display:flex; gap:12px; margin-top:10px; }
-.img-preview-cell { flex:1; }
-.img-preview-label { font-size:10px; font-weight:700; color:#666; margin-bottom:4px; text-transform:uppercase; }
-.img-thumb { max-width:200px; max-height:120px; border:1px solid #ddd; border-radius:4px; display:block; }
 .noimg { padding:40px; text-align:center; color:#aaa; border:1px solid #ddd; border-top:none; }
 @media print { .sxs{break-inside:avoid;} }
 </style></head><body>
 <nav class="topnav">
-  <a href="../dashboard.html">📊 Dashboard หลัก</a>
+  <a href="../priority-dashboard.html">⭐ Priority BBL Thai Manual Pages</a>
   <a href="../news-dashboard.html">📰 News & Media</a>
   <a href="../criteria.html">📋 เกณฑ์ตรวจจับ</a>
 </nav>
@@ -184,7 +174,7 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 <section class="panel"><h2>Metric Comparison</h2>
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
-<tbody><tr><td>Headings</td><td>42</td><td>32</td><td class="bad">✗</td></tr><tr><td>Links</td><td>207</td><td>118</td><td class="bad">✗</td></tr><tr><td>Text length</td><td>24197</td><td>4324</td><td class="bad">✗</td></tr><tr><td>Images</td><td>10</td><td>20</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>8</td><td>4</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>3</td><td>4</td><td class="bad">✗</td></tr><tr><td>Header links</td><td>148</td><td>65</td><td class="bad">✗</td></tr><tr><td>Footer links</td><td>32</td><td>32</td><td class="ok">✓</td></tr><tr><td>Page height (px)</td><td>3647</td><td>2561</td><td class="bad">✗</td></tr></tbody></table></section>
+<tbody><tr><td>Headings</td><td>42</td><td>32</td><td class="bad">✗</td></tr><tr><td>Links</td><td>207</td><td>118</td><td class="bad">✗</td></tr><tr><td>Text length (ทั้งหน้า — capture เก่า)</td><td>24197</td><td>4324</td><td class="bad">✗</td></tr><tr><td>Images (เนื้อหาหลัก, &lt;img&gt; เท่านั้น)</td><td>0</td><td>0</td><td class="bad">✗</td></tr><tr><td>Accordions</td><td>0</td><td>0</td><td class="muted">·</td></tr><tr><td>Empty accordions</td><td>3</td><td>4</td><td class="bad">✗</td></tr></tbody></table></section>
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
@@ -692,119 +682,6 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 <section class="panel"><h2>Broken Links on AEM (2)</h2>
 <table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/test-page</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://prod-aem.bangkokbank.com/en/mutual-fund</td></tr></tbody></table></section>
-
-<section class="panel"><h2>Image Distortion / Ratio Issues (10)</h2>
-<ul class="img-issue-list"><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1eeae4b7251c7251eaa9e6fa436462bf5d9c0a6a2.svg</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 4.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 21×21</div><img src="https://www.bangkokbank.com/-/media/feature/common/bbl-corporate/language-icons/flag-us.png" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 163×38</div><img src="https://prod-aem.bangkokbank.com/th/media_1eeae4b7251c7251eaa9e6fa436462bf5d9c0a6a2.svg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1ea4725d1a4d63275b656e947f131eb3cbd8dfc7a.jpg</b>
-        <span class="muted">rendered ratio prod 4.29 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 163×38</div><img src="https://www.bangkokbank.com/-/media/feature/identity/bbl-corporate/site-logos/logo.svg?h=38&amp;iar=0&amp;w=163&amp;sc_lang=th-th&amp;ha" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://prod-aem.bangkokbank.com/th/media_1ea4725d1a4d63275b656e947f131eb3cbd8dfc7a.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1c11dc9e7c785f8e06b11a88af497e855ddcc73fc.jpg</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 24×24</div><img src="https://www.bangkokbank.com/assets/BBL%20Corporate/img/icons/GMAp/icon_headerPC.svg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://prod-aem.bangkokbank.com/th/media_1c11dc9e7c785f8e06b11a88af497e855ddcc73fc.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1a84588830cc4dc64f08cd17ddcc073753d00fc6c.jpg</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 80×80</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/icons/card/10.svg?iar=0&amp;hash=E8115B7155E5BD2290C9" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://prod-aem.bangkokbank.com/th/media_1a84588830cc4dc64f08cd17ddcc073753d00fc6c.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1826648c14d789d7248fd70e3b516af403f95756a.jpg</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 80×80</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/icons/card/14.svg?iar=0&amp;hash=C98ABD40D9D98FCAE842" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://prod-aem.bangkokbank.com/th/media_1826648c14d789d7248fd70e3b516af403f95756a.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_19758fd1be68537b74809153502e5a40b2a4d3b3b.jpg</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 48×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-statistics.svg?h=48&amp;iar=" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://prod-aem.bangkokbank.com/th/media_19758fd1be68537b74809153502e5a40b2a4d3b3b.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_19aa7ee40212a4411e494aa5240d8d9717c495030.jpg</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 48×48</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-financial.svg?h=48&amp;iar=0" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://prod-aem.bangkokbank.com/th/media_19aa7ee40212a4411e494aa5240d8d9717c495030.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_18582658ec579314ea40c0cbb99c7bf25393c6d62.jpg</b>
-        <span class="muted">rendered ratio prod 0.81 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 38×47</div><img src="https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/tools-and-assistant/icon-livechat.svg?h=48&amp;iar=0&amp;" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://prod-aem.bangkokbank.com/th/media_18582658ec579314ea40c0cbb99c7bf25393c6d62.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1f5b59bc893dc85a1fb6170dbeda7ae92117e9b57.jpg</b>
-        <span class="muted">rendered ratio prod 1.52 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 47×31</div><img src="https://www.bangkokbank.com/-/media/feature/navigation/bbl-corporate/footer/logo-footer-2.png?h=31&amp;iar=0&amp;w=47&amp;hash=CDCFC" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://prod-aem.bangkokbank.com/th/media_1f5b59bc893dc85a1fb6170dbeda7ae92117e9b57.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li><li class="img-issue">
-      <div class="img-issue-head">
-        <span class="sev sev-ratio">ratio</span>
-        <b>media_1f01ab0af99a7285cfea7ad866376d4f9e0771a1b.jpg</b>
-        <span class="muted">rendered ratio prod 1.00 vs aem 2.29</span>
-      </div>
-      
-      <div class="img-preview-grid">
-        <div class="img-preview-cell"><div class="img-preview-label">PROD 24×24</div><img src="https://www.bangkokbank.com/images/econscent/Arrow-right.svg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-        <div class="img-preview-cell"><div class="img-preview-label">AEM 183×80</div><img src="https://prod-aem.bangkokbank.com/th/media_1f01ab0af99a7285cfea7ad866376d4f9e0771a1b.jpg" loading="lazy" class="img-thumb" onerror="this.style.display='none'"></div>
-      </div>
-    </li></ul></section>
 
 <footer class="foot"><a href="../dashboard.html">← Back to dashboard</a></footer>
 </div>
