@@ -9,6 +9,7 @@
 
 const ITEMS = [
   { id: 'priority', href: 'priority-dashboard.html', label: '⭐ Priority BBL Thai Manual Pages' },
+  { id: 'categorized', href: 'categorized-dashboard.html', label: '🗂 Priority TH Pages — Categorized' },
   { id: 'news', href: 'news-dashboard.html', label: '📰 News & Media' },
   { id: 'criteria', href: 'criteria.html', label: '📋 เกณฑ์ตรวจจับ' },
 ];

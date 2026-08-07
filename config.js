@@ -177,35 +177,66 @@ export const META_NAV_TIMEOUT = 20000;        // ms — shorter than NAV_TIMEOUT
 // (meta doesn't need any of them): images, fonts, stylesheets, media.
 export const META_BLOCKED_RESOURCE_TYPES = ['image', 'font', 'stylesheet', 'media'];
 
-// ─── Priority pipeline (tab "Priority BBL Thai Manual Pages") ──────────────
-// Re-mapped URL list on the QA master sheet: col B "Create Prod URL" carries
-// the NEW AEM URLs (main--site-prod--bangkok-bank.aem.live) replacing the old
-// blocked AEM host. Only rows whose Status matches PRIORITY_STATUS_FILTER
-// (trimmed, case-insensitive) are captured.
-export const PRIORITY_SHEET_TAB_NAME = 'Priority BBL Thai Manual Pages';
-export const PRIORITY_STATUS_FILTER = ['Done'];
-// "Done with Condition" rows are emitted AFTER every "Done" row and capped at
-// PRIORITY_CONDITIONAL_LIMIT. The ordering is not cosmetic: compare.js assigns
-// each page its id from its CSV row position (readPairs: `pairs.length + 1`),
-// so interleaving new rows among the existing ones — which is where the sheet
+// ─── Sheet-driven pipelines ────────────────────────────────────────────────
+// Each entry drives one run of src/fetch-sheet-urls.js (--pipeline=<key>) over
+// a tab of the QA master sheet (SYNC_SPREADSHEET_ID), producing a urls CSV that
+// the rest of the pipeline consumes by flag. Only rows whose status matches
+// statusFilter/conditionalStatus (trimmed, case-insensitive) are captured, and
+// col B carries the NEW AEM URLs (main--site-prod--bangkok-bank.aem.live)
+// replacing the old blocked AEM host.
+//
+// `cols` is 0-based and DIFFERS BETWEEN TABS — do not assume they match.
+// `firstDataRow` is 1-based and also differs: the tabs have different numbers
+// of title/blank rows above their header.
+//
+// conditionalStatus rows are emitted AFTER every statusFilter row and capped at
+// conditionalLimit. The ordering is not cosmetic: compare.js assigns each page
+// its id from its CSV row position (readPairs: `pairs.length + 1`), so
+// interleaving new rows among the existing ones — which is where the sheet
 // actually puts them — would renumber pages that already have captured results
 // and silently attach their scores to different URLs.
-// QA writes "done, but with a caveat" two ways, so both are listed. A note here
-// previously said "Done with Condition" did not exist on the sheet — true when
-// checked on 2026-08-05, no longer true: it appeared on 2026-08-07 on the
-// /Wealth row, which had already been captured as id 8.
 //
-// That row is why this list matters beyond scope. A status leaving this list
-// DROPS its row from the CSV, and because ids are row positions, every id below
-// it shifts and its captured score silently reattaches to a different URL. So
-// treat this list as append-mostly: when QA invents a new done-ish label, add it
-// here rather than letting an already-captured row fall out.
-// Live tab 2026-08-07: Done (with Known issue) 71 · Done 18 ·
-// Waiting Componant TH page 6 · BBL 404 Not Found 2 · Done with Condition 1.
-export const PRIORITY_CONDITIONAL_STATUS = ['Done (with Known issue)', 'Done with Condition'];
-// Infinity = no cap. Started at 5 as a pilot of the conditional rows; opened
-// up 2026-08-05 to review the whole reviewed set ("ไล่ทำทั้งหมด").
-export const PRIORITY_CONDITIONAL_LIMIT = Infinity;
+// Treat these status lists as APPEND-MOSTLY. QA keeps inventing new "done, but
+// with a caveat" labels, and they are not spelled the same across tabs —
+// 'Done with Condition' on one, 'Done (with Condition)' on the other. A status
+// missing from the list puts its row out of scope; fetch-sheet-urls.js now
+// retains already-known rows rather than dropping them, but a row that was
+// never captured under an unlisted status simply never gets captured.
+// A note here once said 'Done with Condition' did not exist at all — true when
+// checked 2026-08-05, false by 2026-08-07.
+export const SHEET_PIPELINES = {
+  // Live tab 2026-08-07: Done (with Known issue) 59 · Done 31 ·
+  // Waiting Componant TH page 6 · BBL 404 Not Found 2 · Done with Condition 1.
+  priority: {
+    tab: 'Priority BBL Thai Manual Pages',
+    firstDataRow: 3,                                            // row 1 blank, row 2 header
+    cols: { prod: 0, aem: 1, category: 3, subCategory: 4, status: 5 },   // F = "Status"
+    statusFilter: ['Done'],
+    conditionalStatus: ['Done (with Known issue)', 'Done with Condition'],
+    conditionalLimit: Infinity,   // opened up 2026-08-05 from a 5-row pilot ("ไล่ทำทั้งหมด")
+    urlsPath: join(DIR.data, 'urls-priority.csv'),
+  },
+  // Live tab 2026-08-07 (37 filled rows): Done (with Known issue) 26 · Done 4 ·
+  // Waiting Componant TH Page 3 · Processing 3 · Done (with Condition) 1.
+  // status is col H, NOT col F — col F here is "Automation Validation Status",
+  // a round counter that reads "1st Validation" on every row. Pointing at F
+  // would match nothing and silently produce an empty CSV.
+  categorized: {
+    tab: 'Priority TH Pages - Categorized',
+    firstDataRow: 4,                                            // row 1 title, row 2 blank, row 3 header
+    cols: { prod: 0, aem: 1, category: 3, subCategory: 4, status: 7 },   // H = "Fix & Update Status"
+    statusFilter: ['Done'],
+    conditionalStatus: ['Done (with Known issue)', 'Done (with Condition)'],
+    conditionalLimit: Infinity,
+    urlsPath: join(DIR.data, 'urls-categorized.csv'),
+  },
+};
+
+// Derived aliases so the priority pipeline keeps one definition, not two.
+export const PRIORITY_SHEET_TAB_NAME = SHEET_PIPELINES.priority.tab;
+export const PRIORITY_STATUS_FILTER = SHEET_PIPELINES.priority.statusFilter;
+export const PRIORITY_CONDITIONAL_STATUS = SHEET_PIPELINES.priority.conditionalStatus;
+export const PRIORITY_CONDITIONAL_LIMIT = SHEET_PIPELINES.priority.conditionalLimit;
 
 // Dashboard: the site-level "Site chrome — header/footer" panel. The detector
 // (siteChromeReport in build-dashboard.js) still runs the comparison and the
@@ -221,7 +252,7 @@ export const SHOW_SITE_CHROME_PANEL = false;
 export const DASHBOARD_PAGE_SIZES = [25, 50, 100, 'all'];
 export const DASHBOARD_PAGE_SIZE_DEFAULT = 25;
 
-export const PRIORITY_URLS_PATH = join(DIR.data, 'urls-priority.csv');
+export const PRIORITY_URLS_PATH = SHEET_PIPELINES.priority.urlsPath;
 
 export const SCREENSHOT_FULLPAGE = true;
 export const SCREENSHOT_MAX_WIDTH = 800; // resize screenshots to this width (px) to save disk + speed up

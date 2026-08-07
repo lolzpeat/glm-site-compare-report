@@ -1,17 +1,28 @@
-// Fetch the "Priority BBL Thai Manual Pages" tab (PRIVATE QA master sheet —
-// service-account read, not the public CSV export) and emit
-// data/urls-priority.csv in the same format as fetch-urls.js.
-// Column map (frozen 2-row header, data from row 3):
-//   A=prod URL  B=Create Prod URL (NEW AEM URL)  D=Category  E=Sub-Category  F=Status
-// Usage: node src/fetch-priority-urls.js [--prune]
+// Fetch one tab of the PRIVATE QA master sheet (service-account read, not the
+// public CSV export) and emit its urls CSV in the same format as fetch-urls.js.
+//
+// Which tab, which columns and which statuses count are all per-pipeline — see
+// SHEET_PIPELINES in config.js. The tabs genuinely disagree about the status
+// column and about how "done with a caveat" is spelled, so nothing here may
+// assume a shared layout.
+//
+// Usage: node src/fetch-sheet-urls.js --pipeline=priority|categorized [--prune]
 import { writeFile, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import {
-  SYNC_SPREADSHEET_ID, SYNC_KEY_PATH,
-  PRIORITY_SHEET_TAB_NAME, PRIORITY_STATUS_FILTER, PRIORITY_URLS_PATH,
-  PRIORITY_CONDITIONAL_STATUS, PRIORITY_CONDITIONAL_LIMIT,
-} from '../config.js';
+import { SYNC_SPREADSHEET_ID, SYNC_KEY_PATH, SHEET_PIPELINES } from '../config.js';
 import { getAccessToken } from './google-auth.js';
+
+const PIPELINE_NAME = process.argv.find(a => a.startsWith('--pipeline='))?.split('=')[1] || 'priority';
+const PIPELINE = SHEET_PIPELINES[PIPELINE_NAME];
+if (!PIPELINE) {
+  console.error(`❌ unknown --pipeline=${PIPELINE_NAME}. Known: ${Object.keys(SHEET_PIPELINES).join(', ')}`);
+  process.exit(1);
+}
+const {
+  tab: SHEET_TAB_NAME, firstDataRow: FIRST_DATA_ROW, cols: COLS,
+  statusFilter: STATUS_FILTER, conditionalStatus: CONDITIONAL_STATUS,
+  conditionalLimit: CONDITIONAL_LIMIT, urlsPath: URLS_PATH,
+} = PIPELINE;
 
 // Opt in to the destructive behaviour: let rows that left the sheet's scope
 // fall out of the CSV, renumbering everything below them. Only correct when the
@@ -46,10 +57,15 @@ function parseCsvLine(line) {
   return out;
 }
 
+// Widest column the pipeline reads, as a spreadsheet letter, so the fetched
+// range always covers it. Priority stops at F, categorized needs H — a range
+// hardcoded to F would return undefined for its status column and match nothing.
+const lastColLetter = String.fromCharCode(65 + Math.max(...Object.values(COLS)));
+
 async function main() {
-  console.log(`⬇️  Fetching "${PRIORITY_SHEET_TAB_NAME}" via service account`);
+  console.log(`⬇️  Fetching "${SHEET_TAB_NAME}" via service account (pipeline: ${PIPELINE_NAME})`);
   const token = await getAccessToken(SYNC_KEY_PATH, 'https://www.googleapis.com/auth/spreadsheets.readonly');
-  const range = encodeURIComponent(`'${PRIORITY_SHEET_TAB_NAME}'!A3:F`);
+  const range = encodeURIComponent(`'${SHEET_TAB_NAME}'!A${FIRST_DATA_ROW}:${lastColLetter}`);
   const res = await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${SYNC_SPREADSHEET_ID}/values/${range}`,
     { headers: { authorization: `Bearer ${token}` } },
@@ -59,9 +75,9 @@ async function main() {
 
   const matches = (list, s) => list.some(f => f.toLowerCase() === String(s || '').trim().toLowerCase());
   const statusCounts = {};
-  // Kept in two buckets, not one list, so every "Done" row keeps the CSV
-  // position — and therefore the page id — it already has. See
-  // PRIORITY_CONDITIONAL_STATUS in config.js.
+  // Kept in two buckets, not one list, so every statusFilter row keeps the CSV
+  // position — and therefore the page id — it already has. See SHEET_PIPELINES
+  // in config.js.
   const done = [];
   const conditional = [];
   // Every sheet row by prod URL, in scope or not. Retained rows (below) use it
@@ -71,15 +87,19 @@ async function main() {
   let skippedNoAem = 0;
   let conditionalAvailable = 0;
   for (const row of rows) {
-    const prodUrl = (row[0] || '').trim();
-    const aemUrl = (row[1] || '').trim();
-    const status = (row[5] || '').trim();
+    const prodUrl = (row[COLS.prod] || '').trim();
+    const aemUrl = (row[COLS.aem] || '').trim();
+    const status = (row[COLS.status] || '').trim();
     if (!prodUrl.startsWith('http')) continue;               // blank/notes rows
     statusCounts[status || '(empty)'] = (statusCounts[status || '(empty)'] || 0) + 1;
-    const pair = { prodUrl, aemUrl, category: (row[3] || '').trim(), subCategory: (row[4] || '').trim(), status };
+    const pair = {
+      prodUrl, aemUrl, status,
+      category: (row[COLS.category] || '').trim(),
+      subCategory: (row[COLS.subCategory] || '').trim(),
+    };
     sheetBySrc.set(prodUrl, pair);
-    const isDone = matches(PRIORITY_STATUS_FILTER, status);
-    const isConditional = matches(PRIORITY_CONDITIONAL_STATUS, status);
+    const isDone = matches(STATUS_FILTER, status);
+    const isConditional = matches(CONDITIONAL_STATUS, status);
     if (!isDone && !isConditional) continue;
     if (!aemUrl.startsWith('http')) {
       skippedNoAem++;
@@ -88,13 +108,13 @@ async function main() {
     }
     if (isDone) { done.push(pair); continue; }
     conditionalAvailable++;
-    if (conditional.length < PRIORITY_CONDITIONAL_LIMIT) conditional.push(pair);
+    if (conditional.length < CONDITIONAL_LIMIT) conditional.push(pair);
   }
   console.log('📊 status counts:', JSON.stringify(statusCounts));
 
   // ── id stability ──────────────────────────────────────────────────────────
-  // compare.js derives each page id from its CSV row position, and
-  // results-priority.json is keyed by that id. The sheet is edited between
+  // compare.js derives each page id from its CSV row position, and the
+  // pipeline's results file is keyed by that id. The sheet is edited between
   // fetches — a single row inserted near the top shifts every id below it, and
   // the next rescore silently attaches existing scores to different URLs. This
   // is not hypothetical: on 2026-08-05 a new "Web-Forms" row moved ids 9-15,
@@ -115,8 +135,8 @@ async function main() {
   const fresh = [...done, ...conditional];
   const bySrc = new Map(fresh.map(p => [p.prodUrl, p]));
   let previousRows = [];
-  if (existsSync(PRIORITY_URLS_PATH)) {
-    const prev = (await readFile(PRIORITY_URLS_PATH, 'utf8')).trim().split('\n');
+  if (existsSync(URLS_PATH)) {
+    const prev = (await readFile(URLS_PATH, 'utf8')).trim().split('\n');
     const header = parseCsvLine(prev[0]);
     const idx = {
       prod: header.indexOf('prodUrl'), aem: header.indexOf('aemUrl'),
@@ -142,9 +162,9 @@ async function main() {
     const sheet = sheetBySrc.get(row.prodUrl);
     if (!sheet) return 'row deleted from the sheet';
     if (!sheet.aemUrl.startsWith('http')) return 'Create Prod URL cleared on the sheet';
-    const inScope = matches(PRIORITY_STATUS_FILTER, sheet.status) || matches(PRIORITY_CONDITIONAL_STATUS, sheet.status);
+    const inScope = matches(STATUS_FILTER, sheet.status) || matches(CONDITIONAL_STATUS, sheet.status);
     if (!inScope) return `status is now "${sheet.status}"`;
-    return `beyond PRIORITY_CONDITIONAL_LIMIT (${PRIORITY_CONDITIONAL_LIMIT})`;
+    return `beyond conditionalLimit (${CONDITIONAL_LIMIT})`;
   };
 
   const retained = previousRows.filter(r => !bySrc.has(r.prodUrl));
@@ -178,8 +198,8 @@ async function main() {
     console.log('   is now attached to the wrong URL — re-capture from scratch (--force, no');
     console.log('   --ids) before trusting any score.\n');
   }
-  console.log(`   ${done.length} "${PRIORITY_STATUS_FILTER.join('/')}"` +
-    ` + ${conditional.length} of ${conditionalAvailable} "${PRIORITY_CONDITIONAL_STATUS.join('/')}" (cap ${PRIORITY_CONDITIONAL_LIMIT})`);
+  console.log(`   ${done.length} "${STATUS_FILTER.join('/')}"` +
+    ` + ${conditional.length} of ${conditionalAvailable} "${CONDITIONAL_STATUS.join('/')}" (cap ${CONDITIONAL_LIMIT})`);
 
   const csv = [
     'prodUrl,aemUrl,category,subCategory,status',
@@ -187,8 +207,8 @@ async function main() {
   ].join('\n');
   // Terminating newline: without it, appending a row by hand (`>>`) lands on
   // the same line as the last row and corrupts it.
-  await writeFile(PRIORITY_URLS_PATH, `${csv}\n`, 'utf8');
-  console.log(`✅ Wrote ${pairs.length} URL pair(s) → ${PRIORITY_URLS_PATH}` +
+  await writeFile(URLS_PATH, `${csv}\n`, 'utf8');
+  console.log(`✅ Wrote ${pairs.length} URL pair(s) → ${URLS_PATH}` +
     (skippedNoAem ? ` (${skippedNoAem} matching row(s) skipped — no AEM URL)` : ''));
 }
 
