@@ -190,11 +190,19 @@ export const PRIORITY_STATUS_FILTER = ['Done'];
 // so interleaving new rows among the existing ones — which is where the sheet
 // actually puts them — would renumber pages that already have captured results
 // and silently attach their scores to different URLs.
-// The sheet's actual label for "done, but with a caveat" is
-// "Done (with Known issue)" — there is no status literally named
-// "Done with Condition". Verified against the live tab 2026-08-05:
-// Done (with Known issue) 66 · Done 23 · Waiting Componant TH page 8 · Not Start 4.
-export const PRIORITY_CONDITIONAL_STATUS = ['Done (with Known issue)'];
+// QA writes "done, but with a caveat" two ways, so both are listed. A note here
+// previously said "Done with Condition" did not exist on the sheet — true when
+// checked on 2026-08-05, no longer true: it appeared on 2026-08-07 on the
+// /Wealth row, which had already been captured as id 8.
+//
+// That row is why this list matters beyond scope. A status leaving this list
+// DROPS its row from the CSV, and because ids are row positions, every id below
+// it shifts and its captured score silently reattaches to a different URL. So
+// treat this list as append-mostly: when QA invents a new done-ish label, add it
+// here rather than letting an already-captured row fall out.
+// Live tab 2026-08-07: Done (with Known issue) 71 · Done 18 ·
+// Waiting Componant TH page 6 · BBL 404 Not Found 2 · Done with Condition 1.
+export const PRIORITY_CONDITIONAL_STATUS = ['Done (with Known issue)', 'Done with Condition'];
 // Infinity = no cap. Started at 5 as a pilot of the conditional rows; opened
 // up 2026-08-05 to review the whole reviewed set ("ไล่ทำทั้งหมด").
 export const PRIORITY_CONDITIONAL_LIMIT = Infinity;

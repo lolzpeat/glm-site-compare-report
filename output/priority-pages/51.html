@@ -143,11 +143,11 @@ table.mini td { padding:2px 8px; font-size:12px; }
 <a href="../priority-dashboard.html" class="back">← Back to dashboard</a>
 <header>
   <h1>/th-TH/Personal/Other-Services/View-Rates/Loan-Rates</h1>
-  <p class="meta">Personal · Other Services · Page 51 of 86</p>
+  <p class="meta">Personal · Other Services · Page 51 of 91</p>
 </header>
 
 <section class="score-row">
-  <div class="score parity-bad"><span class="big">0</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="score parity-mid"><span class="big">81</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
   <div class="urls">
     <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/Personal/Other-Services/View-Rates/Loan-Rates" target="_blank">https://www.bangkokbank.com/th-TH/Personal/Other-Services/View-Rates/Loan-Rates</a></div>
     <div><b class="tag tgt">AEM</b> <a href="https://main--site-prod--bangkok-bank.aem.live/th/personal/other-services/view-rates/loan-rates" target="_blank">https://main--site-prod--bangkok-bank.aem.live/th/personal/other-services/view-rates/loan-rates</a></div>
@@ -169,30 +169,488 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Production page is BLOCKED (Access Denied / WAF)</b> Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</li></ul></section>
+<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Missing text (sentences)</b> 1/4 prod sentence(s) missing · main content only</li><li class="gap high"><span class="sev">high</span> <b>Visual layout (column profile)</b> profile match 63%</li><li class="gap medium"><span class="sev">medium</span> <b>Download links present</b> 0/32 prod download file(s) found on AEM</li><li class="gap medium"><span class="sev">medium</span> <b>Template (page components)</b> accordion 51/2 (48 empty)✗ · table 0/0 · form 0/0 · video 0/0</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 6 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 1 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 17/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
-<tbody><tr><td>Headings</td><td>1</td><td>27</td><td class="muted">·</td></tr><tr><td>Links</td><td>0</td><td>204</td><td class="muted">·</td></tr><tr><td>Text length (เนื้อหาหลัก)</td><td>248</td><td>441</td><td class="muted">·</td></tr><tr><td>Images (เนื้อหาหลัก, รวม CSS background)</td><td>0</td><td>4</td><td class="muted">·</td></tr><tr><td>Accordions (เนื้อหาหลัก)</td><td>0</td><td>51</td><td class="muted">·</td></tr><tr><td>Empty accordions</td><td>0</td><td>48</td><td class="bad">✗</td></tr></tbody></table></section>
+<tbody><tr><td>Headings</td><td>35</td><td>27</td><td class="ok">✓</td></tr><tr><td>Links</td><td>228</td><td>211</td><td class="ok">✓</td></tr><tr><td>Text length (เนื้อหาหลัก)</td><td>445</td><td>441</td><td class="ok">✓</td></tr><tr><td>Images (เนื้อหาหลัก, รวม CSS background)</td><td>3</td><td>4</td><td class="ok">✓</td></tr><tr><td>Accordions (เนื้อหาหลัก)</td><td>2</td><td>51</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>3</td><td>48</td><td class="bad">✗</td></tr></tbody></table></section>
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
 <div class="groups"><div class="group-block">
-        <div class="group-head other"><span>Other checks</span><span class="group-pct">0/1 passed</span></div>
+        <div class="group-head missing-content">
+          <span>Missing content</span>
+          <span class="group-pct">26/30 · 86%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Content length (±30%)</span>
+        <span class="check-detail">441/445 chars (99%) · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">เทียบเนื้อหา (text sample · ratio 99%)</div>
+          <div class="outline-grid">
+            <div class="outline-col">
+              <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
+              <div class="text-sample">ข้อมูลปัจจุบัน ข้อมูลปัจจุบัน ข้อมูลย้อนหลัง เครื่องมือช่วยเหลือ อัตราดอกเบี้ยเงินให้สินเชื่อ ข้อมูลปัจจุบัน อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 26 กุมภาพันธ์ 2569 เริ่มใช้ตั้งแต่วันที่ 26 กุมภาพันธ์ 2569 ข้อมูลย้อนหลัง ขยายทั้งหมด พิมพ์ ปี 2568 ปี 2567 ปี 2566 ปี 2565 ปี 2564 ปี 2563 ปี 2562 ปี 2560 ปี 2559 ปี 2558 เครื่องมือช่วยเหลือ ธนาคารพร้อมให้คำปรึกษาและดูแลคุณ ในทุกธุรกรรมทางการเงิน ติดต่อเรา ค้นหาที่ตั้งสาขา/จุดบริการ</div>
+            </div>
+            <div class="outline-col">
+              <div class="outline-head tgt">AEM (migrate)</div>
+              <div class="text-sample">Latest Information Latest Information Historical Information อัตราดอกเบี้ยเงินให้สินเชื่อ ข้อมูลปัจจุบัน อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 26 กุมภาพันธ์ 2569 เริ่มใช้ตั้งแต่วันที่ 26 กุมภาพันธ์ 2569 ข้อมูลย้อนหลัง ขยายทั้งหมด พิมพ์ ปี 2568 ปี 2567 ปี 2566 ปี 2565 ปี 2564 ปี 2563 ปี 2562 ปี 2560 ปี 2559 ปี 2558 เครื่องมือช่วยเหลือ ธนาคารพร้อมให้คำปรึกษาและดูแลคุณ ในทุกธุรกรรมทางการเงิน ติดต่อเรา ค้นหาที่ตั้งสาขา/จุดบริการ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Missing text (sentences)</span>
+        <span class="check-detail">1/4 prod sentence(s) missing · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (1/4)</div>
+          <div class="chip-list"><span class="chip chip-missing">ข้อมูลปัจจุบัน ข้อมูลปัจจุบัน ข้อมูลย้อนหลัง เครื่องมือช่วยเหลือ</span></div>
+          
+        </div>
+      </div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head missing-assets">
+          <span>Missing assets</span>
+          <span class="group-pct">25/25 · 100%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Missing image (count ≥80%)</span>
+        <span class="check-detail">4/3 images · main content only (2 img + 1 css / 3 img + 1 css)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">AEM 4 / Production 3 รูป</div>
+        
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Broken image (fails to load on AEM)</span>
+        <span class="check-detail">0/2 AEM image(s) fail to load · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (2 รูป)</div></div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head alignment">
+          <span>Content alignment</span>
+          <span class="group-pct">16/20 · 81%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Content order (sequence)</span>
+        <span class="check-detail">106/111 shared block(s) in prod order (95%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">106/111 block ตามลำดับ prod</div>
+        <div class="diff-title bad">Block ที่ย้ายตำแหน่ง (5)</div>
+        <div class="chip-list"><span class="chip chip-missing">บริหารธุรกิจ</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span><span class="chip chip-missing">อัตราดอกเบี้ยเงินให้สินเชื่อ</span><span class="chip chip-missing">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณในทุกธุรกรรมทางการเงิน</span></div>
+      </div></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Visual layout (column profile)</span>
+        <span class="check-detail">profile match 63%</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">การกระจายเนื้อหาแนวนอน — ตรงกัน 63%</div>
+        <div class="outline-grid">
+          <div class="outline-col"><div class="outline-head src">PRODUCTION</div><svg width="280" height="44" viewBox="0 0 280 44" style="display:block"><polyline points="0.0,42.1 4.4,42.3 8.9,42.1 13.3,35.4 17.8,12.6 22.2,18.6 26.7,16.0 31.1,20.1 35.6,24.6 40.0,27.4 44.4,29.4 48.9,31.9 53.3,11.3 57.8,0.0 62.2,7.7 66.7,17.4 71.1,19.9 75.6,24.0 80.0,28.1 84.4,31.2 88.9,26.9 93.3,26.8 97.8,24.2 102.2,27.2 106.7,31.6 111.1,23.9 115.6,16.2 120.0,21.7 124.4,17.2 128.9,24.7 133.3,19.5 137.8,22.8 142.2,24.5 146.7,27.6 151.1,30.1 155.6,32.5 160.0,29.8 164.4,32.9 168.9,38.1 173.3,38.7 177.8,27.5 182.2,28.7 186.7,31.8 191.1,36.9 195.6,37.6 200.0,37.7 204.4,37.9 208.9,39.8 213.3,41.5 217.8,39.7 222.2,41.9 226.7,28.7 231.1,22.7 235.6,25.3 240.0,30.4 244.4,32.2 248.9,31.3 253.3,33.5 257.8,35.3 262.2,38.4 266.7,41.2 271.1,42.3 275.6,42.1 280.0,42.3" fill="none" stroke="#2563eb" stroke-width="1.5"/></svg></div>
+          <div class="outline-col"><div class="outline-head tgt">AEM</div><svg width="280" height="44" viewBox="0 0 280 44" style="display:block"><polyline points="0.0,39.7 4.4,40.0 8.9,39.6 13.3,35.9 17.8,22.7 22.2,25.8 26.7,22.8 31.1,26.4 35.6,28.3 40.0,29.8 44.4,33.2 48.9,34.9 53.3,21.1 57.8,19.6 62.2,27.5 66.7,31.4 71.1,29.2 75.6,31.6 80.0,34.6 84.4,36.4 88.9,36.2 93.3,37.4 97.8,37.7 102.2,38.5 106.7,39.6 111.1,39.6 115.6,39.7 120.0,32.9 124.4,28.1 128.9,30.6 133.3,30.1 137.8,25.9 142.2,15.4 146.7,16.6 151.1,13.0 155.6,15.5 160.0,8.6 164.4,2.4 168.9,0.0 173.3,6.0 177.8,6.0 182.2,19.6 186.7,12.4 191.1,14.5 195.6,8.7 200.0,3.2 204.4,8.7 208.9,21.9 213.3,28.6 217.8,34.2 222.2,29.4 226.7,23.7 231.1,32.0 235.6,34.5 240.0,34.9 244.4,36.8 248.9,38.6 253.3,40.1 257.8,37.9 262.2,39.4 266.7,39.8 271.1,40.6 275.6,40.6 280.0,41.2" fill="none" stroke="#d97706" stroke-width="1.5"/></svg></div>
+        </div>
+      </div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head downloads">
+          <span>Download links</span>
+          <span class="group-pct">0/9 · 0%</span>
+        </div>
         <div class="checks-list">
     <details class="check-block failed">
       <summary class="check-row">
         <span class="check-status bad">✗</span>
-        <span class="check-label">Production page is BLOCKED (Access Denied / WAF)</span>
-        <span class="check-detail">Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</span>
-        
+        <span class="check-label">Download links present</span>
+        <span class="check-detail">0/32 prod download file(s) found on AEM</span>
+        <span class="expand-hint">▾</span>
       </summary>
-      
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title bad">ไฟล์ดาวน์โหลดที่หายจาก AEM (20/32)</div>
+        <div class="chip-list"><span class="chip chip-missing">loanrates_26feb2026.pdf</span><span class="chip chip-missing">loanrates_22dec2025.pdf</span><span class="chip chip-missing">loanrates_14aug2025.pdf</span><span class="chip chip-missing">loanrates_8may2025.pdf</span><span class="chip chip-missing">loanrates_5mar2025.pdf</span><span class="chip chip-missing">loanrates_24oct2024.pdf</span><span class="chip chip-missing">loanrates_29apr2024.pdf</span><span class="chip chip-missing">loanrates_29sep2023.pdf</span><span class="chip chip-missing">loanrates_2jun2023.pdf</span><span class="chip chip-missing">loanrates_11apr2023.pdf</span><span class="chip chip-missing">loanrates_27jan2023.pdf</span><span class="chip chip-missing">loanrate_4jan2023.pdf</span><span class="chip chip-missing">loanrates_13dec2022.pdf</span><span class="chip chip-missing">loanrates_29sep2022.pdf</span><span class="chip chip-missing">loanrates_23jul2022.pdf</span><span class="chip chip-missing">loanrates_7dec2021.pdf</span><span class="chip chip-missing">loanrates_17jun2021.pdf</span><span class="chip chip-missing">loanrates_1apr2021.pdf</span><span class="chip chip-missing">loanrates_1aug2020.pdf</span><span class="chip chip-missing">loanrates_21may2020.pdf</span></div>
+        <div class="diff-title">ลิงก์บน prod:</div><ul><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 26 กุมภาพันธ์ 2569 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2026/loanrates_26feb2026.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 22 ธันวาคม 2568 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2025/loanrates_22dec2025.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 14 สิงหาคม 2568 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2025/loanrates_14aug2025.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 8 พฤษภาคม 2568 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2025/loanrates_8may2025.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 5 มีนาคม 2568 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2025/loanrates_5mar2025.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 24 ตุลาคม 2567 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2024/loanrates_24oct2024.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 29 เมษายน 2567 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2024/loanrates_29apr2024.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 29 กันยายน 2566 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2023/loanrates_29sep2023.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 2 มิถุนายน 2566 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2023/loanrates_2jun2023.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 11 เมษายน 2566 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2023/loanrates_11apr2023.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 27 มกราคม 2566 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2023/loanrates_27jan2023.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 4 มกราคม 2566 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2023/loanrate_4jan2023.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 13 ธันวาคม 2565 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2022/loanrates_13dec2022.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 29 กันยายน 2565 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2022/loanrates_29sep2022.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 23 กรกฎาคม 2565 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2022/loanrates_23jul2022.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 7 ธันวาคม 2564 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2021/loanrates_7dec2021.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 17 มิถุนายน 2564 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2021/loanrates_17jun2021.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 1 เมษายน 2564 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2021/loanrates_1apr2021.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 1 สิงหาคม 2563 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2020/loanrates_1aug2020.pdf</code></li><li>อัตราดอกเบี้ยเงินให้สินเชื่อ เริ่มใช้ตั้งแต่วันที่ 21 พฤษภาคม 2563 — <code>https://www.bangkokbank.com/-/media/files/personal/other-services/view-rates/loan-interest-rates/2020/loanrates_21may2020.pdf</code></li></ul>
+      </div></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Download links alive<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">no cached link status — run: npm run check-downloads</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">ลิงก์ดาวน์โหลดทำงานทั้งหมด ✓ (0 ลิงก์)</div></div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head structure">
+          <span>Structure &amp; template</span>
+          <span class="group-pct">10/10 · 95%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Headings (Jaccard)</span>
+        <span class="check-detail">27/35 headings (Jaccard 69%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+      <div class="diff-section">
+        <div class="diff-title">เทียบ heading outline ทั้งสองฝั่ง — <b class="ok">26 ✓</b> / <b class="bad">9 ✗ ขาด</b> (จาก 35 ใน Production)</div>
+        <div class="outline-grid">
+          <div class="outline-col">
+            <div class="outline-head src">PRODUCTION (ต้นฉบับ) · 35 headings</div>
+            <div class="outline-body"><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หน้าแรกลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออมและการลงทุน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์บัตร</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์เพื่อครอบครัว</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บ้านและที่อยู่อาศัย</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการอื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หน้าแรกลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บริหารธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การเงินเพื่อธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการการค้าระหว่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">คุ้มครองธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการด้านหลักทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วานิชธนกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">เปลี่ยนภาษา</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Online Banking</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อัตราดอกเบี้ยเงินให้สินเชื่อ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ข้อมูลปัจจุบัน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ข้อมูลย้อนหลัง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณ ในทุกธุรกรรมทางการเงิน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณในทุกธุรกรรมทางการเงิน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เกี่ยวกับธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กิจการธนาคารต่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุกกี้ประเภทการวิเคราะห์</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุกกี้ประเภทการโฆษณา</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุณกำลังจะออกจากเว็บไซต์ธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หนังสือแจ้งการคุ้มครองข้อมูลส่วนบุคคล (Privacy Notice) สำหรับบุคลากรของธนาคารกรุงเทพ จำกัด (มหาชน)</span>
+        </div></div>
+          </div>
+          <div class="outline-col">
+            <div class="outline-head tgt">AEM (migrate) · 27 headings</div>
+            <div class="outline-body"><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออมและการลงทุน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์บัตร</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์เพื่อครอบครัว</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บ้านและที่อยู่อาศัย</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการอื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">Manage Myบริหารธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การเงินเพื่อธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการการค้าระหว่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">คุ้มครองธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการด้านหลักทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วานิชธนกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Online Banking</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อัตราดอกเบี้ยเงินให้สินเชื่อ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ข้อมูลปัจจุบัน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ข้อมูลย้อนหลัง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณในทุกธุรกรรมทางการเงิน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เกี่ยวกับธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กิจการธนาคารต่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อื่นๆ</span>
+        </div></div>
+          </div>
+        </div>
+        <div class="outline-legend">
+          <span class="hrow hrow-matched" style="display:inline-flex;margin-right:12px"><span class="hicon">✓</span> มีในทั้งคู่</span>
+          <span class="hrow hrow-missing" style="display:inline-flex"><span class="hicon">✗</span> มีฝั่งเดียว (อีกฝั่งขาด)</span>
+        </div>
+      </div>
+    </div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Links match</span>
+        <span class="check-detail">211/228 links (91% of prod link-texts found)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">145 prod link-text <b class="ok">✓ พบใน AEM</b></div>
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Meta tags</span>
+        <span class="check-detail">4/4 matched · (not scored) keywords: prod ✓ / AEM ✗</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><table class="meta-diff"><thead><tr><th>Meta</th><th>Production</th><th>AEM</th><th>Status</th></tr></thead><tbody>
+      <tr>
+        <td><code>title</code></td>
+        <td class="ok">อัตราดอกเบี้ยเงินให้สินเชื่อ</td>
+        <td class="ok">อัตราดอกเบี้ยเงินให้สินเชื่อ</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>description</code></td>
+        <td class="ok">อัตราดอกเบี้ยเงินเงินให้สินเชื่อล่าสุด และย้อนหลัง ตามประกาศของธนาคาร</td>
+        <td class="ok">อัตราดอกเบี้ยเงินเงินให้สินเชื่อล่าสุด และย้อนหลัง ตามประกาศของธนาคาร</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>ogTitle</code></td>
+        <td class="ok">อัตราดอกเบี้ยเงินให้สินเชื่อ</td>
+        <td class="ok">อัตราดอกเบี้ยเงินให้สินเชื่อ</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>ogImage</code></td>
+        <td class="ok">https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/logos/bbl_th-share-to-social-1200x630.png</td>
+        <td class="ok">https://prod-aem.bangkokbank.com/th/personal/other-services/view-rates/media_1bcfa3bacc7bbaa7c5d8f8513ba52c1e70c50dda6.jpg?width=1200&amp;format=pjpg&amp;optimize=medium</td>
+        <td class="ok">✓</td>
+      </tr></tbody></table></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Template (page components)</span>
+        <span class="check-detail">accordion 51/2 (48 empty)✗ · table 0/0 · form 0/0 · video 0/0</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title">Components</div>
+           <table class="mini"><tr><td>accordion</td><td>51/2</td><td class="bad">✗</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div><div class="diff-section"><div class="diff-title muted">header/footer เทียบระดับเว็บ — ดูที่ Site chrome บนหน้า dashboard</div></div></div>
     </details></div>
       </div></div></section>
 
 
+<section class="panel"><h2>Broken Links on AEM (1)</h2>
+<table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">404</td><td class="lhref-cell">https://main--site-prod--bangkok-bank.aem.live/en/mutual-fund</td></tr></tbody></table></section>
 
 <footer class="foot"><a href="../priority-dashboard.html">← Back to dashboard</a></footer>
 </div>

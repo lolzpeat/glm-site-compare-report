@@ -143,11 +143,11 @@ table.mini td { padding:2px 8px; font-size:12px; }
 <a href="../priority-dashboard.html" class="back">← Back to dashboard</a>
 <header>
   <h1>/th-TH/Personal/Work-Cafe/activities</h1>
-  <p class="meta">Personal · Work Cafe · Page 86 of 86</p>
+  <p class="meta">Personal · Work Cafe · Page 86 of 91</p>
 </header>
 
 <section class="score-row">
-  <div class="score parity-bad"><span class="big">0</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
+  <div class="score parity-good"><span class="big">96</span><span class="pct">%</span><div class="lbl">PARITY</div></div>
   <div class="urls">
     <div><b class="tag src">PRODUCTION</b> <a href="https://www.bangkokbank.com/th-TH/Personal/Work-Cafe/activities" target="_blank">https://www.bangkokbank.com/th-TH/Personal/Work-Cafe/activities</a></div>
     <div><b class="tag tgt">AEM</b> <a href="https://main--site-prod--bangkok-bank.aem.live/th/personal/work-cafe/activities" target="_blank">https://main--site-prod--bangkok-bank.aem.live/th/personal/work-cafe/activities</a></div>
@@ -169,30 +169,492 @@ table.mini td { padding:2px 8px; font-size:12px; }
 
 
 <section class="panel"><h2>Gaps — สิ่งที่ต้องแก้ใน AEM ให้เหมือน Production</h2>
-<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Production page is BLOCKED (Access Denied / WAF)</b> Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</li></ul></section>
+<ul class="gap-list"><li class="gap critical"><span class="sev">critical</span> <b>Missing text (sentences)</b> 2/11 prod sentence(s) missing · main content only</li><li class="gap medium"><span class="sev">medium</span> <b>Meta tags</b> 3/4 matched — missing: ogTitle · (not scored) keywords: prod ✓ / AEM ✓</li><li class="gap medium"><span class="sev">medium</span> <b>Template (page components)</b> accordion 23/2 (8 empty)✗ · table 0/0 · form 0/0 · video 0/0</li><li class="gap high"><span class="sev">high</span> <b>Leaked /content/ paths</b> 2 found</li><li class="gap high"><span class="sev">high</span> <b>Missing language switcher</b> </li><li class="gap low"><span class="sev">low</span> <b>Formatting (advisory)</b> 5 heading(s) at wrong level</li><li class="gap high"><span class="sev">high</span> <b>Broken links on AEM</b> 2 links return error</li><li class="gap medium"><span class="sev">medium</span> <b>Missing keywords (advisory)</b> 14/30 prod keywords missing</li></ul></section>
 
 
 <section class="panel"><h2>Metric Comparison</h2>
 <table class="diff"><thead><tr><th>Metric</th><th>Production (ต้นฉบับ)</th><th>AEM (ต้องแก้)</th><th>Status</th></tr></thead>
-<tbody><tr><td>Headings</td><td>1</td><td>27</td><td class="muted">·</td></tr><tr><td>Links</td><td>0</td><td>172</td><td class="muted">·</td></tr><tr><td>Text length (เนื้อหาหลัก)</td><td>232</td><td>901</td><td class="muted">·</td></tr><tr><td>Images (เนื้อหาหลัก, รวม CSS background)</td><td>0</td><td>8</td><td class="muted">·</td></tr><tr><td>Accordions (เนื้อหาหลัก)</td><td>0</td><td>23</td><td class="muted">·</td></tr><tr><td>Empty accordions</td><td>0</td><td>8</td><td class="bad">✗</td></tr></tbody></table></section>
+<tbody><tr><td>Headings</td><td>37</td><td>27</td><td class="ok">✓</td></tr><tr><td>Links</td><td>198</td><td>179</td><td class="ok">✓</td></tr><tr><td>Text length (เนื้อหาหลัก)</td><td>895</td><td>901</td><td class="ok">✓</td></tr><tr><td>Images (เนื้อหาหลัก, รวม CSS background)</td><td>7</td><td>8</td><td class="ok">✓</td></tr><tr><td>Accordions (เนื้อหาหลัก)</td><td>2</td><td>23</td><td class="bad">✗</td></tr><tr><td>Empty accordions</td><td>3</td><td>8</td><td class="bad">✗</td></tr></tbody></table></section>
 
 
 <section class="panel"><h2>Parity Checks <span class="muted" style="font-weight:400;font-size:12px">— คลิกแต่ละแถวเพื่อดูสิ่งที่ขาดไป</span></h2>
 <div class="groups"><div class="group-block">
-        <div class="group-head other"><span>Other checks</span><span class="group-pct">0/1 passed</span></div>
+        <div class="group-head missing-content">
+          <span>Missing content</span>
+          <span class="group-pct">27/30 · 90%</span>
+        </div>
         <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Content length (±30%)</span>
+        <span class="check-detail">901/895 chars (101%) · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title">เทียบเนื้อหา (text sample · ratio 101%)</div>
+          <div class="outline-grid">
+            <div class="outline-col">
+              <div class="outline-head src">PRODUCTION (ต้นฉบับ)</div>
+              <div class="text-sample">Workshop &amp; Event เปิดมุมมองใหม่กับกิจกรรมสุดพิเศษ ที่ Work Café ร่วมเวิร์กชอปและอีเวนท์ เปิดมุมมองใหม่ที่ Work Café พบกับกิจกรรมสุดพิเศษในรูปแบบเวิร์กชอป (Workshop) และอีเวนท์ (Event) ใจกลางสีลม พื้นที่ในการพบปะและเรียนรู้เรื่องใหม่ มาอัปสกิล รีสกิล ทั้งด้านการเงินและการใช้ชีวิตได้ที่นี่ Asset Allocation 101 Workshop: จัดพอร์ตเป็นเห็นทางโต เปลี่ยนการลงทุนที่ดูซับซ้อน สู่การซ้อมสร้างพอร์ตจริงไปด้วยกัน วันที่: 11 สิงหาคม 2569 เวลา: 12.00 น. - 13.30 น. (ลงทะเบียน 11.30 น.) สถานที่: Work Café ธนาคารกรุงเทพ สาขา อาคารซิลลิค เฮ้าส์ ดูรายละเอียด วิธีสำรองที่นั่งเข้าร่วมเวิร์กชอป/อีเวนท์ ขยายทั้งหมด พ</div>
+            </div>
+            <div class="outline-col">
+              <div class="outline-head tgt">AEM (migrate)</div>
+              <div class="text-sample">Workshop &amp; Event เปิดมุมมองใหม่กับกิจกรรมสุดพิเศษ ที่ Work Café ร่วมเวิร์กชอปและอีเวนท์ เปิดมุมมองใหม่ที่ Work Café ‎ พบกับกิจกรรมสุดพิเศษในรูปแบบเวิร์กชอป (Workshop) และอีเวนท์ (Event) ใจกลางสีลม พื้นที่ในการพบปะและเรียนรู้เรื่องใหม่ มาอัปสกิล รีสกิล ทั้งด้านการเงินและการใช้ชีวิตได้ที่นี่ ‎ ‎ Asset Allocation 101 Workshop: จัดพอร์ตเป็นเห็นทางโต เปลี่ยนการลงทุนที่ดูซับซ้อน สู่การซ้อมสร้างพอร์ตจริงไปด้วยกัน วันที่: 11 สิงหาคม 2569 เวลา: 12.00 น. - 13.30 น. (ลงทะเบียน 11.30 น.) สถานที่: Work Café ธนาคารกรุงเทพ สาขา อาคารซิลลิค เฮ้าส์ ดูรายละเอียด วิธีสำรองที่นั่งเข้าร่วมเวิร์กชอป/อีเวนท์ ขยายทั้</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
     <details class="check-block failed">
       <summary class="check-row">
         <span class="check-status bad">✗</span>
-        <span class="check-label">Production page is BLOCKED (Access Denied / WAF)</span>
-        <span class="check-detail">Production was blocked by WAF — title: &quot;Access Denied&quot; ลอง re-run หรือเช็ค rate limit</span>
-        
+        <span class="check-label">Missing text (sentences)</span>
+        <span class="check-detail">2/11 prod sentence(s) missing · main content only</span>
+        <span class="expand-hint">▾</span>
       </summary>
-      
+      <div class="diff-body">
+        <div class="diff-section">
+          <div class="diff-title bad">Text blocks ที่ขาดใน AEM (2/11)</div>
+          <div class="chip-list"><span class="chip chip-missing">ร่วมเวิร์กชอปและอีเวนท์ เปิดมุมมองใหม่ที่ Work Café พบกับกิจกรรมสุดพิเศษในรูปแบบ</span><span class="chip chip-missing">มาอัปสกิล รีสกิล ทั้งด้านการเงินและการใช้ชีวิตได้ที่นี่ Asset</span></div>
+          
+        </div>
+      </div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head missing-assets">
+          <span>Missing assets</span>
+          <span class="group-pct">25/25 · 100%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Missing image (count ≥80%)</span>
+        <span class="check-detail">8/7 images · main content only (4 img + 3 css / 7 img + 1 css)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">AEM 8 / Production 7 รูป</div>
+        
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Broken image (fails to load on AEM)</span>
+        <span class="check-detail">0/3 AEM image(s) fail to load · main content only</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">รูปทั้งหมดโหลดได้ ✓ (3 รูป)</div></div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head alignment">
+          <span>Content alignment</span>
+          <span class="group-pct">20/20 · 100%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Content order (sequence)</span>
+        <span class="check-detail">106/110 shared block(s) in prod order (96%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">106/110 block ตามลำดับ prod</div>
+        <div class="diff-title bad">Block ที่ย้ายตำแหน่ง (4)</div>
+        <div class="chip-list"><span class="chip chip-missing">Work Café</span><span class="chip chip-missing">บริหารธุรกิจ</span><span class="chip chip-missing">ลูกค้าบุคคล</span><span class="chip chip-missing">ลูกค้าธุรกิจ</span></div>
+      </div></div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Visual layout (column profile)</span>
+        <span class="check-detail">profile match 97%</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">การกระจายเนื้อหาแนวนอน — ตรงกัน 97%</div>
+        <div class="outline-grid">
+          <div class="outline-col"><div class="outline-head src">PRODUCTION</div><svg width="280" height="44" viewBox="0 0 280 44" style="display:block"><polyline points="0.0,31.5 4.4,32.4 8.9,31.9 13.3,31.3 17.8,23.2 22.2,26.6 26.7,25.3 31.1,26.5 35.6,26.7 40.0,29.2 44.4,27.9 48.9,29.3 53.3,23.8 57.8,21.6 62.2,17.2 66.7,18.6 71.1,17.8 75.6,21.6 80.0,20.5 84.4,22.4 88.9,19.7 93.3,23.0 97.8,21.4 102.2,24.7 106.7,27.6 111.1,29.0 115.6,25.4 120.0,27.7 124.4,26.5 128.9,26.2 133.3,22.0 137.8,18.3 142.2,4.7 146.7,2.3 151.1,0.0 155.6,11.1 160.0,3.3 164.4,1.8 168.9,1.6 173.3,6.0 177.8,6.4 182.2,14.3 186.7,14.7 191.1,16.7 195.6,8.7 200.0,7.8 204.4,4.7 208.9,6.6 213.3,6.6 217.8,11.7 222.2,5.9 226.7,8.6 231.1,11.3 235.6,17.5 240.0,18.3 244.4,22.1 248.9,21.3 253.3,20.6 257.8,18.1 262.2,19.7 266.7,18.6 271.1,20.9 275.6,19.4 280.0,23.5" fill="none" stroke="#2563eb" stroke-width="1.5"/></svg></div>
+          <div class="outline-col"><div class="outline-head tgt">AEM</div><svg width="280" height="44" viewBox="0 0 280 44" style="display:block"><polyline points="0.0,31.8 4.4,32.7 8.9,32.2 13.3,31.6 17.8,24.5 22.2,27.0 26.7,25.3 31.1,27.4 35.6,26.7 40.0,27.9 44.4,27.6 48.9,29.7 53.3,26.7 57.8,25.3 62.2,21.0 66.7,21.5 71.1,20.7 75.6,24.2 80.0,23.3 84.4,25.3 88.9,23.7 93.3,26.3 97.8,24.6 102.2,27.5 106.7,30.6 111.1,32.6 115.6,30.6 120.0,29.7 124.4,28.6 128.9,27.7 133.3,25.0 137.8,20.0 142.2,5.5 146.7,3.7 151.1,0.0 155.6,11.1 160.0,2.5 164.4,1.0 168.9,0.2 173.3,4.0 177.8,6.5 182.2,13.8 186.7,14.9 191.1,17.5 195.6,8.5 200.0,7.7 204.4,3.4 208.9,6.6 213.3,6.0 217.8,11.3 222.2,3.4 226.7,5.2 231.1,10.1 235.6,16.9 240.0,16.9 244.4,21.6 248.9,21.1 253.3,20.4 257.8,16.9 262.2,17.8 266.7,16.9 271.1,19.4 275.6,17.7 280.0,22.1" fill="none" stroke="#d97706" stroke-width="1.5"/></svg></div>
+        </div>
+      </div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head downloads">
+          <span>Download links</span>
+          <span class="group-pct">0/0 · 0%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Download links present<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">prod has no download links</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">ไฟล์ดาวน์โหลดครบ ✓ (0 ไฟล์)</div></div></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status ins">–</span>
+        <span class="check-label">Download links alive<span class="ins-tag">insufficient</span></span>
+        <span class="check-detail">AEM has no download links</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title ok">ลิงก์ดาวน์โหลดทำงานทั้งหมด ✓ (0 ลิงก์)</div></div></div>
+    </details></div>
+      </div><div class="group-block">
+        <div class="group-head structure">
+          <span>Structure &amp; template</span>
+          <span class="group-pct">9/10 · 93%</span>
+        </div>
+        <div class="checks-list">
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Headings (Jaccard)</span>
+        <span class="check-detail">27/37 headings (Jaccard 69%)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body">
+      <div class="diff-section">
+        <div class="diff-title">เทียบ heading outline ทั้งสองฝั่ง — <b class="ok">27 ✓</b> / <b class="bad">10 ✗ ขาด</b> (จาก 37 ใน Production)</div>
+        <div class="outline-grid">
+          <div class="outline-col">
+            <div class="outline-head src">PRODUCTION (ต้นฉบับ) · 37 headings</div>
+            <div class="outline-body"><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หน้าแรกลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออมและการลงทุน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์บัตร</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์เพื่อครอบครัว</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บ้านและที่อยู่อาศัย</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการอื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หน้าแรกลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">บริหารธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การเงินเพื่อธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการการค้าระหว่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">คุ้มครองธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการด้านหลักทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วานิชธนกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">เปลี่ยนภาษา</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Online Banking</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Workshop &amp; Event</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Workshop &amp; Event</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ร่วมเวิร์กชอปและอีเวนท์ เปิดมุมมองใหม่ที่ Work Café</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Asset Allocation 101 Workshop: จัดพอร์ตเป็นเห็นทางโต</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วิธีสำรองที่นั่งเข้าร่วมเวิร์กชอป/อีเวนท์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณ ในทุกธุรกรรมทางการเงิน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">ธนาคารพร้อมให้คำปรึกษาและดูแลคุณ ในทุกธุรกรรมทางการเงิน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เกี่ยวกับธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กิจการธนาคารต่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุกกี้ประเภทการวิเคราะห์</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุกกี้ประเภทการโฆษณา</span>
+        </div><div class="hrow hrow-missing" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✗</span>
+          <span class="htext">คุณกำลังจะออกจากเว็บไซต์ธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">หนังสือแจ้งการคุ้มครองข้อมูลส่วนบุคคล (Privacy Notice) สำหรับบุคลากรของธนาคารกรุงเทพ จำกัด (มหาชน)</span>
+        </div></div>
+          </div>
+          <div class="outline-col">
+            <div class="outline-head tgt">AEM (migrate) · 27 headings</div>
+            <div class="outline-body"><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การออมและการลงทุน</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์บัตร</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ผลิตภัณฑ์เพื่อครอบครัว</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บ้านและที่อยู่อาศัย</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการอื่นๆ</span>
+        </div><div class="hrow hrow-missing" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✗</span>
+          <span class="htext">Manage Myบริหารธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">การเงินเพื่อธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการการค้าระหว่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">คุ้มครองธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">บริการด้านหลักทรัพย์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วานิชธนกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ดิจิทัลแบงก์กิ้ง</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Online Banking</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:40px">
+          <span class="htag htag-H3">H3</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Workshop &amp; Event</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ร่วมเวิร์กชอปและอีเวนท์ เปิดมุมมองใหม่ที่ Work Café</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">Asset Allocation 101 Workshop: จัดพอร์ตเป็นเห็นทางโต</span>
+        </div><div class="hrow hrow-matched" style="margin-left:20px">
+          <span class="htag htag-H2">H2</span>
+          <span class="hicon">✓</span>
+          <span class="htext">วิธีสำรองที่นั่งเข้าร่วมเวิร์กชอป/อีเวนท์</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เครื่องมือช่วยเหลือ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าบุคคล</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">ลูกค้าธุรกิจ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">เกี่ยวกับธนาคารกรุงเทพ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">กิจการธนาคารต่างประเทศ</span>
+        </div><div class="hrow hrow-matched" style="margin-left:60px">
+          <span class="htag htag-H4">H4</span>
+          <span class="hicon">✓</span>
+          <span class="htext">อื่นๆ</span>
+        </div></div>
+          </div>
+        </div>
+        <div class="outline-legend">
+          <span class="hrow hrow-matched" style="display:inline-flex;margin-right:12px"><span class="hicon">✓</span> มีในทั้งคู่</span>
+          <span class="hrow hrow-missing" style="display:inline-flex"><span class="hicon">✗</span> มีฝั่งเดียว (อีกฝั่งขาด)</span>
+        </div>
+      </div>
+    </div>
+    </details>
+    <details class="check-block passed">
+      <summary class="check-row">
+        <span class="check-status ok">✓</span>
+        <span class="check-label">Links match</span>
+        <span class="check-detail">179/198 links (90% of prod link-texts found)</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section">
+        <div class="diff-title">116 prod link-text <b class="ok">✓ พบใน AEM</b></div>
+      </div></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Meta tags</span>
+        <span class="check-detail">3/4 matched — missing: ogTitle · (not scored) keywords: prod ✓ / AEM ✓</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><table class="meta-diff"><thead><tr><th>Meta</th><th>Production</th><th>AEM</th><th>Status</th></tr></thead><tbody>
+      <tr>
+        <td><code>title</code></td>
+        <td class="ok">อีเวนท์และเวิร์กชอป ที่ Work Café</td>
+        <td class="ok">อีเวนท์และเวิร์กชอป ที่ Work Café</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>description</code></td>
+        <td class="ok">พบกับกิจกรรมสุดพิเศษในรูปแบบเวิร์กชอป (Workshop) และอีเวนท์ (Event) ใจกลางสีลม พื้นที่ในการพบปะและเรียนรู้เรื่องใหม่ มาอัปสกิล รีสกิล ทั้งด้านการเงินและการใช้ชีวิตได้ที่นี่</td>
+        <td class="ok">พบกับกิจกรรมสุดพิเศษในรูปแบบเวิร์กชอป (Workshop) และอีเวนท์ (Event) ใจกลางสีลม พื้นที่ในการพบปะและเรียนรู้เรื่องใหม่ มาอัปสกิล รีสกิล ทั้งด้านการเงินและการใช้ชีวิตได้ที่นี่</td>
+        <td class="ok">✓</td>
+      </tr>
+      <tr>
+        <td><code>ogTitle</code></td>
+        <td class="bad">อีเวนท์และเวิร์กชอป ที่ Work Café</td>
+        <td class="bad">อีเวนท์และเวิร์กช็อป</td>
+        <td class="bad">✗ ต่างกัน</td>
+      </tr>
+      <tr>
+        <td><code>ogImage</code></td>
+        <td class="ok">https://www.bangkokbank.com/-/media/feature/page-content/bbl-corporate/work-cafe/activities/workcafworkshop_1200x630.jpg</td>
+        <td class="ok">https://main--site-prod--bangkok-bank.aem.live/content/dam/feature/page-content/bbl-corporate/wealth-and-privatebank/wealth/work-cafe/activities/workcafworkshop-1200x630.jpg</td>
+        <td class="ok">✓</td>
+      </tr></tbody></table></div>
+    </details>
+    <details class="check-block failed">
+      <summary class="check-row">
+        <span class="check-status bad">✗</span>
+        <span class="check-label">Template (page components)</span>
+        <span class="check-detail">accordion 23/2 (8 empty)✗ · table 0/0 · form 0/0 · video 0/0</span>
+        <span class="expand-hint">▾</span>
+      </summary>
+      <div class="diff-body"><div class="diff-section"><div class="diff-title">Components</div>
+           <table class="mini"><tr><td>accordion</td><td>23/2</td><td class="bad">✗</td></tr><tr><td>table</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>form</td><td>0/0</td><td class="ok">✓</td></tr><tr><td>video</td><td>0/0</td><td class="ok">✓</td></tr></table></div><div class="diff-section"><div class="diff-title muted">header/footer เทียบระดับเว็บ — ดูที่ Site chrome บนหน้า dashboard</div></div></div>
     </details></div>
       </div></div></section>
 
 
+<section class="panel"><h2>Broken Links on AEM (2)</h2>
+<table class="links-table"><thead><tr><th>Status</th><th>URL</th></tr></thead><tbody><tr><td class="bad">404</td><td class="lhref-cell">https://main--site-prod--bangkok-bank.aem.live/en/mutual-fund</td></tr><tr><td class="bad">404</td><td class="lhref-cell">https://main--site-prod--bangkok-bank.aem.live/en/personal/work-cafe/activities</td></tr></tbody></table></section>
 
 <footer class="foot"><a href="../priority-dashboard.html">← Back to dashboard</a></footer>
 </div>
